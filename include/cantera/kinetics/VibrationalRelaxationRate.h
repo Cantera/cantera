@@ -59,7 +59,7 @@ struct DetailedVibData : public ReactionData
  *
  * The `multi-state-resolved` model fully resolves vibrational relaxation by
  * taking into account all vibrational species in the phase, for example
- * `N2(v=1-8)`, and solves for their vibrational-translational (V-T) and 
+ * `N₂(v=1-8)`, and solves for their vibrational-translational (V-T) and 
  * vibrational-vibrational (V-V) relaxation. The scaling of the
  * rates is based on the Schwartz–Slawsky–Herzfeld (SSH) theory detailed 
  * in Chapter 7 of Capitelli et al. @cite capitelli2000. The simplified SSH 
@@ -69,18 +69,18 @@ struct DetailedVibData : public ReactionData
  * Capitelli et al. @cite capitelli2000, and Starikovskiy and 
  * Aleksandrov @cite starikovskiy2013.
  *
- * The `Castela` model is meant to be used only for N2 vibrational relaxation,
- * by collisions with N2, O2, and O exclusively. It implements the mean
+ * The `Castela` model is meant to be used only for N₂ vibrational relaxation,
+ * by collisions with N₂, O₂, and O exclusively. It implements the mean
  * vibrational energy relaxation model using a fictitious Cantera species and
  * is based on Castela et al. @cite castela2016.
  *
  * The `Starikovskiy` model is an extension of the Castela model to several
  * vibrational species and additional colliders. Many vibrational relaxation
  * rates can be found in Table 1 of Starikovskiy and Aleksandrov @cite starikovskiy2013, 
- * hence the model's name. The rates for the vibrational relaxation of NH3 can be 
+ * hence the model's name. The rates for the vibrational relaxation of NH₃ can be 
  * found in the reaction mechanism provided in the supplementary material of
  * Zhong et al. @cite zhong2023. More rates for the vibrational relaxation of
- * @f$ \mathrm{CH_4} @f$ can be found in Popov @cite popov2016.
+ * CH₄ @f$ can be found in Popov @cite popov2016.
  *
  * Unit conventions:
  *
