@@ -9,6 +9,12 @@
 #define CT_VIBRATIONALRELAXATIONRATE_H
 
 #include "Arrhenius.h"
+#include "cantera/kinetics/Reaction.h"
+#include "cantera/thermo/ThermoPhase.h"
+#include "cantera/base/global.h"
+
+#include <sstream>
+#include <utility>
 
 namespace Cantera
 {

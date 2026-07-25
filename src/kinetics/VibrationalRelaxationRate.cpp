@@ -5,12 +5,6 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/kinetics/VibrationalRelaxationRate.h"
-#include "cantera/kinetics/Reaction.h"
-#include "cantera/thermo/ThermoPhase.h"
-#include "cantera/base/global.h"
-
-#include <sstream>
-#include <utility>
 
 namespace Cantera
 {
