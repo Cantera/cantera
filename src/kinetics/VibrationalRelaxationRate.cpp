@@ -18,31 +18,6 @@ const string WhereSetParameters = "VibrationalRelaxationRate::setParameters";
 const string WhereGetParameters = "VibrationalRelaxationRate::getParameters";
 const string WhereSetContext = "VibrationalRelaxationRate::setContext";
 
-enum class VibModel {
-    Constant,
-    MultiStateResolved,
-    Starikovskiy,
-    Castela
-};
-
-VibModel parseVibrationModel(const string& model, const AnyMap& input,
-                             const string& where)
-{
-    if (model == "constant") {
-        return VibModel::Constant;
-    } else if (model == "multi-state-resolved") {
-        return VibModel::MultiStateResolved;
-    } else if (model == "Starikovskiy") {
-        return VibModel::Starikovskiy;
-    } else if (model == "Castela") {
-        return VibModel::Castela;
-    }
-
-    throw InputFileError(where, input,
-        "Unrecognized vibration-model '{}'. Expected 'multi-state-resolved', "
-        "'Starikovskiy', 'Castela', or 'constant'.", model);
-}
-
 const AnyMap& getRateConstantMap(const AnyMap& node)
 {
     if (!node.hasKey("rate-constant")) {
@@ -499,19 +474,20 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
     m_vibration_model = node.getString("vibration-model", "multi-state-resolved");
     const auto& rateMap = getRateConstantMap(node);
 
-    switch (parseVibrationModel(m_vibration_model, node, WhereSetParameters)) {
-    case VibModel::Constant:
+    if (m_vibration_model == "constant") {
         setConstantParameters(node, rateMap, rate_units);
-        break;
-    case VibModel::MultiStateResolved:
+    } else if (m_vibration_model == "multi-state-resolved") {
         setMultiStateParameters(node, rateMap, rate_units);
-        break;
-    case VibModel::Starikovskiy:
+    } else if (m_vibration_model == "Starikovskiy") {
         setStarikovskiyParameters(node, rateMap, rate_units);
-        break;
-    case VibModel::Castela:
+    } else if (m_vibration_model == "Castela") {
         setCastelaParameters(node, rateMap, rate_units);
-        break;
+    } else {
+        throw InputFileError(WhereSetParameters, node,
+            "Unrecognized vibration-model '{}'. Expected "
+            "'multi-state-resolved', 'Starikovskiy', 'Castela', "
+            "or 'constant'.",
+            m_vibration_model);
     }
 }
 
@@ -667,19 +643,14 @@ void VibrationalRelaxationRate::getParameters(AnyMap& node) const
 
     AnyMap rateNode;
 
-    switch (parseVibrationModel(m_vibration_model, node, WhereGetParameters)) {
-    case VibModel::Constant:
+    if (m_vibration_model == "constant") {
         getConstantParameters(node, rateNode);
-        break;
-    case VibModel::MultiStateResolved:
+    } else if (m_vibration_model == "multi-state-resolved") {
         getMultiStateParameters(rateNode);
-        break;
-    case VibModel::Starikovskiy:
+    } else if (m_vibration_model == "Starikovskiy") {
         getStarikovskiyParameters(rateNode);
-        break;
-    case VibModel::Castela:
+    } else if (m_vibration_model == "Castela") {
         getCastelaParameters(node, rateNode);
-        break;
     }
 
     rateNode.setFlowStyle();
@@ -783,19 +754,14 @@ void VibrationalRelaxationRate::setContext(const Reaction& rxn, const Kinetics& 
 
     const string family = inferRelaxingFamily(rxn);
 
-    switch (parseVibrationModel(m_vibration_model, rxn.input, WhereSetContext)) {
-    case VibModel::Constant:
+    if (m_vibration_model == "constant") {
         validateSimpleRelaxationToGroundState(rxn, "constant");
-        break;
-    case VibModel::Castela:
-        validateCastelaReaction(rxn);
-        break;
-    case VibModel::Starikovskiy:
-        validateSimpleRelaxationToGroundState(rxn, "Starikovskiy");
-        break;
-    case VibModel::MultiStateResolved:
+    } else if (m_vibration_model == "multi-state-resolved") {
         validateDetailedRelaxationReaction(rxn);
-        break;
+    } else if (m_vibration_model == "Starikovskiy") {
+        validateSimpleRelaxationToGroundState(rxn, "Starikovskiy");
+    } else if (m_vibration_model == "Castela") {
+        validateCastelaReaction(rxn);
     }
 
     registerVibrationalModelConsistency(
