@@ -72,30 +72,14 @@ const AnyMap& getRateConstantMap(const AnyMap& node)
     return rate.as<AnyMap>();
 }
 
-// helpers to check the correctness of a chosen vibrational model input data.
-void requireNoKey(const AnyMap& node, const string& key,
-                  const string& model, const string& where)
-{
-    if (node.hasKey(key)) {
-        throw InputFileError(where, node,
-            "Key '{}' is not allowed for vibration-model '{}'.", key, model);
-    }
-}
-
-void requireKey(const AnyMap& node, const string& key,
-                const string& model, const string& where)
-{
-    if (!node.hasKey(key)) {
-        throw InputFileError(where, node,
-            "Missing required key '{}' for vibration-model '{}'.", key, model);
-    }
-}
-
 void requireKeys(const AnyMap& node, const string& model,
                  const string& where, std::initializer_list<string> keys)
 {
     for (const auto& key : keys) {
-        requireKey(node, key, model, where);
+        if (!node.hasKey(key)) {
+            throw InputFileError(where, node,
+                "Missing required key '{}' for vibration-model '{}'.", key, model);
+        }
     }
 }
 
@@ -103,7 +87,10 @@ void forbidKeys(const AnyMap& node, const string& model,
                 const string& where, std::initializer_list<string> keys)
 {
     for (const auto& key : keys) {
-        requireNoKey(node, key, model, where);
+        if (node.hasKey(key)) {
+            throw InputFileError(where, node,
+                "Key '{}' is not allowed for vibration-model '{}'.", key, model);
+        }
     }
 }
 
