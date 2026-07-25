@@ -552,7 +552,12 @@ void VibrationalRelaxationRate::setConstantParameters(
          "E", "z"});
 
     configureBaseFromYamlA(node, rate_units, rateMap[m_A_str], 0.0);
-    setGenericParameters(0.0, 0.0, 0.0, 2.0 / 3.0, 0.0, 1.0);
+    m_B = 0.0;
+    m_C = 0.0;
+    m_D = 0.0;
+    m_m = 2.0 / 3.0;
+    m_E = 0.0;
+    m_z = 1.0;
 }
 
 void VibrationalRelaxationRate::setMultiStateParameters(
@@ -573,13 +578,12 @@ void VibrationalRelaxationRate::setMultiStateParameters(
 
     ArrheniusBase::setParameters(node, rate_units);
 
-    setGenericParameters(
-        rateMap.getDouble("B", 0.0),
-        rateMap.getDouble("C", 0.0),
-        rateMap.getDouble("D", 0.0),
-        2.0 / 3.0,
-        0.0,
-        1.0);
+    m_B = rateMap.getDouble("B", 0.0);
+    m_C = rateMap.getDouble("C", 0.0);
+    m_D = rateMap.getDouble("D", 0.0);
+    m_m = 2.0 / 3.0;
+    m_E = 0.0;
+    m_z = 1.0;
 }
 
 void VibrationalRelaxationRate::setStarikovskiyParameters(
@@ -611,13 +615,12 @@ void VibrationalRelaxationRate::setStarikovskiyParameters(
     configureBaseFromYamlA(
         node, rate_units, rateMap[m_A_str], rateMap.getDouble("n", 0.0));
 
-    setGenericParameters(
-        rateMap.getDouble("K", 0.0),
-        rateMap.getDouble("B", 0.0),
-        rateMap.getDouble("C", 0.0),
-        m,
-        rateMap.getDouble("D", 0.0),
-        z);
+    m_B = rateMap.getDouble("K", 0.0);
+    m_C = rateMap.getDouble("B", 0.0);
+    m_D = rateMap.getDouble("C", 0.0);
+    m_m = m;
+    m_E = rateMap.getDouble("D", 0.0);
+    m_z = z;
 }
 
 void VibrationalRelaxationRate::setCastelaParameters(
@@ -666,13 +669,12 @@ void VibrationalRelaxationRate::setCastelaParameters(
     configureBaseFromInternalA(
         node, rate_units, GasConstant / m_referencePressure, 1.0);
 
-    setGenericParameters(
-        18.42 + m_castela_a * m_castela_b,
-        -m_castela_a,
-        0.0,
-        2.0 / 3.0,
-        0.0,
-        1.0);
+    m_B = 18.42 + m_castela_a * m_castela_b;
+    m_C = -m_castela_a;
+    m_D = 0.0;
+    m_m = 2.0 / 3.0;
+    m_E = 0.0;
+    m_z = 1.0;
 }
 
 void VibrationalRelaxationRate::getParameters(AnyMap& node) const
@@ -822,17 +824,6 @@ void VibrationalRelaxationRate::setContext(const Reaction& rxn, const Kinetics& 
 
     registerVibrationalModelConsistency(
         kin, family, m_vibration_model, rxn.input);
-}
 
-void VibrationalRelaxationRate::setGenericParameters(
-    double B, double C, double D, double m, double E, double z)
-{
-    m_B = B;
-    m_C = C;
-    m_D = D;
-    m_m = m;
-    m_E = E;
-    m_z = z;
-}
-
+    }
 } // namespace Cantera

@@ -238,10 +238,6 @@ private:
      */
     void configureBaseFromYamlA(const AnyMap& node, const UnitStack& rate_units,
                                 const AnyValue& A, double b);
-
-    //! Sets parameters
-    void setGenericParameters(double B, double C, double D, double m,
-                          double E, double z);
     
     //! Sub-function of setParameters relative to the 'constant' model
     void setConstantParameters(const AnyMap& node, const AnyMap& rateMap,
