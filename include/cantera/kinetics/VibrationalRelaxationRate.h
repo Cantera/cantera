@@ -261,8 +261,6 @@ private:
     void setCastelaParameters(const AnyMap& node, const AnyMap& rateMap,
                             const UnitStack& rate_units);
 
-    void storePreExponentialFactor(AnyMap& target, double A) const;
-
     //! Sub-function of getParameters relative to the 'constant' model
     void getConstantParameters(AnyMap& rateNode) const;
 

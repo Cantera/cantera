@@ -638,26 +638,25 @@ void VibrationalRelaxationRate::getParameters(AnyMap& node) const
     node["rate-constant"] = std::move(rateNode);
 }
 
-void VibrationalRelaxationRate::storePreExponentialFactor(
-    AnyMap& target, double A) const
-{
-    if (conversionUnits().factor() != 0.0) {
-        target[m_A_str].setQuantity(A, conversionUnits());
-    } else {
-        target[m_A_str] = A;
-        target["__unconvertible__"] = true;
-    }
-}
-
 void VibrationalRelaxationRate::getConstantParameters(AnyMap& rateNode) const
 {
-    storePreExponentialFactor(rateNode, m_A);
+    if (conversionUnits().factor() != 0.0) {
+        rateNode[m_A_str].setQuantity(m_A, conversionUnits());
+    } else {
+        rateNode[m_A_str] = m_A;
+        rateNode["__unconvertible__"] = true;
+    }
 }
 
 void VibrationalRelaxationRate::getMultiStateParameters(
     AnyMap& rateNode) const
 {
-    storePreExponentialFactor(rateNode, m_A);
+    if (conversionUnits().factor() != 0.0) {
+        rateNode[m_A_str].setQuantity(m_A, conversionUnits());
+    } else {
+        rateNode[m_A_str] = m_A;
+        rateNode["__unconvertible__"] = true;
+    }
 
     rateNode[m_b_str] = m_b;
     rateNode["B"] = m_B;
@@ -668,7 +667,12 @@ void VibrationalRelaxationRate::getMultiStateParameters(
 void VibrationalRelaxationRate::getStarikovskiyParameters(
     AnyMap& rateNode) const
 {
-    storePreExponentialFactor(rateNode, m_A);
+    if (conversionUnits().factor() != 0.0) {
+        rateNode[m_A_str].setQuantity(m_A, conversionUnits());
+    } else {
+        rateNode[m_A_str] = m_A;
+        rateNode["__unconvertible__"] = true;
+    }
 
     rateNode["n"] = m_b;
     rateNode["K"] = m_B;
