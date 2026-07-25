@@ -24,11 +24,6 @@ const string WhereSetParameters = "VibrationalRelaxationRate::setParameters";
 const string WhereGetParameters = "VibrationalRelaxationRate::getParameters";
 const string WhereSetContext = "VibrationalRelaxationRate::setContext";
 
-const string ModelConstant = "constant";
-const string ModelMultiState = "multi-state-resolved";
-const string ModelStarikovskiy = "Starikovskiy";
-const string ModelCastela = "Castela";
-
 enum class VibModel {
     Constant,
     MultiStateResolved,
@@ -39,13 +34,13 @@ enum class VibModel {
 VibModel parseVibrationModel(const string& model, const AnyMap& input,
                              const string& where)
 {
-    if (model == ModelConstant) {
+    if (model == "constant") {
         return VibModel::Constant;
-    } else if (model == ModelMultiState) {
+    } else if (model == "multi-state-resolved") {
         return VibModel::MultiStateResolved;
-    } else if (model == ModelStarikovskiy) {
+    } else if (model == "Starikovskiy") {
         return VibModel::Starikovskiy;
-    } else if (model == ModelCastela) {
+    } else if (model == "Castela") {
         return VibModel::Castela;
     }
 
@@ -294,7 +289,7 @@ void validateSimpleRelaxationToGroundState(const Reaction& rxn,
 
 void validateCastelaReaction(const Reaction& rxn)
 {
-    validateSimpleRelaxationToGroundState(rxn, ModelCastela);
+    validateSimpleRelaxationToGroundState(rxn, "Castela");
 
     const auto vibReactants = vibrationalSpeciesInComposition(rxn.reactants);
     const string family = vibrationalFamilyName(vibReactants.front());
@@ -507,7 +502,7 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
     //
     // The default model is multi-state-resolved.
 
-    m_vibration_model = node.getString("vibration-model", ModelMultiState);
+    m_vibration_model = node.getString("vibration-model", "multi-state-resolved");
     const auto& rateMap = getRateConstantMap(node);
 
     switch (parseVibrationModel(m_vibration_model, node, WhereSetParameters)) {
@@ -796,13 +791,13 @@ void VibrationalRelaxationRate::setContext(const Reaction& rxn, const Kinetics& 
 
     switch (parseVibrationModel(m_vibration_model, rxn.input, WhereSetContext)) {
     case VibModel::Constant:
-        validateSimpleRelaxationToGroundState(rxn, ModelConstant);
+        validateSimpleRelaxationToGroundState(rxn, "constant");
         break;
     case VibModel::Castela:
         validateCastelaReaction(rxn);
         break;
     case VibModel::Starikovskiy:
-        validateSimpleRelaxationToGroundState(rxn, ModelStarikovskiy);
+        validateSimpleRelaxationToGroundState(rxn, "Starikovskiy");
         break;
     case VibModel::MultiStateResolved:
         validateDetailedRelaxationReaction(rxn);
