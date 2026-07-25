@@ -264,7 +264,7 @@ private:
     void storePreExponentialFactor(AnyMap& target, double A) const;
 
     //! Sub-function of getParameters relative to the 'constant' model
-    void getConstantParameters(AnyMap& node, AnyMap& rateNode) const;
+    void getConstantParameters(AnyMap& rateNode) const;
 
     //! Sub-function of getParameters relative to the 'multi-state-resolved' model
     void getMultiStateParameters(AnyMap& rateNode) const;
@@ -273,7 +273,7 @@ private:
     void getStarikovskiyParameters(AnyMap& rateNode) const;
 
     //! Sub-function of getParameters relative to the 'Castela' model
-    void getCastelaParameters(AnyMap& node, AnyMap& rateNode) const;
+    void getCastelaParameters(AnyMap& rateNode) const;
 };
 
 }

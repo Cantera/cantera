@@ -15,7 +15,6 @@ namespace
 constexpr double VibTolerance = 1e-12;
 
 const string WhereSetParameters = "VibrationalRelaxationRate::setParameters";
-const string WhereGetParameters = "VibrationalRelaxationRate::getParameters";
 const string WhereSetContext = "VibrationalRelaxationRate::setContext";
 
 void requireKeys(const AnyMap& node, const string& model,
@@ -626,13 +625,13 @@ void VibrationalRelaxationRate::getParameters(AnyMap& node) const
     AnyMap rateNode;
 
     if (m_vibration_model == "constant") {
-        getConstantParameters(node, rateNode);
+        getConstantParameters(rateNode);
     } else if (m_vibration_model == "multi-state-resolved") {
         getMultiStateParameters(rateNode);
     } else if (m_vibration_model == "Starikovskiy") {
         getStarikovskiyParameters(rateNode);
     } else if (m_vibration_model == "Castela") {
-        getCastelaParameters(node, rateNode);
+        getCastelaParameters(rateNode);
     }
 
     rateNode.setFlowStyle();
@@ -650,20 +649,8 @@ void VibrationalRelaxationRate::storePreExponentialFactor(
     }
 }
 
-void VibrationalRelaxationRate::getConstantParameters(
-    AnyMap& node, AnyMap& rateNode) const
+void VibrationalRelaxationRate::getConstantParameters(AnyMap& rateNode) const
 {
-    if (std::abs(m_b) > VibTolerance
-        || std::abs(m_B) > VibTolerance
-        || std::abs(m_C) > VibTolerance
-        || std::abs(m_D) > VibTolerance
-        || std::abs(m_E) > VibTolerance)
-    {
-        throw InputFileError(WhereGetParameters, node,
-            "Cannot serialize this rate as 'constant': the internal "
-            "parameters contain temperature-dependent terms.");
-    }
-
     storePreExponentialFactor(rateNode, m_A);
 }
 
@@ -692,25 +679,8 @@ void VibrationalRelaxationRate::getStarikovskiyParameters(
     rateNode["z"] = m_z;
 }
 
-void VibrationalRelaxationRate::getCastelaParameters(
-    AnyMap& node, AnyMap& rateNode) const
+void VibrationalRelaxationRate::getCastelaParameters(AnyMap& rateNode) const
 {
-    if (std::abs(m_b - 1.0) > VibTolerance
-        || std::abs(m_D) > VibTolerance
-        || std::abs(m_E) > VibTolerance)
-    {
-        throw InputFileError(WhereGetParameters, node,
-            "Cannot serialize this rate as 'Castela': the internal "
-            "parameters are not consistent with the Castela form. "
-            "Expected b = 1, D = 0, E = 0.");
-    }
-
-    if (m_referencePressure <= 0.0) {
-        throw InputFileError(WhereGetParameters, node,
-            "Cannot serialize this rate as 'Castela': "
-            "reference-pressure must be positive.");
-    }
-
     rateNode["a"] = m_castela_a;
     rateNode["b"] = m_castela_b;
     rateNode["reference-pressure"].setQuantity(m_referencePressure, "Pa");
