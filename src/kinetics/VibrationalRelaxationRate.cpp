@@ -18,24 +18,6 @@ const string WhereSetParameters = "VibrationalRelaxationRate::setParameters";
 const string WhereGetParameters = "VibrationalRelaxationRate::getParameters";
 const string WhereSetContext = "VibrationalRelaxationRate::setContext";
 
-const AnyMap& getRateConstantMap(const AnyMap& node)
-{
-    if (!node.hasKey("rate-constant")) {
-        throw InputFileError(WhereSetParameters, node,
-            "A vibrational-relaxation reaction requires a 'rate-constant' "
-            "mapping.");
-    }
-
-    const auto& rate = node["rate-constant"];
-
-    if (!rate.is<AnyMap>()) {
-        throw InputFileError(WhereSetParameters, node,
-            "The 'rate-constant' field must be a mapping.");
-    }
-
-    return rate.as<AnyMap>();
-}
-
 void requireKeys(const AnyMap& node, const string& model,
                  const string& where, std::initializer_list<string> keys)
 {
@@ -472,7 +454,7 @@ void VibrationalRelaxationRate::setParameters(const AnyMap& node,
     // The default model is multi-state-resolved.
 
     m_vibration_model = node.getString("vibration-model", "multi-state-resolved");
-    const auto& rateMap = getRateConstantMap(node);
+    const auto& rateMap = node["rate-constant"].as<AnyMap>();
 
     if (m_vibration_model == "constant") {
         setConstantParameters(node, rateMap, rate_units);
