@@ -8,10 +8,13 @@
 #ifndef CT_VIBRATIONALRELAXATIONRATE_H
 #define CT_VIBRATIONALRELAXATIONRATE_H
 
-#include "Arrhenius.h"
 #include "cantera/kinetics/Reaction.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/base/global.h"
+#include "cantera/kinetics/ReactionRate.h"
+#include "cantera/kinetics/ReactionData.h"
+#include "cantera/kinetics/MultiRate.h"
+#include "cantera/base/Units.h"
 
 #include <sstream>
 #include <utility>
@@ -95,7 +98,8 @@ struct VibrationalRelaxationData : public ReactionData
  * Unit conventions:
  *
  * - `A` uses standard Cantera rate coefficient units. Its units depend on the
- *   reaction order and are converted by `ArrheniusBase`.
+ *   reaction order and are converted using the rate-coefficient units
+ *   configured by `ReactionRate`.
  * - `b`, `B`, `m`, `z` are dimensionless.
  * - `C` is interpreted as @f$ K^{1/3} @f$, assuming `T` is in K.
  * - `D` is interpreted as @f$ K^{m} @f$, assuming `T` is in K.
@@ -108,29 +112,24 @@ struct VibrationalRelaxationData : public ReactionData
  * refer to [the corresponding YAML documentation section]
  * (../YAML/reactions.html#sec-yaml-vibrational-relaxation).
  *
- * @ingroup arrheniusGroup
+ * @ingroup otherRateGroup
  */
-class VibrationalRelaxationRate : public ArrheniusBase
+class VibrationalRelaxationRate : public ReactionRate
 {
 public:
     //! Default constructor.
     VibrationalRelaxationRate();
 
-    //! Constructor using the internal generic representation.
+    //! Constructor using the internal representation for the default 
+    //! model multi-state-resolved.
     /**
      * @param A       Pre-exponential factor.
      * @param B       Dimensionless constant in the exponential.
      * @param C       Coefficient multiplying @f$ T^{-1/3} @f$.
      * @param D       Coefficient multiplying @f$ T^{-m} @f$.
      * @param b       Dimensionless temperature exponent.
-     * @param m       Temperature exponent used by the D term.
-     * @param E       Coefficient multiplying @f$ T^{-z} @f$.
-     * @param z       Temperature exponent used by the E term.
      */
-    VibrationalRelaxationRate(double A, double B, double C, double D,
-                              double b,
-                              double m = 2.0 / 3.0,
-                              double E = 0.0, double z = 1.0);
+    VibrationalRelaxationRate(double A, double B, double C, double D, double b);
 
     //! Constructor based on AnyMap content.
     explicit VibrationalRelaxationRate(const AnyMap& node,
@@ -191,7 +190,22 @@ public:
     // @f]
     double ddTScaledFromStruct(const VibrationalRelaxationData& shared_data) const;
 
+    void check(const string& equation) override;
+
+    void validate(
+        const string& equation, const Kinetics& kin) override;
+
 private:
+
+    //! Pre-exponential constant for the reaction rate
+    double m_A = NAN;
+
+    //! Temperature exponent for the reaction rate.
+    double m_b = NAN;
+
+    //! Whether a negative leading coefficient is explicitly allowed.
+    bool m_negativeA_ok = false;
+
     //! Dimensionless constant in the exponential.
     double m_B = 0.0;
 
@@ -228,38 +242,18 @@ private:
      * - `Castela`
      */
     string m_vibration_model = "multi-state-resolved";
-
-    //! Configure the ArrheniusBase part from an already-converted internal A value.
-    /**
-     * This is needed for models such as Castela, where the user-facing YAML does
-     * not contain a standard Arrhenius A coefficient.
-     */
-    void configureBaseFromInternalA(const AnyMap& node, const UnitStack& rate_units,
-                                    double A, double b);
-
-    //! Configure the ArrheniusBase part from a YAML A value and an explicit b.
-    /**
-     * This is needed for models such as `constant` and `Starikovskiy`,
-     * where the YAML does not contain the standard Arrhenius pair A / b.
-     */
-    void configureBaseFromYamlA(const AnyMap& node, const UnitStack& rate_units,
-                                const AnyValue& A, double b);
     
     //! Sub-function of setParameters relative to the 'constant' model
-    void setConstantParameters(const AnyMap& node, const AnyMap& rateMap,
-                           const UnitStack& rate_units);
+    void setConstantParameters(const AnyMap& node, const AnyMap& rateMap);
 
     //! Sub-function of setParameters relative to the 'multi-state-resolved' model
-    void setMultiStateParameters(const AnyMap& node, const AnyMap& rateMap,
-                                const UnitStack& rate_units);
+    void setMultiStateParameters(const AnyMap& node, const AnyMap& rateMap);
 
     //! Sub-function of setParameters relative to the 'Starikovskiy' model
-    void setStarikovskiyParameters(const AnyMap& node, const AnyMap& rateMap,
-                                const UnitStack& rate_units);
+    void setStarikovskiyParameters(const AnyMap& node, const AnyMap& rateMap);
 
     //! Sub-function of setParameters relative to the 'Castela' model
-    void setCastelaParameters(const AnyMap& node, const AnyMap& rateMap,
-                            const UnitStack& rate_units);
+    void setCastelaParameters(const AnyMap& node, const AnyMap& rateMap);
 
     //! Sub-function of getParameters relative to the 'constant' model
     void getConstantParameters(AnyMap& rateNode) const;
