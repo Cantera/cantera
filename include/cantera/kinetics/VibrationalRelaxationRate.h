@@ -16,9 +16,6 @@
 #include "cantera/kinetics/MultiRate.h"
 #include "cantera/base/Units.h"
 
-#include <sstream>
-#include <utility>
-
 namespace Cantera
 {
 //! Shared temperature data for vibrational relaxation rates.
@@ -107,6 +104,27 @@ struct VibrationalRelaxationData : public ReactionData
  *
  * The coefficients `B`, `C`, `D`, `E`, `m`, `z` are read as
  * raw floating-point values. They are not converted by Cantera's unit system.
+ * 
+ * IMPORTANT: No internal checks are conducted to verify the physical compatibility of
+ * the modelling of vibrational relaxation rates chosen by the user.
+ * The `Castela` model should be used alone, exception being made for the `constant`
+ * model for other vibrational species than N₂ provided that they are relaxed fast
+ * enough to be considered as fast gas heating.
+ * Generally, it should be avoided to mix different models together for a same ground 
+ * species, except in the case of conventional reactions producing vibration, for example:
+ * 
+ * ```yaml
+ * - equation: O(1D) + O2 => O + 0.0098321587 O2(v) + 0.9901678413 O2(a1)
+ *   rate-constant: {A: 6.022e11, b: 0.0, Ea: 0.0}
+ * ```
+ * in which case it is impossible to know which vibrational state is generated, thus
+ * requiring a description with either one of `constant`, `Castela` or `Starikovskiy`
+ * for O₂(v). It is in this case possible to combine for example this mean vibrational
+ * energy equation treatment for O₂ with a detailed vibration treament via `multi-state-resolved`
+ * since the electron impact reactions themselves are able to discriminate between the
+ * different vibrational excitations of O₂.
+ * To avoid any mixup, the user is invite to thoroughly read the present documentation
+ * and to consult the YAML examples. 
  * 
  * For further information on the YAML implementation of this class, please 
  * refer to [the corresponding YAML documentation section]
