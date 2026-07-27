@@ -155,7 +155,7 @@ if localenv['julia_docs']:
     env.Depends(julia_doc, env['cantera_shlib'])
     env.Depends(julia_doc, multi_glob(env, '#interfaces/julia/src', 'jl') +
                            multi_glob(env, '#interfaces/julia/docs/src', 'md'))
-    env.Alias('julia', julia_doc)
+    env.Alias('julia_docs', julia_doc)
     if localenv['sphinx_docs']:
         env.Depends(sphinxdocs, julia_doc)
 

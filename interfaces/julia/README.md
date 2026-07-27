@@ -30,9 +30,10 @@ Pkg.instantiate()
 using Cantera
 gas = Solution("gri30.yaml")
 set_TPX!(gas, 1000.0, one_atm, "H2:2, O2:1, N2:4")
-net = ReactorNet(IdealGasReactor(gas))
+reactor = IdealGasReactor(gas)
+net = ReactorNet(reactor)
 advance!(net, 1e-3)
-temperature(gas)          # ignited temperature [K]
+temperature(reactor)      # ignited temperature [K]
 ```
 
 ## Documentation

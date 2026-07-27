@@ -37,6 +37,7 @@ mechanism files.
 
 ```{grid-item-card} Julia API Reference
 :link: ../julia/index.html
+:text-align: center
 ```
 
 ```{grid-item-card} .NET API Reference

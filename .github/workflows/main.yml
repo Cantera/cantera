@@ -526,7 +526,7 @@ jobs:
           version: '1'
       - name: Build documentation
         run: |
-          scons sphinx doxygen julia_docs=y logging=debug \
+          scons sphinx doxygen julia_docs logging=debug \
             sphinx_options="-W --keep-going --warning-file=sphinx-warnings.txt"
       - name: Show Sphinx warnings
         run: |
