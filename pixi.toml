@@ -69,7 +69,7 @@ gperftools = ">=2.17.2,<3"
 gperftools = ">=2.17.2,<3"
 
 [feature.docs.dependencies]
-doxygen = ">=1.13.2,<2"
+doxygen = ">=1.17.0,<1.18"
 perl = ">=5.32.1,<5.33"
 sphinx = ">=9.1.0,<10"
 pydata-sphinx-theme = ">=0.16.1,<0.17"

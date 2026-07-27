@@ -500,7 +500,7 @@ jobs:
         with:
           environment-name: test-env
           create-args: >-
-            python=3.14 doxygen=1.9.7 scons pip scikits.odes
+            python=3.14 doxygen=1.17 scons pip scikits.odes
           post-cleanup: none
       - name: Install Apt dependencies
         run: |

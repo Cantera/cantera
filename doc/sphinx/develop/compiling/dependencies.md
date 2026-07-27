@@ -77,7 +77,10 @@ compiler is required only if you plan to build the Fortran module.
 
   - Required for building the C++ API Documentation
   - Required to generate the C and .NET interfaces.
-  - Version 1.8 or newer is recommended.
+  - Version 1.13 or newer is required, as the layout file (`DoxygenLayout.xml`) uses the
+    version 2.0 layout format.
+  - Version 1.17 is currently used to generate the published API documentation. Other
+    versions may result in small formatting issues.
 
 - [Jinja2](https://jinja.palletsprojects.com/en/stable/)
 
