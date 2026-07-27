@@ -40,6 +40,8 @@ Basic usage:
 
     'scons doxygen' - Build the Doxygen documentation
 
+    'scons julia_docs' - Build the Julia interface documentation
+
     'scons pyodide-wheel' - Build Pyodide wheels from Python sdist packages.
 
 Additional command options:
@@ -105,7 +107,7 @@ if os.name not in ["nt", "posix"]:
     sys.exit(1)
 
 valid_commands = ("build", "clean", "install", "uninstall",
-                  "help", "msi", "samples", "sphinx", "doxygen", "julia", "dump",
+                  "help", "msi", "samples", "sphinx", "doxygen", "julia_docs", "dump",
                   "sdist", "pyodide-wheel")
 
 # set default logging level
@@ -418,11 +420,6 @@ config_options = [
     BoolOption(
         "sphinx_docs",
         "Build HTML documentation for Cantera using Sphinx.",
-        False),
-    BoolOption(
-        "julia_docs",
-        """Build HTML documentation for the Julia interface using Documenter.
-           Requires Julia, a built libcantera, and the generated CLib bindings.""",
         False),
     BoolOption(
         "run_examples",
@@ -1021,8 +1018,7 @@ if 'doxygen' in COMMAND_LINE_TARGETS:
     env['doxygen_docs'] = True
 if 'sphinx' in COMMAND_LINE_TARGETS:
     env['sphinx_docs'] = True
-if 'julia' in COMMAND_LINE_TARGETS:
-    env['julia_docs'] = True
+env['julia_docs'] = 'julia_docs' in COMMAND_LINE_TARGETS
 for arg in ARGUMENTS:
     if arg not in config:
         logger.error(f"Encountered unexpected command line option: {arg!r}")

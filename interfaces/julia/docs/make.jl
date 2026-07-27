@@ -17,6 +17,7 @@ makedocs(
     sitename = "Cantera.jl",
     modules = [Cantera],
     authors = "Cantera Developers",
+    repo = Documenter.Remotes.GitHub("Cantera", "cantera"),
     pages = [
         "Home" => "index.md",
         "API Reference" => "reference.md",
@@ -24,6 +25,7 @@ makedocs(
     format = Documenter.HTML(
         prettyurls = get(ENV, "CI", "false") == "true",
         canonical = "https://cantera.org/dev/julia",
+        edit_link = "main",
         # The API reference is a single @autodocs page; allow it to exceed the
         # default 200 KiB cap rather than splitting the generated listing.
         size_threshold = 512 * 1024,
