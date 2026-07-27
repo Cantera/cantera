@@ -3,10 +3,10 @@
 Use the sidebar to view detailed documentation of the C++ code, or use the following
 shortcuts:
 
-* Overview of [**Cantera C++ Modules**](modules.html)
+* Overview of [**Cantera C++ Topics**](topics.html)
 * Index of [**Cantera C++ Classes**](classes.html)
 
-A **topical overview** is provided as follows:
+A high-level overview is provided as follows:
 
 * @ref solnGroup (interface to %Cantera core objects)
 * @ref thermoprops (temperature, pressure, energy, ...)
