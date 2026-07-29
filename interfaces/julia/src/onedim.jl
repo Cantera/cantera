@@ -269,7 +269,7 @@ function set_inlet!(flame::FreeFlame; T=nothing, X=nothing, mdot=nothing)
     return flame
 end
 
-"Fix the flame temperature at `T` [K] (used by the free-flame eigenvalue solve)."
+"Fix the flame temperature at `T` [K], as used by the free-flame eigenvalue solve."
 function set_fixed_temperature!(flame::FreeFlame, T::Real)
     check(LibCantera.sim1D_setFixedTemperature(flame.sim, Float64(T)))
     return flame

@@ -121,7 +121,7 @@ function set_electric_potential!(g::ThermoLike, v)
     return g
 end
 
-"Speed of sound [m/s] (`sqrt(cp/cv · p/ρ)`)."
+"Speed of sound `sqrt(cp/cv · p/ρ)` [m/s]."
 sound_speed(g::ThermoLike) = sqrt(cp_mass(g) / cv_mass(g) * pressure(g) / density(g))
 
 "Specific volume [m^3/kg]."
