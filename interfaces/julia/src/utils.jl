@@ -6,7 +6,7 @@
 "One standard atmosphere [Pa]."
 const one_atm = 101325.0
 
-"Universal gas constant [J/kmol/K] (Cantera's molar convention)."
+"Universal gas constant in Cantera's molar convention [J/kmol/K]."
 const gas_constant = 8314.46261815324
 
 "Avogadro's number [1/kmol]."
