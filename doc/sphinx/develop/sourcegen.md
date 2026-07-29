@@ -10,6 +10,7 @@ interfaces for other languages. The following output options are supported:
 
 - `clib`: [](clib-extensions); used to generate the [CLib API](../clib/index).
 - `csharp`: [](dotnet-extensions); used to implement the [.NET API](../dotnet/index).
+- `julia`: [](julia-extensions); used to implement the Julia API.
 - `yaml`: [](yaml-extensions); simple illustration that summarizes the CLib interface
   in YAML format.
 
@@ -40,14 +41,15 @@ take effect without a need to re-install. Running:
 displays the following help text:
 
 ```shell
-usage: sourcegen [-h] [-v] [--api {clib,csharp,yaml}] [--output OUTPUT] [--root ROOT]
+usage: sourcegen [-h] [-v] [--api {clib,csharp,julia,yaml}] [--output OUTPUT]
+                 [--root ROOT]
 
 Source generator for creating Cantera interface code.
 
 options:
   -h, --help            show this help message and exit
   -v, --verbose         show additional logging output
-  --api {clib,csharp,yaml}
+  --api {clib,csharp,julia,yaml}
                         language of generated Cantera API code
   --output OUTPUT       specifies the OUTPUT folder name
   --root ROOT           specifies the Cantera source ROOT folder (default is '.')

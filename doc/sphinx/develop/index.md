@@ -78,6 +78,7 @@ continuous-integration
 - [](sourcegen-config)
 - [](clib-extensions)
 - [](dotnet-extensions)
+- [](julia-extensions)
 - [](yaml-extensions)
 
 ```{toctree}
@@ -88,6 +89,7 @@ sourcegen
 sourcegen-config
 clib-extensions
 dotnet-extensions
+julia-extensions
 yaml-extensions
 ```
 
