@@ -10,7 +10,7 @@ interfaces for other languages. The following output options are supported:
 
 - `clib`: [](clib-extensions); used to generate the [CLib API](../clib/index).
 - `csharp`: [](dotnet-extensions); used to implement the [.NET API](../dotnet/index).
-- `julia`: [](julia-extensions); used to implement the Julia API.
+- `julia`: [](julia-extensions); used to implement the [Julia API](../julia/index).
 - `yaml`: [](yaml-extensions); simple illustration that summarizes the CLib interface
   in YAML format.
 

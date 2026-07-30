@@ -40,8 +40,6 @@ Basic usage:
 
     'scons doxygen' - Build the Doxygen documentation
 
-    'scons julia_docs' - Build the Julia interface documentation
-
     'scons pyodide-wheel' - Build Pyodide wheels from Python sdist packages.
 
 Additional command options:
@@ -107,7 +105,7 @@ if os.name not in ["nt", "posix"]:
     sys.exit(1)
 
 valid_commands = ("build", "clean", "install", "uninstall",
-                  "help", "msi", "samples", "sphinx", "doxygen", "julia_docs", "dump",
+                  "help", "msi", "samples", "sphinx", "doxygen", "dump",
                   "sdist", "pyodide-wheel")
 
 # set default logging level
@@ -1018,7 +1016,6 @@ if 'doxygen' in COMMAND_LINE_TARGETS:
     env['doxygen_docs'] = True
 if 'sphinx' in COMMAND_LINE_TARGETS:
     env['sphinx_docs'] = True
-env['julia_docs'] = 'julia_docs' in COMMAND_LINE_TARGETS
 for arg in ARGUMENTS:
     if arg not in config:
         logger.error(f"Encountered unexpected command line option: {arg!r}")
@@ -2027,7 +2024,7 @@ if env['CC'] != 'cl':
     VariantDir('build/platform', 'platform/posix', duplicate=0)
     SConscript('build/platform/SConscript')
 
-if (env['doxygen_docs'] or env['sphinx_docs'] or env['julia_docs']
+if (env['doxygen_docs'] or env['sphinx_docs']
         or "install" in COMMAND_LINE_TARGETS):
     SConscript('doc/SConscript')
 

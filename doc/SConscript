@@ -121,6 +121,15 @@ if localenv['sphinx_docs']:
                         f"#build/doc/samples/dotnet/{csharp_file.name}",
                         csharp_file, Copy("$TARGET", "$SOURCE")))
 
+    # Gather Julia sample files
+    julia_files = Glob("#interfaces/julia/examples/*.jl")
+    julia_files.append(File("#interfaces/julia/examples/README.rst"))
+    for julia_file in julia_files:
+        env.Depends(sphinxdocs,
+                    localenv.Command(
+                        f"#build/doc/samples/julia/{julia_file.name}",
+                        julia_file, Copy("$TARGET", "$SOURCE")))
+
     # Generate documentation for SCons configuration options
     def save_config(target, source, env):
         Path(str(target[0])).parent.mkdir(parents=True, exist_ok=True)
@@ -131,33 +140,20 @@ if localenv['sphinx_docs']:
         "#SConstruct", save_config)
     env.Depends(sphinxdocs, scons_opts)
 
+    # Generate the API reference pages for the Julia interface from the docstrings in
+    # interfaces/julia/src. The page names must match those listed in generate.jl.
+    julia_pages = ['phases', 'thermo', 'kinetics', 'transport', 'zerodim', 'onedim',
+                   'multiphase', 'rdiag', 'utilities']
+    julia_api = localenv.Command(
+        [f"#build/doc/sphinx/julia/{page}.md" for page in julia_pages],
+        "#interfaces/julia/docs/generate.jl",
+        "julia --project=interfaces/julia $SOURCE build/doc/sphinx/julia")
+    env.Depends(julia_api, multi_glob(env, '#interfaces/julia/src', 'jl'))
+    env.Depends(sphinxdocs, julia_api)
+
     localenv.AlwaysBuild(sphinxdocs)
     if localenv['doxygen_docs']:
         localenv.Depends(sphinxdocs, docs)
-
-if localenv['julia_docs']:
-    juliaenv = localenv.Clone()
-    juliaenv['ENV']['CANTERA_LIBRARY_PATH'] = Dir('#build/lib').abspath
-    juliaenv['ENV']['CANTERA_DATA'] = Dir('#data').abspath
-
-    julia_doc = build(juliaenv.Command(
-        "#build/doc/html/julia/index.html",
-        "#interfaces/julia/docs/make.jl",
-        [
-            Delete("build/doc/html/julia"),
-            "julia --project=interfaces/julia/docs -e "
-            "'using Pkg; Pkg.develop(PackageSpec(path=\"interfaces/julia\")); "
-            "Pkg.instantiate()'",
-            "julia --project=interfaces/julia/docs $SOURCE",
-            Copy("build/doc/html/julia", "interfaces/julia/docs/build"),
-        ]
-    ))
-    env.Depends(julia_doc, env['cantera_shlib'])
-    env.Depends(julia_doc, multi_glob(env, '#interfaces/julia/src', 'jl') +
-                           multi_glob(env, '#interfaces/julia/docs/src', 'md'))
-    env.Alias('julia_docs', julia_doc)
-    if localenv['sphinx_docs']:
-        env.Depends(sphinxdocs, julia_doc)
 
 doc_files = install(localenv.RecursiveInstall, '$inst_docdir',
                     '#build/doc/html', exclude=['\\.map', '\\.md5'])

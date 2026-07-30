@@ -7,8 +7,7 @@ removed without notice.
 
 The Julia API is written in Julia and supports Julia 1.9 (and newer) on all platforms
 that support both Julia and the Cantera C++ library. It calls `libcantera` directly
-through the [CLib API](../clib/index) using Julia's built-in `ccall`, so it requires
-neither a Julia compiler toolchain of its own nor the Cantera Python module.
+through the [CLib API](../clib/index) using Julia's built-in `ccall`.
 
 The Julia API implementation draws on two parts:
 
@@ -51,16 +50,56 @@ julia --project=interfaces/julia -e 'using Pkg; Pkg.instantiate()'
 julia --project=interfaces/julia interfaces/julia/test/runtests.jl
 ```
 
-The HTML API reference is built with [Documenter](https://documenter.juliadocs.org) by
-running
+The [](../julia/index) pages are generated from the docstrings in
+`interfaces/julia/src` by `interfaces/julia/docs/generate.jl`, which `doc/SConscript`
+runs as part of
 
 ```bash
-scons julia_docs
+scons sphinx
 ```
 
-which writes its output to `build/doc/html/julia` so that it is deployed alongside the
-rest of the Cantera documentation. Building the reference loads the compiled library in
-order to introspect docstrings, so it requires a successful `scons build` first.
+The script writes one MyST page per topic into `build/doc/sphinx/julia`, describing
+each object with the standard `describe` directive. Sphinx has no Julia domain:
+`sphinx.ext.autodoc` handles only Python, and the one third-party attempt at a Julia
+domain has been unmaintained since 2017, so the reference deliberately uses a
+domain-neutral directive rather than adding an extension. Each entry is preceded by a
+MyST target so that it can still be linked to; what is given up relative to a real
+domain is the general index and the `#` permalink beside each object.
+
+Loading the `Cantera` module to read its docstrings requires the generated CLib
+bindings, and therefore a previous `scons build`; it does not require a working
+`libcantera`, because every `ccall` sits inside a function body and is not resolved at
+load time.
+
+Docstrings are written in Markdown, as Julia expects, and the pages are MyST, so the
+prose of a docstring is emitted as-is. Two things are handled specially:
+
+- Documenter's `` [`name`](@ref) `` cross-references are rewritten to point at the
+  target of the object they name, falling back to literal text for a name that is not
+  documented.
+- Signatures are separated from the prose. Julia allows one docstring per method, and
+  the interface uses that for names whose meaning depends on the argument type —
+  `temperature` is documented once for a phase, once for a mixture and once for a
+  solution array. All of them are rendered under a single entry: the first signature
+  becomes the argument of the `describe` directive, and every other call form is
+  reintroduced in the body as a `julia` block ahead of the prose belonging to it, so
+  that no documented meaning is lost. A docstring that carries no signature block of
+  its own is labelled from the method it is attached to, which is why the signature
+  and the prose beneath it always describe the same method.
+
+Note that every exported object must carry a docstring: an object without one is
+silently absent from the reference.
+
+Labels are built to survive Sphinx's normalisation, which lowercases them, replaces `_`
+with `-`, and discards characters such as `!`. They therefore include the kind of object
+and spell out the `!` of an in-place variant, so that `foo` and `foo!`, or the type
+`Reaction` and the function `reaction`, do not collide. The generator applies that
+normalisation itself, so the label it writes is the identifier that appears in the
+rendered page, and it fails if two objects ever produce the same label.
+
+The generator also fails the build if a new file is added under `interfaces/julia/src`
+without being assigned to one of the topic pages, rather than dropping its contents
+from the documentation.
 
 (sec-sourcegen-julia-generation)=
 ### Julia Code Generation
