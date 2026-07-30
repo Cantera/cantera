@@ -36,7 +36,8 @@ mechanism files.
 ```
 
 ```{grid-item-card} Julia API Reference
-:link: ../julia/index.html
+:link: /julia/index
+:link-type: doc
 :text-align: center
 ```
 
@@ -68,6 +69,7 @@ mechanism files.
 /python/index
 /matlab/index
 /clib/index
+/julia/index
 /dotnet/index
 /yaml/index
 releasenotes/index
