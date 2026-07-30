@@ -1,5 +1,12 @@
-# Constant-volume adiabatic ignition of a hydrogen/air mixture, integrated with
-# a ReactorNet.  Mirrors Cantera's canonical `reactor1.py` example.
+#=
+Adiabatic Ignition in a Constant-Volume Reactor
+===============================================
+
+Integrates the constant-volume, adiabatic ignition of a hydrogen/air mixture with a
+reactor network, mirroring Cantera's canonical ``reactor1.py`` example.
+
+.. tags:: Julia, combustion, reactor network, ignition delay
+=#
 
 using Cantera
 

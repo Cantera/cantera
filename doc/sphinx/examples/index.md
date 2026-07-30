@@ -90,6 +90,12 @@ an introduction to the Cantera Python interface.
 :text-align: center
 ```
 
+```{grid-item-card} Julia
+:link: julia/index
+:link-type: doc
+:text-align: center
+```
+
 ````
 
 ## Input File Examples
@@ -117,6 +123,7 @@ clib/index
 matlab/index
 fortran/index
 dotnet/index
+julia/index
 input/index
 ```
 

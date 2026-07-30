@@ -1,6 +1,12 @@
-# Freely-propagating premixed laminar flame, mirroring Cantera's `adiabatic_flame`
-# example.  Computes the laminar flame speed of a stoichiometric methane/air
-# mixture on the GRI-Mech 3.0 mechanism.
+#=
+Freely-Propagating Premixed Flame
+=================================
+
+Computes the laminar flame speed of a stoichiometric methane/air mixture using the
+GRI-Mech 3.0 mechanism, mirroring Cantera's ``adiabatic_flame`` example.
+
+.. tags:: Julia, 1D flow, premixed flame, flame speed, combustion
+=#
 
 using Cantera
 

@@ -1,7 +1,13 @@
-# Reactor network with mass flow: a well-stirred-reactor-like setup where a hot
-# reservoir feeds an IdealGasReactor through a MassFlowController and the reactor
-# exhausts to a downstream reservoir through a Valve.  Demonstrates reservoirs,
-# flow devices, and time integration.
+#=
+Reactor Network with Mass Flow
+==============================
+
+A well-stirred-reactor-like setup in which a hot reservoir feeds an ideal gas reactor
+through a mass flow controller, and the reactor exhausts to a downstream reservoir
+through a valve. Demonstrates reservoirs, flow devices, and time integration.
+
+.. tags:: Julia, reactor network, well-stirred reactor, combustion
+=#
 
 using Cantera
 
