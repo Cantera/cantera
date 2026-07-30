@@ -6,13 +6,13 @@
 # a Transport manager over a single phase, and owns their CLib handles.
 
 """
-    Solution(infile; name="", transport="")
-    Solution(infile, name; transport="")
+    Solution(infile, name=""; transport="default")
 
 Construct a `Solution` from a Cantera input (YAML) file.
 
 `name` selects the phase within the file (the first phase is used when empty);
-`transport` selects a transport model (the file's default when empty).
+`transport` selects a transport model, `"default"` being the one named in the input
+file.
 
 ```julia
 gas = Solution("gri30.yaml")

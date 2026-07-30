@@ -110,16 +110,18 @@ end
 # ---------------------------------------------------------------------------
 
 """
-    FreeFlame(gas; width=0.03, points=8)
+    FreeFlame(gas; width=0.03)
 
 Assemble a freely-propagating premixed flame from the current state of `gas`,
 mirroring Python's `cantera.FreeFlame`.  The unburned mixture state (temperature,
 pressure, composition) is taken from `gas` at construction time.
 
 The flame consists of three domains in solver order: an inlet boundary, a
-`free-flow` region of the given `width` [m] discretized with `points` initial
-grid nodes, and an outlet boundary.  Call [`solve!`](@ref) to compute the
-solution; the laminar flame speed is then available from [`flame_speed`](@ref).
+`free-flow` region of the given `width` [m], and an outlet boundary.  The flow
+domain starts on the same non-uniform grid Python uses, which [`solve!`](@ref) then
+regrids and refines, so the node count is not a constructor option.  Call
+[`solve!`](@ref) to compute the solution; the laminar flame speed is then available
+from [`flame_speed`](@ref).
 """
 mutable struct FreeFlame <: CanteraObject
     gas::Solution
@@ -310,10 +312,11 @@ function _width_ok(flame::FreeFlame)
     return !(mLeft > 0.02 || mRight > 0.02)
 end
 
-# Replicates the Cython `Sim1D.solve(auto=True)` staged loop: progressively
-# finer uniform grids (8, 12, 24, 48 points), re-seeding the initial guess on
-# each, trying energy-on first and falling back to a fixed-temperature solve,
-# then a refinement pass.  Returns `true` once a solution is found.
+# Replicates the Cython `Sim1D.solve(auto=True)` staged loop: progressively finer
+# uniform grids (the domain's current node count, then 12, 24 and 48 points),
+# re-seeding the initial guess on each, trying energy-on first and falling back to a
+# fixed-temperature solve, then a refinement pass.  Returns `true` once a solution
+# is found.
 function _staged_solve!(flame::FreeFlame, ll::Int32, refine_grid::Bool)
     sim  = flame.sim
     flow = flame.flow.handle
@@ -365,8 +368,8 @@ end
 
 Solve the flame.
 
-With `auto=true` (the default) this reproduces Python's
-`FreeFlame.solve(auto=True)` exactly: an internal staged multi-grid schedule
+With `auto=true` (the default) this follows Python's
+`FreeFlame.solve(auto=True)`: an internal staged multi-grid schedule
 wrapped in a domain-widening loop.  After each staged solve the temperature
 gradients at the domain edges are checked; if the flame is too close to a
 boundary the grid is doubled (and refined) and the staged solve is repeated,

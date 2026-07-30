@@ -80,6 +80,10 @@ for (jl, c) in (
     @eval $jl(r::Reactor) = checkd(LibCantera.$c(r.handle))
 end
 
+# The other names in the loop above are shared with the phase accessors, which carry
+# their own docstrings; `mass` is defined only for reactors.
+@doc "Mass of the reactor contents [kg]." mass
+
 "Reactor name."
 name(r::Reactor) = get_string((n, b) -> LibCantera.reactor_name(r.handle, n, b))
 
@@ -102,13 +106,13 @@ function mass_fractions(r::Reactor)
     return get_array(nsp, (n, b) -> LibCantera.reactor_massFractions(r.handle, n, b))
 end
 
-"Enable/disable chemistry in the reactor."
+"Enable/disable the energy equation in the reactor."
 function set_energy_enabled!(r::Reactor, flag::Bool)
     check(LibCantera.reactor_setEnergyEnabled(r.handle, Int32(flag)))
     return r
 end
 
-"Enable/disable the energy equation in the reactor."
+"Enable/disable chemistry in the reactor."
 function set_chemistry_enabled!(r::Reactor, flag::Bool)
     check(LibCantera.reactor_setChemistryEnabled(r.handle, Int32(flag)))
     return r
@@ -138,7 +142,7 @@ Reservoir(gas::Solution; name::AbstractString="") =
 # ---- surfaces ---------------------------------------------------------------
 
 """
-    reactor_area(r) -> Float64
+    area(r::Reactor) -> Float64
 
 Wall/surface area associated with the reactor [m^2].
 """

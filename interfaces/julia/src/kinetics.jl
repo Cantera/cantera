@@ -32,22 +32,33 @@ _nrxn(g) = n_reactions(g)
 _nsp(g) = n_total_species(g)
 
 # Per-reaction kinetic arrays.
-for (jl, c) in (
-        (:forward_rates_of_progress, :kin_getFwdRatesOfProgress),
-        (:reverse_rates_of_progress, :kin_getRevRatesOfProgress),
-        (:net_rates_of_progress,     :kin_getNetRatesOfProgress),
-        (:equilibrium_constants,     :kin_getEquilibriumConstants),
-        (:forward_rate_constants,    :kin_getFwdRateConstants),
-        (:delta_enthalpy,            :kin_getDeltaEnthalpy),
-        (:delta_gibbs,               :kin_getDeltaGibbs),
-        (:delta_entropy,             :kin_getDeltaEntropy),
+for (jl, c, doc) in (
+        (:forward_rates_of_progress, :kin_getFwdRatesOfProgress,
+         "Forward rates of progress for all reactions [kmol/m^3/s]."),
+        (:reverse_rates_of_progress, :kin_getRevRatesOfProgress,
+         "Reverse rates of progress for all reactions [kmol/m^3/s]."),
+        (:net_rates_of_progress,     :kin_getNetRatesOfProgress,
+         "Net rates of progress for all reactions [kmol/m^3/s]."),
+        (:equilibrium_constants,     :kin_getEquilibriumConstants,
+         "Equilibrium constants for all reactions, in concentration units."),
+        (:forward_rate_constants,    :kin_getFwdRateConstants,
+         "Forward rate constants for all reactions."),
+        (:delta_enthalpy,            :kin_getDeltaEnthalpy,
+         "Enthalpy change for each reaction [J/kmol]."),
+        (:delta_gibbs,               :kin_getDeltaGibbs,
+         "Gibbs free energy change for each reaction [J/kmol]."),
+        (:delta_entropy,             :kin_getDeltaEntropy,
+         "Entropy change for each reaction [J/kmol/K]."),
     )
     bang = Symbol(jl, :!)
+    bang_doc = "In-place [`$jl`](@ref)."
     @eval begin
         $jl(g::KineticsLike) =
             get_array(_nrxn(g), (n, b) -> LibCantera.$c(_kinetics_handle(g), n, b))
+        @doc $doc $jl
         $bang(out, g::KineticsLike) =
             get_array!(out, (n, b) -> LibCantera.$c(_kinetics_handle(g), n, b))
+        @doc $bang_doc $bang
     end
 end
 
@@ -63,17 +74,23 @@ function reverse_rate_constants(g::KineticsLike; do_irreversible::Bool=false)
 end
 
 # Per-species production arrays.
-for (jl, c) in (
-        (:net_production_rates, :kin_getNetProductionRates),
-        (:creation_rates,       :kin_getCreationRates),
-        (:destruction_rates,    :kin_getDestructionRates),
+for (jl, c, doc) in (
+        (:net_production_rates, :kin_getNetProductionRates,
+         "Net production rates for all species [kmol/m^3/s]."),
+        (:creation_rates,       :kin_getCreationRates,
+         "Creation rates for all species [kmol/m^3/s]."),
+        (:destruction_rates,    :kin_getDestructionRates,
+         "Destruction rates for all species [kmol/m^3/s]."),
     )
     bang = Symbol(jl, :!)
+    bang_doc = "In-place [`$jl`](@ref)."
     @eval begin
         $jl(g::KineticsLike) =
             get_array(_nsp(g), (n, b) -> LibCantera.$c(_kinetics_handle(g), n, b))
+        @doc $doc $jl
         $bang(out, g::KineticsLike) =
             get_array!(out, (n, b) -> LibCantera.$c(_kinetics_handle(g), n, b))
+        @doc $bang_doc $bang
     end
 end
 
@@ -89,26 +106,42 @@ end
 # C++; it is wrapped separately below, densified into a flat column-major
 # buffer to fit the array-out CLib convention.
 
-for (jl, c, len) in (
-        (:net_production_rates_ddT, :kin_getNetProductionRates_ddT, :_nsp),
-        (:net_production_rates_ddP, :kin_getNetProductionRates_ddP, :_nsp),
-        (:net_production_rates_ddC, :kin_getNetProductionRates_ddC, :_nsp),
-        (:creation_rates_ddT,       :kin_getCreationRates_ddT,      :_nsp),
-        (:creation_rates_ddP,       :kin_getCreationRates_ddP,      :_nsp),
-        (:creation_rates_ddC,       :kin_getCreationRates_ddC,      :_nsp),
-        (:destruction_rates_ddT,    :kin_getDestructionRates_ddT,   :_nsp),
-        (:destruction_rates_ddP,    :kin_getDestructionRates_ddP,   :_nsp),
-        (:destruction_rates_ddC,    :kin_getDestructionRates_ddC,   :_nsp),
-        (:net_rates_of_progress_ddT, :kin_getNetRatesOfProgress_ddT, :_nrxn),
-        (:net_rates_of_progress_ddP, :kin_getNetRatesOfProgress_ddP, :_nrxn),
-        (:net_rates_of_progress_ddC, :kin_getNetRatesOfProgress_ddC, :_nrxn),
+for (jl, c, len, quantity, wrt) in (
+        (:net_production_rates_ddT, :kin_getNetProductionRates_ddT, :_nsp,
+         "net production rates", "temperature"),
+        (:net_production_rates_ddP, :kin_getNetProductionRates_ddP, :_nsp,
+         "net production rates", "pressure"),
+        (:net_production_rates_ddC, :kin_getNetProductionRates_ddC, :_nsp,
+         "net production rates", "molar concentration"),
+        (:creation_rates_ddT,       :kin_getCreationRates_ddT,      :_nsp,
+         "creation rates", "temperature"),
+        (:creation_rates_ddP,       :kin_getCreationRates_ddP,      :_nsp,
+         "creation rates", "pressure"),
+        (:creation_rates_ddC,       :kin_getCreationRates_ddC,      :_nsp,
+         "creation rates", "molar concentration"),
+        (:destruction_rates_ddT,    :kin_getDestructionRates_ddT,   :_nsp,
+         "destruction rates", "temperature"),
+        (:destruction_rates_ddP,    :kin_getDestructionRates_ddP,   :_nsp,
+         "destruction rates", "pressure"),
+        (:destruction_rates_ddC,    :kin_getDestructionRates_ddC,   :_nsp,
+         "destruction rates", "molar concentration"),
+        (:net_rates_of_progress_ddT, :kin_getNetRatesOfProgress_ddT, :_nrxn,
+         "net rates of progress", "temperature"),
+        (:net_rates_of_progress_ddP, :kin_getNetRatesOfProgress_ddP, :_nrxn,
+         "net rates of progress", "pressure"),
+        (:net_rates_of_progress_ddC, :kin_getNetRatesOfProgress_ddC, :_nrxn,
+         "net rates of progress", "molar concentration"),
     )
     bang = Symbol(jl, :!)
+    doc = "Derivative of the $quantity with respect to $wrt."
+    bang_doc = "In-place [`$jl`](@ref)."
     @eval begin
         $jl(g::KineticsLike) =
             get_array($len(g), (n, b) -> LibCantera.$c(_kinetics_handle(g), n, b))
+        @doc $doc $jl
         $bang(out, g::KineticsLike) =
             get_array!(out, (n, b) -> LibCantera.$c(_kinetics_handle(g), n, b))
+        @doc $bang_doc $bang
     end
 end
 
@@ -216,16 +249,26 @@ delta_standard_entropy(g::KineticsLike) =
 
 # ---- forward/reverse rate-of-progress derivatives ---------------------------
 
-for (jl, c) in (
-        (:forward_rates_of_progress_ddT, :kin_getFwdRatesOfProgress_ddT),
-        (:forward_rates_of_progress_ddP, :kin_getFwdRatesOfProgress_ddP),
-        (:forward_rates_of_progress_ddC, :kin_getFwdRatesOfProgress_ddC),
-        (:reverse_rates_of_progress_ddT, :kin_getRevRatesOfProgress_ddT),
-        (:reverse_rates_of_progress_ddP, :kin_getRevRatesOfProgress_ddP),
-        (:reverse_rates_of_progress_ddC, :kin_getRevRatesOfProgress_ddC),
+for (jl, c, quantity, wrt) in (
+        (:forward_rates_of_progress_ddT, :kin_getFwdRatesOfProgress_ddT,
+         "forward rates of progress", "temperature"),
+        (:forward_rates_of_progress_ddP, :kin_getFwdRatesOfProgress_ddP,
+         "forward rates of progress", "pressure"),
+        (:forward_rates_of_progress_ddC, :kin_getFwdRatesOfProgress_ddC,
+         "forward rates of progress", "molar concentration"),
+        (:reverse_rates_of_progress_ddT, :kin_getRevRatesOfProgress_ddT,
+         "reverse rates of progress", "temperature"),
+        (:reverse_rates_of_progress_ddP, :kin_getRevRatesOfProgress_ddP,
+         "reverse rates of progress", "pressure"),
+        (:reverse_rates_of_progress_ddC, :kin_getRevRatesOfProgress_ddC,
+         "reverse rates of progress", "molar concentration"),
     )
-    @eval $jl(g::KineticsLike) =
-        get_array(_nrxn(g), (n, b) -> LibCantera.$c(_kinetics_handle(g), n, b))
+    doc = "Derivative of the $quantity with respect to $wrt."
+    @eval begin
+        $jl(g::KineticsLike) =
+            get_array(_nrxn(g), (n, b) -> LibCantera.$c(_kinetics_handle(g), n, b))
+        @doc $doc $jl
+    end
 end
 
 """

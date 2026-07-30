@@ -76,7 +76,8 @@ end
 Set the relative and absolute integrator tolerances.
 """
 function set_tolerances!(net::ReactorNet; rtol=1e-9, atol=1e-15)
-    check(LibCantera.reactornet_setTolerances(net.handle, Float64(rtol), Float64(atol)))
+    check(LibCantera.reactornet_setRelativeTolerance(net.handle, Float64(rtol)))
+    check(LibCantera.reactornet_setAbsoluteTolerance(net.handle, Float64(atol)))
     return net
 end
 
