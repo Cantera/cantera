@@ -1,8 +1,12 @@
-# Basic usage of the Cantera Julia interface.
-#
-# Run from the repository root with:
-#   CANTERA_LIBRARY_PATH=/path/to/lib julia --project=interfaces/julia \
-#     interfaces/julia/examples/basic.jl
+#=
+Basic Usage of the Julia Interface
+==================================
+
+Computes thermodynamic, kinetic, and transport properties of a methane/air mixture,
+demonstrating the core accessors of the Cantera Julia API.
+
+.. tags:: Julia, thermodynamics, kinetics, transport
+=#
 
 using Cantera
 

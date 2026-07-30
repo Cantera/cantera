@@ -54,7 +54,8 @@ extensions = [
 
 sphinx_gallery_conf = {
     'filename_pattern': r'\.py',
-    'example_extensions': {'.py', '.cpp', '.h', '.c', '.f', '.f90', '.m', '.cs'},
+    'example_extensions': {'.py', '.cpp', '.h', '.c', '.f', '.f90', '.m', '.cs',
+                           '.jl'},
     "filetype_parsers": {'.h': 'C++', '.m': 'Matlab'},
     'ignore_pattern': r'(__.*__\.py|test_examples\.m)',
     'image_srcset': ["2x"],
@@ -68,6 +69,7 @@ sphinx_gallery_conf = {
        '../samples/fortran/',
        '../samples/matlab/',
        '../samples/dotnet/',
+       '../samples/julia/',
     ],
     'gallery_dirs': [
        'examples/python',
@@ -76,6 +78,7 @@ sphinx_gallery_conf = {
        'examples/fortran',
        'examples/matlab',
        'examples/dotnet',
+       'examples/julia',
     ],
     'subsection_order': ExplicitOrder([
         '../samples/python/thermo',
