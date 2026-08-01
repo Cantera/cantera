@@ -88,7 +88,7 @@ jobs:
           gh pr checkout --repo Cantera/cantera-example-data $DATA_PR
         fi
     - name: Setup Python
-      uses: actions/setup-python@v6
+      uses: actions/setup-python@v7
       with:
         python-version: ${{ matrix.python-version }}
         architecture: ${{ matrix.architecture }}
@@ -160,7 +160,7 @@ jobs:
         submodules: recursive
         persist-credentials: false
     - name: Setup Python
-      uses: actions/setup-python@v6
+      uses: actions/setup-python@v7
       with:
         python-version: '3.13'
         architecture: x64
@@ -219,7 +219,7 @@ jobs:
       run: |
         echo "scons ruamel.yaml numpy cython pandas pytest pytest-xdist pytest-github-actions-annotate-failures pint graphviz Jinja2" | tr " " "\n" > requirements.txt
     - name: Set up Python
-      uses: actions/setup-python@v6
+      uses: actions/setup-python@v7
       with:
         python-version: ${{ matrix.python-version }}
         cache: pip
@@ -275,7 +275,7 @@ jobs:
         submodules: recursive
         persist-credentials: false
     - name: Setup python
-      uses: actions/setup-python@v6
+      uses: actions/setup-python@v7
       with:
         python-version: '3.14'
         architecture: x64
@@ -293,7 +293,7 @@ jobs:
         pytest-github-actions-annotate-failures pytest-cov gcovr!=7.0.0 pint graphviz \
         Jinja2
     - name: Setup .NET Core SDK
-      uses: actions/setup-dotnet@v5
+      uses: actions/setup-dotnet@v6
       with:
         dotnet-version: '8.x'
     - name: Build Cantera with generated CLib
@@ -400,7 +400,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
       - name: Setup Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: "3.14"
           architecture: x64
@@ -440,7 +440,7 @@ jobs:
           mypy --config-file interfaces/cython/pyproject.toml \
             --cobertura-xml-report type_check/ interfaces/cython/cantera
       - name: Summarize the report
-        uses: danielpalme/ReportGenerator-GitHub-Action@049f7ec958c672fd31d5cc1cb01622dc8d2e23ab # v5.5.10
+        uses: danielpalme/ReportGenerator-GitHub-Action@d3ebf1f760f7d8ab92cc44d9bcfee7ad73722a31 # v5.5.11
         with:
           reports: './type_check/cobertura.xml'
           targetdir: './type_check'
@@ -496,7 +496,7 @@ jobs:
             gh pr checkout --repo Cantera/cantera-example-data $DATA_PR
           fi
       - name: Set up micromamba
-        uses: mamba-org/setup-micromamba@d7c9bd84e824b79d2af72a2d4196c7f4300d3476 # v3.0.0
+        uses: mamba-org/setup-micromamba@ce51e99f4bb8a82ab7158c4dc59ef4634c59c4f9 # v3.1.0
         with:
           environment-name: test-env
           create-args: >-
@@ -730,7 +730,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Setup Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
@@ -828,7 +828,7 @@ jobs:
           submodules: recursive
           persist-credentials: false
       - name: Set up micromamba
-        uses: mamba-org/setup-micromamba@d7c9bd84e824b79d2af72a2d4196c7f4300d3476 # v3.0.0
+        uses: mamba-org/setup-micromamba@ce51e99f4bb8a82ab7158c4dc59ef4634c59c4f9 # v3.1.0
         with:
           environment-name: test-env
           # See https://github.com/conda-forge/boost-cpp-feedstock/issues/41 for why we
@@ -892,7 +892,7 @@ jobs:
         submodules: recursive
         persist-credentials: false
     - name: Set up micromamba
-      uses: mamba-org/setup-micromamba@d7c9bd84e824b79d2af72a2d4196c7f4300d3476 # v3.0.0
+      uses: mamba-org/setup-micromamba@ce51e99f4bb8a82ab7158c4dc59ef4634c59c4f9 # v3.1.0
       with:
         environment-name: test-env
         # See https://github.com/conda-forge/boost-cpp-feedstock/issues/41 for why we
@@ -965,7 +965,7 @@ jobs:
           submodules: recursive
           persist-credentials: false
       - name: Set Up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
@@ -1046,7 +1046,7 @@ jobs:
         submodules: recursive
         persist-credentials: false
     - name: Setup Python
-      uses: actions/setup-python@v6
+      uses: actions/setup-python@v7
       with:
         python-version: '3.12'
         architecture: x64
@@ -1086,7 +1086,7 @@ jobs:
         submodules: recursive
         persist-credentials: false
     - name: Set Up Python
-      uses: actions/setup-python@v6
+      uses: actions/setup-python@v7
       with:
         python-version: "3.14"
         architecture: x64
@@ -1164,11 +1164,11 @@ jobs:
         persist-credentials: false
     - name: Set Python version
       # Python version does not matter as it is only used to run sourcegen
-      uses: actions/setup-python@v6
+      uses: actions/setup-python@v7
       with:
         python-version: "3.12"
     - name: Install library dependencies with micromamba (Windows)
-      uses: mamba-org/setup-micromamba@d7c9bd84e824b79d2af72a2d4196c7f4300d3476 # v3.0.0
+      uses: mamba-org/setup-micromamba@ce51e99f4bb8a82ab7158c4dc59ef4634c59c4f9 # v3.1.0
       with:
         environment-name: test-env
         # fmt needs to match the version of the windows-2022 runner selected to upload
@@ -1195,7 +1195,7 @@ jobs:
         python3 -m pip install --upgrade pip setuptools wheel build
         python3 -m pip install ruamel.yaml Jinja2
     - name: Setup .NET Core SDK
-      uses: actions/setup-dotnet@v5
+      uses: actions/setup-dotnet@v6
       with:
         dotnet-version: '8.x'
     - name: Download the Cantera shared library (.so)
@@ -1280,7 +1280,7 @@ jobs:
         persist-credentials: false
     - name: Set Python version
       # Python version does not matter as it is only used to run sourcegen
-      uses: actions/setup-python@v6
+      uses: actions/setup-python@v7
       with:
         python-version: "3.12"
     - name: Install Brew dependencies (macOS)
