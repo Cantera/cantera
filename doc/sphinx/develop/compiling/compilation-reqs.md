@@ -288,8 +288,12 @@ Next: Download the Source Code
   your choice of package manager:
 
   ```
-  gcc-c++ python3 scons boost-devel hdf5-devel
+  gcc-c++ python3 scons boost-devel hdf5-devel python3-setuptools python3-jinja2
   ```
+
+  :::{warning}
+  Compiling on modern Fedora with GCC 16 may require manually adding `#include <cstdint>` to `ext/yaml-cpp/src/emitterutils.cpp` until the upstream submodule is updated. As an alternative, install `yaml-cpp-devel` and build with `system_yamlcpp=y`.
+  :::
 
 - If you want to use system system packages to provide the following dependencies,
   instead of the versions bundled with Cantera, you should also install:
@@ -299,7 +303,7 @@ Next: Download the Source Code
 - In addition to the general packages, building the Python 3 module also requires:
 
   ```
-  python3-devel Cython python3-numpy python3-ruamel-yaml python3-pytest
+  python3-devel Cython python3-wheel python3-numpy python3-ruamel-yaml python3-pytest
   ```
 
 - In addition to the general packages, building the Fortran module also requires:
