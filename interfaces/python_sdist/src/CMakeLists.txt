@@ -10,11 +10,11 @@ else()
   set(CT_USE_SYSTEM_HIGHFIVE 1)
 endif()
 
-set(EIGEN_VERSION 3.4.0)
+set(EIGEN_VERSION 5.0.1)
 FetchContent_Declare(
   eigen
   URL https://gitlab.com/libeigen/eigen/-/archive/${EIGEN_VERSION}/eigen-${EIGEN_VERSION}.tar.bz2
-  URL_HASH SHA256=b4c198460eba6f28d34894e3a5710998818515104d6e74e5cc331ce31e46e626
+  URL_HASH SHA256=e4de6b08f33fd8b8985d2f204381408c660bffa6170ac65b68ae1bd3cd575c0a
   # FIND_PACKAGE_ARGS has to be the last thing in this call because it greedily takes
   # everything after it to pass to `find_package()`
   # GLOBAL sets up eigen to be a target in sibling directories. Without GLOBAL the target
