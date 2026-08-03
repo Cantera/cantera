@@ -620,7 +620,6 @@ jobs:
       - uses: actions/checkout@v7
         name: Checkout the repository
         with:
-          submodules: recursive
           persist-credentials: false
       - name: Set up Pixi
         uses: prefix-dev/setup-pixi@a09b6247153796b190642a2b53fac4241043cf6f # v0.10.0
