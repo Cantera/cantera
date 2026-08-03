@@ -42,11 +42,11 @@ FetchContent_Declare(
   FIND_PACKAGE_ARGS NAMES SUNDIALS
 )
 
-set(FMT_VERSION 11.2.0)
+set(FMT_VERSION 12.2.0)
 FetchContent_Declare(
   fmt
   URL https://github.com/fmtlib/fmt/releases/download/${FMT_VERSION}/fmt-${FMT_VERSION}.zip
-  URL_HASH SHA256=203eb4e8aa0d746c62d8f903df58e0419e3751591bb53ff971096eaa0ebd4ec3
+  URL_HASH SHA256=a2f4a8d51178f954e4c339007f77edd76ba0cb2e36f87a48e5a5403d9be5878f
   # FIND_PACKAGE_ARGS has to be the last thing in this call because it greedily takes
   # everything after it to pass to `find_package()`
   # GLOBAL sets up fmt to be a target in sibling directories. Without GLOBAL the target

@@ -1,37 +1,30 @@
-# TODO: Follow the progress of https://github.com/scikit-build/cython-cmake,
-# when it seems stable switch to that rather than custom-compiling
 file(GLOB_RECURSE CY_SOURCES "*.pyx")
 set(CY_OUTPUTS)
 foreach(CY_SOURCE IN LISTS CY_SOURCES)
-  cmake_path(GET CY_SOURCE FILENAME CY_PATH)
-  cmake_path(REPLACE_EXTENSION CY_PATH ".cpp" OUTPUT_VARIABLE CPP_OUTPUT)
-  cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR ${CPP_OUTPUT} OUTPUT_VARIABLE CPP_OUTPUT)
+  cython_transpile(
+    ${CY_SOURCE}
+    LANGUAGE CXX
+    CYTHON_ARGS --directive binding=True -X language_level=3
+    OUTPUT_VARIABLE CPP_OUTPUT
+    PUBLIC_HEADER_VARIABLE DELEGATOR_H
+  )
   list(APPEND CY_OUTPUTS ${CPP_OUTPUT})
   if(${CY_SOURCE} MATCHES "_delegate_callbacks.pyx$")
-    cmake_path(REPLACE_EXTENSION CPP_OUTPUT ".h" OUTPUT_VARIABLE DELEGATOR_H)
-    list(APPEND CPP_OUTPUT ${DELEGATOR_H})
     add_custom_target(DELEGATOR_H_EXT ALL DEPENDS ${DELEGATOR_H})
   endif()
-
-  add_custom_command(
-    OUTPUT ${CPP_OUTPUT}
-    COMMENT "Making ${CPP_OUTPUT} from ${CY_SOURCE}"
-    COMMAND Python::Interpreter -m cython ${CY_SOURCE} --output ${CMAKE_CURRENT_BINARY_DIR} --cplus --directive binding=True
-    DEPENDS ${CY_SOURCE}
-    VERBATIM)
 endforeach()
 
 # The aggregator module _cantera uses pure-Python (.py) Cython syntax but is always
 # compiled INTO the merged _cantera extension (it hosts the metapath finder and the
 # PyInit functions for the .pyx modules merged here), so cythonize it alongside the .pyx
 # sources rather than as a standalone pure-Python module.
-set(CANTERA_AGG_CPP "${CMAKE_CURRENT_BINARY_DIR}/_cantera.cpp")
-add_custom_command(
-  OUTPUT ${CANTERA_AGG_CPP}
-  COMMENT "Making ${CANTERA_AGG_CPP} from _cantera.py"
-  COMMAND Python::Interpreter -m cython "${CMAKE_CURRENT_SOURCE_DIR}/_cantera.py" --output ${CMAKE_CURRENT_BINARY_DIR} --cplus --directive binding=True
-  DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/_cantera.py"
-  VERBATIM)
+# set(CANTERA_AGG_CPP "${CMAKE_CURRENT_BINARY_DIR}/_cantera.cpp")
+cython_transpile(
+  _cantera.py
+  LANGUAGE CXX
+  CYTHON_ARGS --directive binding=True -X language_level=3
+  OUTPUT_VARIABLE CANTERA_AGG_CPP
+)
 list(APPEND CY_OUTPUTS ${CANTERA_AGG_CPP})
 
 # Cythonize each Cython pure-Python-syntax modules. How they are compiled depends on the
@@ -41,14 +34,12 @@ set(PURE_CY_MODULES _utils jacobians constants units func1 reactionpath
                     kinetics reaction thermo reactor _onedim delegator)
 set(PURE_CY_OUTPUTS)
 foreach(MODULE IN LISTS PURE_CY_MODULES)
-  set(CY_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/${MODULE}.py")
-  set(CPP_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${MODULE}.cpp")
-  add_custom_command(
-    OUTPUT ${CPP_OUTPUT}
-    COMMENT "Making ${CPP_OUTPUT} from ${CY_SOURCE}"
-    COMMAND Python::Interpreter -m cython ${CY_SOURCE} --output ${CMAKE_CURRENT_BINARY_DIR} --cplus --directive binding=True
-    DEPENDS ${CY_SOURCE}
-    VERBATIM)
+  cython_transpile(
+    "${CMAKE_CURRENT_SOURCE_DIR}/${MODULE}.py"
+    LANGUAGE CXX
+    CYTHON_ARGS --directive binding=True -X language_level=3
+    OUTPUT_VARIABLE CPP_OUTPUT
+  )
   list(APPEND PURE_CY_OUTPUTS ${CPP_OUTPUT})
 endforeach()
 
@@ -95,12 +86,13 @@ if(NOT CANTERA_PYODIDE)
   # source ships alongside it (auto-included by scikit-build) and is shadowed at import
   # time by the extension. (On Pyodide these modules are merged into _cantera instead --
   # see the cythonize step above.)
-  foreach(MODULE IN LISTS PURE_CY_MODULES)
-    python_add_library(${MODULE} MODULE "${CMAKE_CURRENT_BINARY_DIR}/${MODULE}.cpp" WITH_SOABI)
-    target_include_directories(${MODULE} PRIVATE "${Python_NumPy_INCLUDE_DIRS}" "../include")
-    target_compile_definitions(${MODULE} PRIVATE NPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION)
-    target_link_libraries(${MODULE} PRIVATE cantera_lib)
-    set_extension_rpath(${MODULE})
-    install(TARGETS ${MODULE} DESTINATION ${SKBUILD_PLATLIB_DIR}/cantera)
+  foreach(MODULE IN LISTS PURE_CY_OUTPUTS)
+    get_filename_component(MODULE_TARGET "${MODULE}" NAME_WE)
+    python_add_library(${MODULE_TARGET} MODULE ${MODULE} WITH_SOABI)
+    target_include_directories(${MODULE_TARGET} PRIVATE "${Python_NumPy_INCLUDE_DIRS}" "../include")
+    target_compile_definitions(${MODULE_TARGET} PRIVATE NPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION)
+    target_link_libraries(${MODULE_TARGET} PRIVATE cantera_lib)
+    set_extension_rpath(${MODULE_TARGET})
+    install(TARGETS ${MODULE_TARGET} DESTINATION ${SKBUILD_PLATLIB_DIR}/cantera)
   endforeach()
 endif()

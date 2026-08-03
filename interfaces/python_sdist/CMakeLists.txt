@@ -31,6 +31,13 @@ if(NOT TARGET Python::NumPy)
     )
 endif()
 
+find_package(
+  Cython
+  MODULE
+  REQUIRED
+  VERSION 3)
+include(UseCython)
+
 add_subdirectory("src")
 add_subdirectory("cantera")
 
