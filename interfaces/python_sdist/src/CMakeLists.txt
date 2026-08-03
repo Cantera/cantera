@@ -32,11 +32,11 @@ FetchContent_Declare(
   FIND_PACKAGE_ARGS NAMES yaml-cpp
 )
 
-set(SUNDIALS_VERSION 7.4.0)
+set(SUNDIALS_VERSION 7.8.0)
 FetchContent_Declare(
   sundials
   URL https://github.com/LLNL/sundials/releases/download/v${SUNDIALS_VERSION}/sundials-${SUNDIALS_VERSION}.tar.gz
-  URL_HASH SHA256=679ddacdd77610110e613164e8297d6d0cd35bae8e9c3afc8e8ff6f99a1c2a7b
+  URL_HASH SHA256=69ec92653e998e4841b59d363b3abf21299251991390f52917402737164ca574
   # FIND_PACKAGE_ARGS has to be the last thing in this call because it greedily takes
   # everything after it to pass to `find_package()`
   FIND_PACKAGE_ARGS NAMES SUNDIALS
