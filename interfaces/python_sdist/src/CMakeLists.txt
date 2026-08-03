@@ -42,11 +42,17 @@ FetchContent_Declare(
   FIND_PACKAGE_ARGS NAMES SUNDIALS
 )
 
-set(FMT_VERSION 11.2.0)
+if(CANTERA_PYODIDE)
+  set(FMT_VERSION 11.2.0)
+  set(FMT_HASH 203eb4e8aa0d746c62d8f903df58e0419e3751591bb53ff971096eaa0ebd4ec3)
+else()
+  set(FMT_VERSION 12.2.0)
+  set(FMT_HASH a2f4a8d51178f954e4c339007f77edd76ba0cb2e36f87a48e5a5403d9be5878f)
+endif()
 FetchContent_Declare(
   fmt
   URL https://github.com/fmtlib/fmt/releases/download/${FMT_VERSION}/fmt-${FMT_VERSION}.zip
-  URL_HASH SHA256=203eb4e8aa0d746c62d8f903df58e0419e3751591bb53ff971096eaa0ebd4ec3
+  URL_HASH SHA256=${FMT_HASH}
   # FIND_PACKAGE_ARGS has to be the last thing in this call because it greedily takes
   # everything after it to pass to `find_package()`
   # GLOBAL sets up fmt to be a target in sibling directories. Without GLOBAL the target
@@ -108,13 +114,6 @@ else()
     set(SUNDIALS_ENABLE_LAPACK OFF)
 endif()
 
-if(CANTERA_PYODIDE)
-  set(SUNDIALS_INDEX_SIZE 32)
-  set(SUNDIALS_INDEX_TYPE int32_t)
-  set(HAVE_size_int32_t 1)
-  set(size_int32_t 4)
-endif()
-
 # fmt build options
 set(FMT_INSTALL OFF)
 set(FMT_DOC OFF)
@@ -135,6 +134,9 @@ if(CT_USE_HDF5)
   list(APPEND CT_FETCHCONTENT_TARGETS HighFive)
 endif()
 FetchContent_MakeAvailable(${CT_FETCHCONTENT_TARGETS})
+if(EMSCRIPTEN)
+  target_compile_options(fmt PRIVATE "-include" "cstdlib")
+endif()
 
 file(GLOB_RECURSE CT_LIB_SOURCES "*.cpp")
 # The Python extension handler is built with the rest of the Python library because it

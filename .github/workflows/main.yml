@@ -383,8 +383,6 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     needs: ["ubuntu-multiple-pythons"]
-    strategy:
-      fail-fast: false
     steps:
       # Only need pyproject.toml for type checker settings
       - name: Checkout the repository
@@ -621,6 +619,7 @@ jobs:
       - uses: actions/checkout@v7
         name: Checkout the repository
         with:
+          submodules: recursive
           persist-credentials: false
       - name: Set up Pixi
         uses: prefix-dev/setup-pixi@ad1da6449d9e506fd127fd67ab2d054a769f6a94 # v0.11.2
@@ -643,7 +642,17 @@ jobs:
         run: |
           WHEELHOUSE="${RUNNER_TEMP}/pyodide-wheelhouse"
           mkdir -p "${WHEELHOUSE}"
-
+          pixi run -e pyodide python - <<'PY'
+          import sys, traceback
+          print("before pip download")
+          try:
+              import pip, urllib3
+              print("pip", pip.__version__)
+              print("urllib3", urllib3.__version__)
+          except Exception:
+              traceback.print_exc()
+              raise
+          PY
           # Load packages that are part of the Pyodide distribution. This is a
           # separate process since loadPackage does not reliably return control
           # to the calling Python script in the Node.js CLI runtime.
@@ -660,7 +669,7 @@ jobs:
             --dest "${WHEELHOUSE}" pint graphviz ruamel.yaml packaging
 
           export WHEELHOUSE
-          pixi run -e pyodide .pyodide-venv/bin/python - <<'PY'
+          NODE_OPTIONS="--trace-uncaught --trace-warnings" pixi run -e pyodide .pyodide-venv/bin/python - <<'PY'
           import asyncio
           import os
           from pathlib import Path
@@ -674,8 +683,16 @@ jobs:
           cantera_wheel = f"emfs:{list(Path('build/pyodide_dist').glob('*.whl'))[0].resolve()}"
 
           async def main():
+              print(f"{pure_python_wheels=}")
               await micropip.install(pure_python_wheels, deps=True, reinstall=True)
-              await micropip.install(cantera_wheel, deps=True, reinstall=True)
+              print(f"{cantera_wheel=}")
+              try:
+                  await micropip.install(cantera_wheel, deps=True, reinstall=True)
+              except BaseException ase:
+                  import traceback
+                  traceback.print_exc()
+                  print(repr(e))
+                  raise
 
           asyncio.run(main())
           PY

@@ -107,8 +107,6 @@ make = ">=4.3,<5"
 uv = ">=0.12.13"
 
 [feature.pyodide.pypi-dependencies]
-# build = ">=1.5.0,<2"
-# scikit-build-core = ">=1.0.3,<2"
 pyodide-build = ">=0.33.0,<0.40"
 
 # Native (non-Pyodide) build of the scikit-build-core/CMake sdist wheel. Layers the
@@ -119,7 +117,7 @@ pyodide-build = ">=0.33.0,<0.40"
 [feature.wheel.dependencies]
 cmake = ">=3.27,<5"
 ninja = ">=1.13.2,<2"
-scikit-build-core = ">=1.0.3,<2"
+uv = ">=0.12.13"
 
 [feature.wheel.pypi-dependencies]
 build = ">=1.5.0,<2"
