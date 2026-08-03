@@ -49,9 +49,6 @@ def main() -> int:
 
     env = dict(os.environ)
     env["CANTERA_PYODIDE"] = "ON"
-    cmake_args = env.get("CMAKE_ARGS", "").strip()
-    pyodide_cmake_args = "-DCMAKE_CXX_SCAN_FOR_MODULES=OFF"
-    env["CMAKE_ARGS"] = f"{cmake_args} {pyodide_cmake_args}".strip()
     if "Boost_INCLUDE_DIRS" not in env and (conda_prefix := env.get("CONDA_PREFIX")):
         boost_include = Path(conda_prefix) / "include"
         if boost_include.is_dir():
