@@ -17,7 +17,9 @@ FetchContent_Declare(
   URL_HASH SHA256=b4c198460eba6f28d34894e3a5710998818515104d6e74e5cc331ce31e46e626
   # FIND_PACKAGE_ARGS has to be the last thing in this call because it greedily takes
   # everything after it to pass to `find_package()`
-  FIND_PACKAGE_ARGS NAMES Eigen3
+  # GLOBAL sets up eigen to be a target in sibling directories. Without GLOBAL the target
+  # is scoped to this directory only.
+  FIND_PACKAGE_ARGS NAMES Eigen3 GLOBAL
 )
 
 set(YAML_CPP_VERSION 0.8.0)
@@ -47,6 +49,8 @@ FetchContent_Declare(
   URL_HASH SHA256=203eb4e8aa0d746c62d8f903df58e0419e3751591bb53ff971096eaa0ebd4ec3
   # FIND_PACKAGE_ARGS has to be the last thing in this call because it greedily takes
   # everything after it to pass to `find_package()`
+  # GLOBAL sets up fmt to be a target in sibling directories. Without GLOBAL the target
+  # is scoped to this directory only.
   FIND_PACKAGE_ARGS NAMES fmt GLOBAL
 )
 
