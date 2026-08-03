@@ -55,11 +55,11 @@ FetchContent_Declare(
 )
 
 if(CT_USE_HDF5)
-  set(HIGHFIVE_VERSION .3.1.1)
+  set(HIGHFIVE_VERSION 3.3.0)
   FetchContent_Declare(
     HighFive
     URL https://github.com/highfive-devs/HighFive/archive/refs/tags/v${HIGHFIVE_VERSION}.tar.gz
-    URL_HASH SHA256=c0bc76b01868a133bf4550a07321923c5582fe3967edc102864b082e40799914
+    URL_HASH SHA256=325cfbcf0c0296a6dd26f3b088801b7ebb8d6f109c0565c11d2d8c4af3253bff
     # FIND_PACKAGE_ARGS has to be the last thing in this call because it greedily takes
     # everything after it to pass to `find_package()`
     FIND_PACKAGE_ARGS NAMES HighFive
