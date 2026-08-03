@@ -1266,6 +1266,9 @@ jobs:
         - os: 'ubuntu-24.04'
           release: 'R2024a'
           # excluded due to glibc compatility issues; see #2035
+        - os: 'windows-2025'
+          release: 'R2024a'
+          # excluded due to Visual Studio 2026 incompatibility; see #2152
       fail-fast: false
     env:
       CANTERA_ROOT: ${{ github.workspace }}
