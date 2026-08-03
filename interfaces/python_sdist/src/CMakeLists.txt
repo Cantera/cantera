@@ -116,6 +116,8 @@ set(FMT_MASTER_PROJECT OFF)
 
 # Eigen options
 set(EIGEN_BUILD_DOC OFF)
+set(EIGEN_BUILD_TESTING OFF)
+set(EIGEN_BUILD_DEMOS OFF)
 
 # yaml-cpp options
 set(YAML_CPP_FORMAT_SOURCE OFF)
@@ -136,11 +138,15 @@ list(APPEND CT_LIB_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/extensions/canteraShared
 if(CANTERA_ENABLE_LAPACK AND NOT "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
     find_package(LAPACK REQUIRED)
     find_package(BLAS REQUIRED)
+    set(EIGEN_BUILD_BLAS OFF)
+    set(EIGEN_BUILD_LAPACK OFF)
     set(CT_USE_LAPACK 1)
     set(CT_SUNDIALS_USE_LAPACK 1)
-    set (SUNDIALS_LIBRARIES BLAS::BLAS LAPACK::LAPACK SUNDIALS::sunlinsollapackdense SUNDIALS::sunlinsollapackband)
+    set(SUNDIALS_LIBRARIES BLAS::BLAS LAPACK::LAPACK SUNDIALS::sunlinsollapackdense SUNDIALS::sunlinsollapackband)
 else()
-    set (SUNDIALS_LIBRARIES SUNDIALS::sunlinsoldense SUNDIALS::sunlinsolband)
+    set(SUNDIALS_LIBRARIES SUNDIALS::sunlinsoldense SUNDIALS::sunlinsolband)
+    set(EIGEN_BUILD_BLAS ON)
+    set(EIGEN_BUILD_LAPACK ON)
     set(CT_USE_LAPACK 0)
     set(CT_SUNDIALS_USE_LAPACK 0)
 endif()
