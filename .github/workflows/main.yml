@@ -1276,7 +1276,7 @@ jobs:
       CANTERA_ROOT: ${{ github.workspace }}
       CANTERA_DATA: ${{ github.workspace }}/data
     runs-on: ${{ matrix.os }}
-    needs: [ubuntu-multiple-pythons, macos-multiple-pythons, windows]
+    needs: [ubuntu-multiple-pythons, macos-multiple-pythons, windows-2022, windows]
     timeout-minutes: 60
     steps:
     - uses: actions/checkout@v7
@@ -1288,6 +1288,15 @@ jobs:
       uses: actions/setup-python@v7
       with:
         python-version: "3.12"
+    - name: Install library dependencies with micromamba (Windows)
+      uses: mamba-org/setup-micromamba@ce51e99f4bb8a82ab7158c4dc59ef4634c59c4f9 # v3.1.0
+      with:
+        environment-name: test-env
+        create-args: >-
+          yaml-cpp openblas highfive fmt=12.0
+        init-shell: powershell
+        post-cleanup: none
+      if: matrix.os == 'windows-2022'
     - name: Install Brew dependencies (macOS)
       run: |
         echo "Running on `sysctl -n machdep.cpu.brand_string`"
@@ -1357,6 +1366,11 @@ jobs:
         LIB_LAPACK=$(ldconfig -p | grep liblapack.so.3 | awk '{print $4}' | head -n 1)
         echo "LD_PRELOAD=$LIB_STDCXX:$LIB_OPENBLAS:$LIB_LAPACK" >> $GITHUB_ENV
       if: runner.os == 'Linux'
+    - name: Add Cantera library directory to PATH (Windows)
+      run: |
+        echo "${{ github.workspace }}/build/lib" >> $env:GITHUB_PATH
+        echo "${{ github.workspace }}/interfaces/matlab/+ct/+impl/ctMatlab" >> $env:GITHUB_PATH
+      if: runner.os == 'Windows'
     - name: Set up MATLAB
       uses: matlab-actions/setup-matlab@a0180c939fb1a28de13f44f7b778b912384ced1f # v3.0.1
       with:
