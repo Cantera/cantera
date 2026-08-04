@@ -1371,6 +1371,10 @@ jobs:
         echo "${{ github.workspace }}/build/lib" >> $env:GITHUB_PATH
         echo "${{ github.workspace }}/interfaces/matlab/+ct/+impl/ctMatlab" >> $env:GITHUB_PATH
       if: runner.os == 'Windows'
+    - name: Add Micromamba library directory to PATH (Windows 2022)
+      run: |
+        echo "C:\Users\runneradmin\micromamba\envs\test-env\Library\bin" >> $env:GITHUB_PATH
+      if: matrix.os == 'windows-2022'
     - name: Set up MATLAB
       uses: matlab-actions/setup-matlab@a0180c939fb1a28de13f44f7b778b912384ced1f # v3.0.1
       with:
