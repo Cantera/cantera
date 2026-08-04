@@ -70,6 +70,16 @@ div#top {
     justify-content: left;
 }
 
+#side-nav {
+    /* Restore the gutter that Doxygen's navtree.css reserves for the 6 px drag
+       bar and that doxygen-awesome.css clears with `padding: 0 !important`.
+       navtree.js assumes it is there: it restores the saved width as
+       `width = saved + 6` but re-derives it as `offsetWidth - 6`, so without
+       the padding the sidebar loses 6 px -- and saves the smaller value -- on
+       every page load. */
+    padding-right: 6px !important;
+}
+
 #main-nav {
     /* Doxygen's base stylesheet draws a border under #main-nav, which -- once
        the nav links in this menu are hidden -- shows only as a stray line from
