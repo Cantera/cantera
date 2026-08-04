@@ -1329,6 +1329,7 @@ if env['system_yamlcpp'] in ('y', 'default'):
 if env['system_yamlcpp'] in ('n', 'default'):
     env['system_yamlcpp'] = False
     logger.info("Using private installation of yaml-cpp library.")
+    env.Append(CPPDEFINES=['YAML_CPP_STATIC_DEFINE'])
     if not os.path.exists('ext/yaml-cpp/include/yaml-cpp/yaml.h'):
         checkout_submodule("yaml-cpp", "ext/yaml-cpp")
 
