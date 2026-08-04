@@ -288,18 +288,18 @@ Next: Download the Source Code
   your choice of package manager:
 
   ```
-  gcc-c++ python3 scons boost-devel hdf5-devel
+  gcc-c++ python3 scons boost-devel hdf5-devel yaml-cpp-devel python3-setuptools python3-jinja2
   ```
 
-- If you want to use system system packages to provide the following dependencies,
+- If you want to use system packages to provide the following dependencies,
   instead of the versions bundled with Cantera, you should also install:
 
-  > sundials-devel eigen3-devel yaml-cpp-devel fmt-devel highfive-devel
+  > sundials-devel eigen3-devel fmt-devel highfive-devel
 
 - In addition to the general packages, building the Python 3 module also requires:
 
   ```
-  python3-devel Cython python3-numpy python3-ruamel-yaml python3-pytest
+  python3-devel Cython python3-wheel python3-numpy python3-ruamel-yaml python3-pytest
   ```
 
 - In addition to the general packages, building the Fortran module also requires:

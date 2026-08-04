@@ -117,7 +117,7 @@ if env['system_sundials'] == 'n':
              and f.name not in ('sundials_profiler.c', 'sundials_xbraid.c')]))
 
 if not env['system_yamlcpp']:
-    localenv = prep_default(env)
+    localenv = prep_yamlcpp(env)
     localenv.Prepend(CPPPATH=Dir('#include/cantera/ext'))
     license_files["YAML-CPP"] = File("#ext/yaml-cpp/LICENSE")
 
