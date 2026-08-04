@@ -1262,6 +1262,8 @@ jobs:
           release: 'R2024b'
         - os: 'macos-15'
           release: 'latest'
+        - os: 'windows-2022'
+          release: 'R2024a'
         exclude:
         - os: 'ubuntu-24.04'
           release: 'R2024a'
