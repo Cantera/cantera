@@ -293,6 +293,8 @@ exclude_patterns = [
     "examples/python/**/*.py.md5",
     "examples/python/**/*.ipynb",
     "examples/python/**/*.py",
+    # Included by julia/index.md; generated at build time (see doc/SConscript)
+    "julia/api-reference.md",
 ]
 
 # The reST default role (used for this markup: `text`) to use for all documents.
