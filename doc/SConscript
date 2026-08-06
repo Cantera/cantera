@@ -142,13 +142,35 @@ if localenv['sphinx_docs']:
 
     # Generate the API reference pages for the Julia interface from the docstrings in
     # interfaces/julia/src. The page names must match those listed in generate.jl.
+    # Both branches produce 'julia/api-reference.md', which is included by
+    # 'julia/index.md'; only the generated version contains the toctree, so a build
+    # without Julia does not refer to pages that were not written.
     julia_pages = ['phases', 'thermo', 'kinetics', 'transport', 'zerodim', 'onedim',
                    'multiphase', 'rdiag', 'utilities']
-    julia_api = localenv.Command(
-        [f"#build/doc/sphinx/julia/{page}.md" for page in julia_pages],
-        "#interfaces/julia/docs/generate.jl",
-        "julia --project=interfaces/julia $SOURCE build/doc/sphinx/julia")
-    env.Depends(julia_api, multi_glob(env, '#interfaces/julia/src', 'jl'))
+    if localenv['julia_docs'] == 'y':
+        julia_api = localenv.Command(
+            [f"#build/doc/sphinx/julia/{page}.md" for page in julia_pages]
+            + ["#build/doc/sphinx/julia/api-reference.md"],
+            "#interfaces/julia/docs/generate.jl",
+            "julia --project=interfaces/julia $SOURCE build/doc/sphinx/julia")
+        env.Depends(julia_api, multi_glob(env, '#interfaces/julia/src', 'jl'))
+    else:
+        def julia_placeholder(target, source, env):
+            out = Path(str(target[0])).parent
+            out.mkdir(parents=True, exist_ok=True)
+            # Remove pages left over from an earlier build that had Julia available;
+            # they would otherwise be documents that no toctree refers to.
+            for page in julia_pages:
+                (out / f"{page}.md").unlink(missing_ok=True)
+            Path(str(target[0])).write_text(
+                "```{note}\n"
+                "The API reference is generated from the docstrings in the Julia\n"
+                "source code, which requires Julia to be installed. It is not part\n"
+                "of this build; see the [online documentation]"
+                "(https://cantera.org/dev/julia/index.html) instead.\n"
+                "```\n")
+        julia_api = localenv.Command(
+            "#build/doc/sphinx/julia/api-reference.md", [], julia_placeholder)
     env.Depends(sphinxdocs, julia_api)
 
     localenv.AlwaysBuild(sphinxdocs)

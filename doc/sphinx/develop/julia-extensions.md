@@ -71,6 +71,15 @@ bindings, and therefore a previous `scons build`; it does not require a working
 `libcantera`, because every `ccall` sits inside a function body and is not resolved at
 load time.
 
+Julia is not required to build the documentation. If the `julia` command is not found
+on the `PATH`, the reference pages are skipped and [](../julia/index) carries a note in
+place of them; the rest of the Julia documentation is unaffected. Use `julia_docs=y` to
+turn a missing Julia installation into an error, as the workflow that publishes the
+documentation does, or `julia_docs=n` to skip the pages even where Julia is available.
+The list of pages and the toctree that refers to them are written by `generate.jl` into
+`julia/api-reference.md`, which `julia/index.md` includes, so that the index never
+refers to a page that was not generated.
+
 Docstrings are written in Markdown, as Julia expects, and the pages are MyST, so the
 prose of a docstring is emitted as-is. Two things are handled specially:
 

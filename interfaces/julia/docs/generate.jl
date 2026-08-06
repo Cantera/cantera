@@ -310,6 +310,24 @@ function main()
         println("  $(rpad(page * ".md", 20)) $(length(selected)) objects")
     end
 
+    # The list of pages and the toctree live here rather than in the hand-written
+    # index, so that a documentation build without Julia can substitute a placeholder
+    # (see doc/SConscript) without referring to pages that were never written.
+    open(joinpath(OUTDIR, "api-reference.md"), "w") do io
+        for (page, _, _) in PAGES
+            println(io, "- [](", page, ".md)")
+        end
+        println(io)
+        println(io, "```{toctree}")
+        println(io, ":hidden:")
+        println(io, ":maxdepth: 1")
+        println(io)
+        for (page, _, _) in PAGES
+            println(io, page)
+        end
+        println(io, "```")
+    end
+
     # Fail loudly rather than silently dropping objects from the reference if a new
     # source file is added to the interface without being assigned to a page.
     known = Set(Iterators.flatten(files for (_, _, files) in PAGES))
