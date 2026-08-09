@@ -1331,13 +1331,25 @@ void ThermoPhase::equilibrate(const string& XY, const string& solver,
             E.options.maxIterations = max_steps;
             E.options.relTolerance = rtol;
             E.options.enforceTemperatureLimits = temperatureLimitsEnforced();
+            // If another solver will be tried anyway, a reduced-accuracy solution from
+            // ChemEquil is going to be discarded, so suppress such warnings.
+            E.options.warnOnInexactConvergence = (solver != "auto");
             int ret = E.equilibrate(*this, XY.c_str(), log_level-1);
             if (ret < 0) {
                 throw CanteraError("ThermoPhase::equilibrate",
                     "ChemEquil solver failed. Return code: {}", ret);
             }
-            debuglog("ChemEquil solver succeeded\n", log_level);
-            return;
+            if (ret == 1 && solver == "auto") {
+                // The element potential formulation is poorly conditioned for this
+                // mixture. The Gibbs minimization solvers can usually do better, so
+                // prefer their result over a degraded one.
+                debuglog("ChemEquil solver converged only to reduced accuracy\n",
+                         log_level);
+                restoreState(initial_state);
+            } else {
+                debuglog("ChemEquil solver succeeded\n", log_level);
+                return;
+            }
         } catch (std::exception& err) {
             debuglog("ChemEquil solver failed.\n", log_level);
             debuglog(err.what(), log_level);
