@@ -1,4 +1,5 @@
 import itertools
+import warnings
 
 import numpy as np
 import pytest
@@ -151,6 +152,118 @@ class TestChemEquil(EquilTestCases):
             gas.equilibrate('HP', solver='element_potential')
         assert gas.T > gas.max_temp
         assert gas.enthalpy_mass == approx(h0, abs=1e-3)
+
+
+class TestChemEquilIllConditioned:
+    """
+    Tests for mixtures whose equilibrium composition is dominated by a few species,
+    which leaves some element potentials determined only by species present in trace
+    amounts. The Jacobian is then rank deficient to within roundoff, and the solver
+    falls back to a rank-truncated step. See GitHub issue #2125.
+    """
+
+    # Combinations of mechanism, state, and composition where some element potentials
+    # are not resolvable to the default tolerance, along with a tolerance loose enough
+    # that they are. Each of these previously failed with "no convergence" after
+    # exhausting the iteration limit, at both the default and the looser tolerance.
+    ill_conditioned = [
+        ("h2o2.yaml", 550, 2 * ct.one_atm, "H2O:2, N2:0.7", 1e-8),
+        ("h2o2.yaml", 300, ct.one_atm, "H2O:2, N2:0.7", 1e-8),
+        ("gri30.yaml", 500, ct.one_atm, "CO2:1, H2O:2, N2:7.52", 1e-7),
+    ]
+
+    # Combinations that are well conditioned enough to converge normally. These
+    # exercise the unmodified LU path and must not emit a warning.
+    well_conditioned = [
+        ("h2o2.yaml", 1000, ct.one_atm, "H2O:2, N2:0.7"),
+        ("h2o2.yaml", 2500, ct.one_atm, "H2:2, O2:1, N2:4"),
+        ("gri30.yaml", 300, ct.one_atm, "CH4:1, O2:2, N2:7.52"),
+    ]
+
+    def reference(self, mech, T, P, X):
+        """Equilibrium composition computed with an independent solver."""
+        gas = ct.Solution(mech, transport_model=None)
+        gas.TPX = T, P, X
+        gas.equilibrate('TP', solver='gibbs')
+        return gas.X
+
+    @pytest.mark.parametrize("mech,T,P,X,loose_rtol", ill_conditioned)
+    def test_ill_conditioned_default_rtol(self, mech, T, P, X, loose_rtol):
+        # At the default tolerance the element potentials cannot be fully resolved,
+        # so the solver reports the accuracy it was able to achieve.
+        Xref = self.reference(mech, T, P, X)
+        gas = ct.Solution(mech, transport_model=None)
+        gas.TPX = T, P, X
+        with pytest.warns(UserWarning, match="cannot be resolved"):
+            gas.equilibrate('TP', solver='element_potential')
+        assert gas.X == approx(Xref, abs=2e-7)
+
+    @pytest.mark.parametrize("mech,T,P,X,loose_rtol", ill_conditioned)
+    def test_ill_conditioned_loose_rtol(self, mech, T, P, X, loose_rtol):
+        # With a tolerance the conditioning can support, the same cases converge
+        # normally and without a warning.
+        Xref = self.reference(mech, T, P, X)
+        gas = ct.Solution(mech, transport_model=None)
+        gas.TPX = T, P, X
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            gas.equilibrate('TP', solver='element_potential', rtol=loose_rtol)
+        assert gas.X == approx(Xref, abs=2e-7)
+
+    @pytest.mark.parametrize("mech,T,P,X", well_conditioned)
+    def test_well_conditioned_unaffected(self, mech, T, P, X):
+        # Well-conditioned problems keep using the plain LU step and converge to the
+        # default tolerance without any loss of accuracy.
+        Xref = self.reference(mech, T, P, X)
+        gas = ct.Solution(mech, transport_model=None)
+        gas.TPX = T, P, X
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            gas.equilibrate('TP', solver='element_potential')
+        assert gas.X == approx(Xref, abs=1e-9)
+
+    @pytest.mark.parametrize("mech,T,P,X,loose_rtol", ill_conditioned)
+    def test_auto_prefers_accurate_solver(self, mech, T, P, X, loose_rtol):
+        # The 'auto' solver should not settle for the reduced-accuracy element
+        # potential result when a Gibbs minimization solver can meet the requested
+        # tolerance. Since that result is discarded, there is nothing for the user
+        # to act on and no warning should be emitted.
+        Xref = self.reference(mech, T, P, X)
+        gas = ct.Solution(mech, transport_model=None)
+        gas.TPX = T, P, X
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            gas.equilibrate('TP')  # solver='auto' is the default
+        assert gas.X == approx(Xref, abs=1e-12)
+
+    def test_auto_resolves_trace_species(self):
+        # Trace species are exponentially sensitive to the element potentials that
+        # cannot be resolved, so they are where the element potential solver does
+        # worst. Check that the default solver is not affected by this.
+        mech, T, P, X, _ = self.ill_conditioned[0]
+        gas = ct.Solution(mech, transport_model=None)
+        gas.TPX = T, P, X
+        gas.equilibrate('TP')
+        # The element potential solver leaves H2 near the 1e-8 value used to
+        # initialize the trace species, six orders of magnitude too high.
+        assert gas['H2'].X[0] == approx(1.5e-14, rel=0.5)
+        assert gas['O2'].X[0] == approx(9e-15, rel=0.5)
+
+    def test_unconvergeable_still_fails(self):
+        # A reduced-accuracy solution is only accepted where the Jacobian is
+        # genuinely rank deficient and the remaining residual is small. A mixture
+        # that the element potential solver simply cannot handle must still be
+        # reported as a failure rather than being accepted as approximate.
+        gas = ct.Solution("h2o2.yaml", transport_model=None)
+        gas.TPX = 300, ct.one_atm, "H2:2, O2:1"
+        with pytest.raises(ct.CanteraError,
+                           match="element potential iteration failed"):
+            gas.equilibrate('TP', solver='element_potential')
+
+        # The 'auto' solver falls back and gets the right answer.
+        gas.TPX = 300, ct.one_atm, "H2:2, O2:1"
+        gas.equilibrate('TP')
+        assert gas['H2O'].X[0] == approx(1.0)
 
 
 class TestMultiphaseEquil(EquilTestCases):

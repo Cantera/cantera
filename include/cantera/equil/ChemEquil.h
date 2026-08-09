@@ -41,6 +41,18 @@ public:
      */
     bool enforceTemperatureLimits = false;
 
+    /**
+     * Warn when the element potentials cannot be resolved to `relTolerance` and a
+     * reduced-accuracy solution is returned.
+     *
+     * Should be disabled by callers that respond to such a return by falling back to
+     * a different solver, since in that case the reduced-accuracy solution is
+     * discarded and there is nothing for the user to act on.
+     *
+     * @since New in %Cantera 4.0.
+     */
+    bool warnOnInexactConvergence = true;
+
 };
 
 /**
@@ -90,6 +102,9 @@ public:
      * The value of two specified properties are obtained by querying the
      * ThermoPhase object. The properties must be already contained within the
      * current thermodynamic state of the system.
+     *
+     * @return See the other equilibrate() overload for the meaning of the return
+     *     value.
      */
     int equilibrate(ThermoPhase& s, const char* XY, int loglevel = 0);
 
@@ -105,9 +120,14 @@ public:
      * @param XY property pair to hold constant
      * @param elMoles specified vector of element abundances.
      * @param loglevel Specify amount of debug logging (0 to disable)
-     * @return Successful returns are indicated by a return value of 0.
-     *     Unsuccessful returns are indicated by a return value of -1 for lack
-     *     of convergence or -3 for a singular Jacobian.
+     * @return Successful returns are indicated by a return value of 0. A return
+     *     value of 1 indicates that the element potentials could not be resolved to
+     *     the specified tolerance because the problem is too poorly conditioned, and
+     *     that a solution of reduced accuracy is being returned; see
+     *     EquilOpt::warnOnInexactConvergence. Unsuccessful returns are indicated by a
+     *     return value of -1 for lack of convergence or -3 for a singular Jacobian.
+     *
+     * @since The possible return value of 1 is new in %Cantera 4.0.
      */
     int equilibrate(ThermoPhase& s, const char* XY, span<double> elMoles,
                     int loglevel = 0);
