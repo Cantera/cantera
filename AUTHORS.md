@@ -8,6 +8,7 @@ update, please report on Cantera's
 [Github issue tracker](https://github.com/Cantera/cantera/issues).
 
 - **Rounak Agarwal** [@agarwalrounak](https://github.com/agarwalrounak)
+- **Mohamed Ahmed** [@hazalkoom](https://github.com/hazalkoom) - Mansoura University
 - **David Akinpelu** [@DavidAkinpelu](https://github.com/DavidAkinpelu)
 - **Halla Ali** [@hallaali](https://github.com/hallaali)
 - **Emil Atz** [@EmilAtz](https://github.com/EmilAtz)
