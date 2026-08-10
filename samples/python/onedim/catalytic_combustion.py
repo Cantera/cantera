@@ -142,12 +142,16 @@ sim.save('catalytic_combustion.csv', basis="mole", overwrite=True)
 sim.show_stats()
 
 # %%
-# Temperature Profile
-# -------------------
-fig, ax = plt.subplots()
-ax.plot(sim.grid, sim.T, color='C3')
-ax.set_ylabel('heat release rate [MW/m³]')
-ax.set(xlabel='distance from inlet [m]')
+# Temperature and Heat Release Rate Profiles
+# ------------------------------------------
+fig, ax1 = plt.subplots()
+ax1.plot(sim.grid, sim.heat_release_rate / 1e6, color='C4')
+ax1.set_ylabel('heat release rate [MW/m³]', color='C4')
+ax1.set(xlabel='distance from inlet [m]')
+
+ax2 = ax1.twinx()
+ax2.plot(sim.grid, sim.T, color='C3')
+ax2.set_ylabel('temperature [K]', color='C3')
 plt.show()
 
 # %%
