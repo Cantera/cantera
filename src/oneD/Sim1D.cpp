@@ -60,7 +60,8 @@ double Sim1D::_workValue(size_t dom, size_t comp, size_t localPoint) const
 }
 
 void Sim1D::save(const string& fname, const string& name, const string& desc,
-                 bool overwrite, int compression, const string& basis)
+                 bool overwrite, int compression, const string& basis,
+                 const vector<double>* res)
 {
     size_t dot = fname.find_last_of(".");
     string extension = (dot != npos) ? toLowerCopy(fname.substr(dot+1)) : "";
@@ -82,6 +83,10 @@ void Sim1D::save(const string& fname, const string& name, const string& desc,
         SolutionArray::writeHeader(fname, name, desc, overwrite);
         for (auto dom : m_dom) {
             auto arr = dom->toArray();
+            if (res) {
+                dom->appendResiduals(*arr, span<const double>(
+                    res->data() + dom->loc(), dom->size()));
+            }
             arr->writeEntry(fname, name, dom->id(), overwrite, compression);
         }
         return;
@@ -96,6 +101,10 @@ void Sim1D::save(const string& fname, const string& name, const string& desc,
 
         for (auto dom : m_dom) {
             auto arr = dom->toArray();
+            if (res) {
+                dom->appendResiduals(*arr, span<const double>(
+                    res->data() + dom->loc(), dom->size()));
+            }
             arr->writeEntry(data, name, dom->id(), overwrite);
         }
 
@@ -113,12 +122,7 @@ void Sim1D::saveResidual(const string& fname, const string& name,
 {
     vector<double> res(m_state->size(), -999);
     OneDim::eval(npos, *m_state, res, 0.0);
-    // Temporarily put the residual into m_state, since this is the vector that the
-    // save() function reads.
-    vector<double> backup(*m_state);
-    *m_state = res;
-    save(fname, name, desc, overwrite, compression);
-    *m_state = backup;
+    save(fname, name, desc, overwrite, compression, "", &res);
 }
 
 namespace { // restrict scope of helper function to local translation unit
@@ -503,20 +507,22 @@ int Sim1D::refine(int loglevel)
 
 void Sim1D::clearDebugFile()
 {
+    try {
+        AnyMap::clearCachedFile("debug_sim1d.yaml");
+    } catch (CanteraError&) {
+        // File might not exist yet
+    }
     std::filesystem::remove("debug_sim1d.yaml");
 }
 
 void Sim1D::writeDebugInfo(const string& header_suffix, const string& message,
                            int loglevel, int attempt_counter)
 {
-    string file_header;
-    if (loglevel > 6) {
-        file_header = fmt::format("solution_{}_{}", attempt_counter, header_suffix);
-        save("debug_sim1d.yaml", file_header, message, true);
-    }
+    string file_header = fmt::format("solution_{}_{}", attempt_counter, header_suffix);
     if (loglevel > 7) {
-        file_header = fmt::format("residual_{}_{}", attempt_counter, header_suffix);
         saveResidual("debug_sim1d.yaml", file_header, message, true);
+    } else if (loglevel > 6) {
+        save("debug_sim1d.yaml", file_header, message, true);
     }
 }
 

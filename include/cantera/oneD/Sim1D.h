@@ -115,10 +115,13 @@ public:
      *      ThermoPhase manager is used - @see nativeState (CSV only)
      */
     void save(const string& fname, const string& name, const string& desc,
-              bool overwrite=false, int compression=0, const string& basis="");
+              bool overwrite=false, int compression=0, const string& basis="",
+              const vector<double>* res=nullptr);
 
     /**
-     * Save the residual of the current solution to a container file.
+     * Save the current solution and its residual vector to a container file.
+     * Residual values are appended to each domain's SolutionArray as extra components
+     * prefixed with `residual-`.
      * @param fname  Name of output container file
      * @param name  Identifier of solution within the container file
      * @param desc  Description of the solution
@@ -177,7 +180,7 @@ public:
      *                 file.
      * @param loglevel  Controls the type of output that will be written. A `loglevel`
      *                  greater than 6 saves the solution, and a `loglevel` greater
-     *                  than 7 saves the residual additionally.
+     *                  than 7 saves the solution with residual vectors appended.
      * @param attempt_counter  An integer counter used to uniquely identify the attempt
      *                         which is included in the file header to differentiate
      *                         between multiple solution attempts.

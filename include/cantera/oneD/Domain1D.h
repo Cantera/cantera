@@ -526,6 +526,12 @@ public:
         throw NotImplementedError("Domain1D::toArray", "Needs to be overloaded.");
     }
 
+    //! Append residual data to a SolutionArray as extra components.
+    //! @param arr  SolutionArray to append residual data to
+    //! @param res  span of the local residual vector for this domain
+    //! @since New in %Cantera 4.0
+    virtual void appendResiduals(SolutionArray& arr, span<const double> res) const;
+
     //! Restore the solution for this domain from a SolutionArray.
     /*!
      * This method serves as an external interface for high-level API's.

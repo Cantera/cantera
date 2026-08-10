@@ -279,4 +279,23 @@ double Domain1D::initialValue(size_t n, size_t j)
     throw NotImplementedError("Domain1D::initialValue");
 }
 
+void Domain1D::appendResiduals(SolutionArray& arr, span<const double> res) const
+{
+    // Skip domains with no data points in the SolutionArray
+    if (arr.size() == 0) {
+        return;
+    }
+    for (size_t i = 0; i < nComponents(); i++) {
+        string rname = "residual-" + componentName(i);
+        arr.addExtra(rname);
+        vector<double> data(nPoints());
+        for (size_t j = 0; j < nPoints(); j++) {
+            data[j] = res[index(i, j)];
+        }
+        AnyValue value;
+        value = data;
+        arr.setComponent(rname, value);
+    }
+}
+
 } // namespace
