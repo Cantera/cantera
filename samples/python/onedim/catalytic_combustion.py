@@ -17,6 +17,7 @@ Requires: cantera >= 3.0, matplotlib >= 2.0
 """
 
 import numpy as np
+
 import matplotlib.pyplot as plt
 import cantera as ct
 
@@ -144,16 +145,15 @@ sim.show_stats()
 # %%
 # Temperature Profile
 # -------------------
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(num="Temperature Profile")
 ax.plot(sim.grid, sim.T, color='C3')
-ax.set_ylabel('heat release rate [MW/m³]')
-ax.set(xlabel='distance from inlet [m]')
+ax.set(xlabel='distance from inlet [m]', ylabel='temperature [K]')
 plt.show()
 
 # %%
 # Major Species Profiles
 # ----------------------
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(num="Major Species Profiles")
 major = ('O2', 'CH4', 'H2O', 'CO2')
 states = sim.to_array()
 ax.plot(states.grid, states(*major).X, label=major)
