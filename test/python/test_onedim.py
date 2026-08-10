@@ -1004,6 +1004,26 @@ class TestFreeFlame:
     def test_save_restore_yaml(self):
         self.run_save_restore("yaml")
 
+    @pytest.mark.parametrize("loglevel", [7, 8])
+    def test_solve_loglevel_residual(self, tmp_path, monkeypatch, loglevel, capsys):
+        # Test high loglevels (7=solution, 8=residual) to prevent regressions (#2073)
+        monkeypatch.chdir(tmp_path)
+        self.run_mix(phi=1.0, T=300, width=0.05, p=1.0, refine=False)
+        self.sim.solve(loglevel=loglevel, refine_grid=False)
+        capsys.readouterr()  # discard log output
+        debug_file = tmp_path / "debug_sim1d.yaml"
+        assert debug_file.exists()
+
+        debug = ct.SolutionArray(self.gas)
+        debug.restore(debug_file, "solution_1_NewtonSuccess/flame")
+        assert debug.shape == (self.sim.flame.n_points,)
+
+        if loglevel > 7:
+            assert "residual-T" in debug.component_names
+            assert debug.residual_T.shape == (self.sim.flame.n_points,)
+        else:
+            assert "residual-T" not in debug.component_names
+
     def run_save_restore(self, mode):
         filename = self.test_work_path / f"freeflame.{mode}"
         filename.unlink(missing_ok=True)
@@ -2135,6 +2155,46 @@ class TestImpingingJet:
 
     def test_reacting_surface_case1(self):
         self.run_reacting_surface(xch4=0.095, tsurf=900.0, mdot=0.06, width=0.1)
+
+    @pytest.mark.parametrize("loglevel", [7, 8])
+    def test_reacting_surface_loglevel_residual(self, tmp_path, monkeypatch, loglevel,
+                                                capsys):
+        monkeypatch.chdir(tmp_path)
+        comp = {'CH4': 0.095, 'O2': 0.21, 'N2': 0.79}
+        sim = self.create_reacting_surface(comp, tsurf=900.0, tinlet=300.0, width=0.1)
+        sim.inlet.mdot = 0.06
+        sim.inlet.T = 300.0
+        sim.inlet.X = comp
+        sim.surface.T = 900.0
+        sim.solve(loglevel=loglevel, refine_grid=False)
+        capsys.readouterr()  # discard log output
+        debug_file = tmp_path / "debug_sim1d.yaml"
+        assert debug_file.exists()
+
+        with open(debug_file, "r") as f:
+            debug_text = f.read()
+
+        success_keys = []
+        for line in debug_text.splitlines():
+            if line.startswith("solution_") and line.endswith(":"):
+                key = line.split(":")[0]
+                if "NewtonSuccess" in key:
+                    success_keys.append(key)
+
+        node_key = success_keys[-1] if success_keys else "solution_1_NewtonSuccess"
+
+        debug_flame = ct.SolutionArray(self.gas)
+        debug_flame.restore(debug_file, f"{node_key}/flame")
+        assert debug_flame.shape == (sim.flame.n_points,)
+
+        debug_surf = ct.SolutionArray(sim.surface.phase)
+        debug_surf.restore(debug_file, f"{node_key}/surface")
+        assert debug_surf.shape == (sim.surface.n_points,)
+
+        if loglevel > 7:
+            assert "residual-T" in debug_flame.component_names
+        else:
+            assert "residual-T" not in debug_flame.component_names
 
     @pytest.mark.slow_test
     def test_reacting_surface_case2(self):

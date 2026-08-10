@@ -82,9 +82,12 @@ TEST(onedim, freeflame)
     int loglevel = 0;
     flame->solve(loglevel, refine_grid);
     flame->save("gtest-freeflame.yaml", "cpp", "Solution from C++ interface", true);
+    flame->saveResidual("gtest-freeflame-res.yaml", "cpp_res", "Residual from C++ interface", true);
     if (usesHDF5()) {
         flame->save("gtest-freeflame.h5", "cpp", "Solution from C++ interface", true);
+        flame->saveResidual("gtest-freeflame-res.h5", "cpp_res", "Residual from C++ interface", true);
     }
+    EXPECT_THROW(flame->saveResidual("gtest-freeflame-res.bad", "cpp_res", "Residual", true), CanteraError);
 
     ASSERT_EQ(flow->nPoints(), static_cast<size_t>(nz + 1));
     auto Tvec = flow->values("T");
