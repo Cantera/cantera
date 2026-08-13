@@ -146,7 +146,7 @@ sim.show_stats()
 # -------------------
 fig, ax = plt.subplots()
 ax.plot(sim.grid, sim.T, color='C3')
-ax.set_ylabel('heat release rate [MW/m³]')
+ax.set_ylabel('Temperature [K]')
 ax.set(xlabel='distance from inlet [m]')
 plt.show()
 
