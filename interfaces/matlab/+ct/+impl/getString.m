@@ -2,29 +2,40 @@ function output = getString(funcName, varargin)
     % Calls Cantera library functions with string outputs and returns
     % errors if necessary.
 
-    buf = clib.array.ctMatlab.Char(0);
-    buflen = clib.ctMatlab.(funcName)(varargin{:}, buf);
+    persistent emptyCache stringCache maxLen
+    if isempty(stringCache)
+        stringCache = clib.array.ctMatlab.Char(256);
+        maxLen = 256;
+    end
+    if isempty(emptyCache)
+        emptyCache = clib.array.ctMatlab.Char(0);
+    end
 
-    if buflen > 0
-        buf = clib.array.ctMatlab.Char(buflen);
+    buflen = clib.ctMatlab.(funcName)(varargin{:}, emptyCache);
 
-        nchar = sum(cellfun(@ischar, varargin));
-        if nchar == 0 || nchar == 1
-            iok = clib.ctMatlab.(funcName)(varargin{:}, buf);
-        else
-            error('not implemented - argument list contains more than one char array.')
-        end
+    if buflen <= 0
+        error('Cantera:ctError', ct.impl.getError());
+    end
+
+    % resize stringCache if needed
+    if buflen > maxLen
+        stringCache = clib.array.ctMatlab.Char(buflen);
+        maxLen = buflen;
+    end
+
+    nchar = sum(cellfun(@ischar, varargin));
+    if nchar == 0 || nchar == 1
+        buflen = clib.ctMatlab.(funcName)(varargin{:}, stringCache);
     else
-        error('Cantera:ctError', ct.impl.getError());
+        error('not implemented - argument list contains more than one char array.')
     end
 
-    iok = double(iok);
-    if ismember(iok, ct.impl.errorCode)
-        error('Cantera:ctError', ct.impl.getError());
-    end
+    buflen = double(buflen);
+    ct.impl.checkErrorCode(buflen);
 
     % Discard the last character
-    s = buf.double;
+    s = stringCache.double;
+    s = s(1:buflen);
     if s(end) == 0
         s = s(1:end-1);
     end
