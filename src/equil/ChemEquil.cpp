@@ -13,6 +13,7 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/base/utilities.h"
 #include "cantera/base/global.h"
+#include "cantera/numerics/eigen_dense.h"
 
 namespace Cantera
 {
@@ -577,6 +578,22 @@ int ChemEquil::equilibrate(ThermoPhase& s, const char* XYstr,
     }
 
     vector<double> oldx(nvar, 0.0); // old solution
+    // Stall detection: a mixture whose equilibrium composition is dominated by a few
+    // species can leave some element potentials determined only by trace species,
+    // making the numerically-evaluated Jacobian rank deficient. Plain LU then returns a
+    // meaningless step along the null direction. Detect the resulting lack of progress
+    // and switch to a rank-truncated step, which holds the unresolvable directions
+    // fixed.
+    bool stalled = false;
+    bool rankDeficient = false;
+    int noProgress = 0;
+    double bestResid = BigNumber;
+    double maxResid = 0.0;
+    double dxmax = 0.0;
+    // Largest relative error in the element abundances that will be accepted as a
+    // reduced-accuracy solution. Beyond this, the result is too inaccurate to be
+    // useful, and lack of convergence is reported instead.
+    const double maxInexactResid = 1e-5;
 
     for (int iter = 0; iter < options.maxIterations; iter++) {
         // check for convergence.
@@ -586,6 +603,7 @@ int ChemEquil::equilibrate(ThermoPhase& s, const char* XYstr,
         double deltax = (xx - xval)/xval;
         double deltay = (yy - yval)/yval;
         bool passThis = true;
+        maxResid = 0.0;
         for (size_t m = 0; m < nvar; m++) {
             double tval = options.relTolerance;
             if (m < mm) {
@@ -610,10 +628,55 @@ int ChemEquil::equilibrate(ThermoPhase& s, const char* XYstr,
             if (fabs(res_trial[m]) > tval) {
                 passThis = false;
             }
+            maxResid = std::max(maxResid, fabs(res_trial[m]) / tval);
         }
-        if (iter > 0 && passThis && fabs(deltax) < options.relTolerance
+        if (maxResid < 0.9 * bestResid) {
+            bestResid = maxResid;
+            noProgress = 0;
+        } else if (++noProgress > 20) {
+            stalled = true;
+        }
+        // A solution that does not meet the requested tolerance is accepted only if
+        // the Jacobian was actually found to be rank deficient, the iteration is no
+        // longer moving, and the residual that remains is small in absolute terms.
+        // Without these conditions, an ordinary convergence failure would be
+        // indistinguishable from the ill-conditioned case handled here.
+        bool inexact = stalled && rankDeficient && dxmax < 1e-12
+                       && maxResid * options.relTolerance < maxInexactResid;
+        if ((passThis || inexact)
+                && fabs(deltax) < options.relTolerance
                 && fabs(deltay) < options.relTolerance) {
             options.iterations = iter;
+            if (!passThis && options.warnOnInexactConvergence) {
+                // Report the accuracy actually achieved in terms of the largest
+                // relative error in the mole fraction of any element.
+                double relErr = 0.0;
+                size_t worst = 0;
+                for (size_t m = 0; m < mm; m++) {
+                    if (elMolesGoal[m] > m_elemFracCutoff) {
+                        double err = fabs(m_elementmolefracs[m] - elMolesGoal[m])
+                                     / elMolesGoal[m];
+                        if (err > relErr) {
+                            relErr = err;
+                            worst = m;
+                        }
+                    }
+                }
+                warn_user("ChemEquil::equilibrate",
+                    "The equilibrium composition of this mixture is dominated by a "
+                    "few species, leaving some element potentials determined only "
+                    "by species present in trace amounts.\nThese potentials cannot "
+                    "be resolved to the requested relative tolerance of {:g}.\n"
+                    "Returning the most accurate solution available, in which the "
+                    "mole fraction of element {} deviates from the specified value "
+                    "by a relative amount of {:g}.\nErrors in the computed species "
+                    "mole fractions are expected to be of a similar relative "
+                    "magnitude, and may be much larger for species present in trace "
+                    "amounts.\nConsider using the 'gibbs' or 'vcs' solvers, which do "
+                    "not use the element potential formulation and can usually meet "
+                    "the specified tolerance for such mixtures.",
+                    options.relTolerance, s.elementName(worst), relErr);
+            }
 
             if (m_eloc != npos) {
                 adjustEloc(s, elMolesGoal);
@@ -625,7 +688,7 @@ int ChemEquil::equilibrate(ThermoPhase& s, const char* XYstr,
                     "Temperature ({} K) outside valid range of {} K "
                     "to {} K", s.temperature(), s.minTemp(), s.maxTemp());
             }
-            return 0;
+            return passThis ? 0 : 1;
         }
         // compute the residual and the Jacobian using the current
         // solution vector
@@ -660,7 +723,24 @@ int ChemEquil::equilibrate(ThermoPhase& s, const char* XYstr,
 
         // Solve the system
         try {
-            solve(jac, res_trial);
+            if (stalled) {
+                // Rank-truncated least-squares step: components of the step
+                // along directions the Jacobian cannot resolve are dropped.
+                MappedMatrix J(const_cast<double*>(jac.data().data()),
+                               jac.nRows(), jac.nColumns());
+                Eigen::JacobiSVD<Eigen::MatrixXd> svd(
+                    J, Eigen::ComputeThinU | Eigen::ComputeThinV);
+                // The Jacobian is evaluated by forward differences with a relative
+                // perturbation of 1e-7 (see equilJacobian()), so its elements are
+                // themselves only accurate to a relative error of that order.
+                // Singular values below this threshold are indistinguishable from
+                // the noise in the finite difference approximation.
+                svd.setThreshold(1e-7);
+                rankDeficient = svd.rank() < nvar;
+                asVectorXd(res_trial) = svd.solve(asVectorXd(res_trial).eval());
+            } else {
+                solve(jac, res_trial);
+            }
         } catch (CanteraError& err) {
             s.restoreState(state);
             throw CanteraError("ChemEquil::equilibrate",
@@ -712,6 +792,10 @@ int ChemEquil::equilibrate(ThermoPhase& s, const char* XYstr,
         scale(res_trial.begin(), res_trial.end(), res_trial.begin(), fctr);
 
         dampStep(oldx, res_trial, x);
+        dxmax = 0.0;
+        for (size_t m = 0; m < nvar; m++) {
+            dxmax = std::max(dxmax, fabs(x[m] - oldx[m]));
+        }
     }
 
     // no convergence
