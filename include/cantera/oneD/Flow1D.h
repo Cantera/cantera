@@ -15,7 +15,10 @@
 
 namespace Cantera
 {
+class Transport;
 
+namespace OneD
+{
 //------------------------------------------
 //   constants
 //------------------------------------------
@@ -31,8 +34,6 @@ enum offset
     , c_offset_Uo //! oxidizer axial velocity [m/s]
     , c_offset_Y //! mass fractions
 };
-
-class Transport;
 
 //! @defgroup flowGroup Flow Domains
 //! One-dimensional flow domains.
@@ -1110,6 +1111,7 @@ private:
     vector<double> m_ybar;
 };
 
+}
 }
 
 #endif

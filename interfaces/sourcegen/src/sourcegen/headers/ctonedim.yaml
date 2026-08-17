@@ -4,8 +4,8 @@
 docstring: |-
   Generated CLib API for Cantera's Sim1D class.
 prefix: sim1D
-base: Sim1D
-parents: [OneDim, SteadyStateSystem]  # List of parent classes
+base: OneD::Sim1D
+parents: ["OneD::OneDim", SteadyStateSystem]  # List of parent classes
 recipes:
 - name: newSim1D
   uses: domain

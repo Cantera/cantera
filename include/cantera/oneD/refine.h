@@ -6,14 +6,14 @@
 
 #include "cantera/base/ct_defs.h"
 
-namespace Cantera
+namespace Cantera::OneD
 {
 
 class Domain1D;
 
 //! Refine Domain1D grids so that profiles satisfy adaptation tolerances
 //! @ingroup onedUtilsGroup
- class Refiner
+class Refiner
 {
 public:
     Refiner(Domain1D& domain);

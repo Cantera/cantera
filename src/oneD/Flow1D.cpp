@@ -16,7 +16,7 @@
 
 using namespace std;
 
-namespace Cantera
+namespace Cantera::OneD
 {
 
 namespace { // restrict scope of auxiliary variables to local translation unit
