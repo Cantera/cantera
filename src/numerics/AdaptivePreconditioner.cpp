@@ -30,7 +30,7 @@ void AdaptivePreconditioner::initialize(size_t networkSize)
     if (m_drop_tol == 0) {
         setIlutDropTol(1e-12);
     }
-    if (m_drop_tol == 0) {
+    if (m_fill_factor == 0) {
         setIlutFillFactor(static_cast<int>(m_dim) / 2);
     }
     // update initialized status
