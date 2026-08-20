@@ -49,7 +49,7 @@ gas.equilibrate('HP');
 rhoOut = gas.massDensity;
 Yout = gas.Y;
 Tad = gas.T;
-disp(sprintf("phi = %1.1f, Tad = %1.1f\n", phi, Tad));
+fprintf("phi = %1.1f, Tad = %1.1f\n", phi, Tad);
 
 %%
 % **Create domains required for a flame simulation**
@@ -125,7 +125,7 @@ stack.setFixedTemperature(0.5 * (Tin + Tad));
 flame.energyEnabled = true;
 stack.solve(logLevel, refineGrid);
 uVec = flame.values('velocity');
-disp(sprintf("Flame speed with mixture-averaged transport: %1.4f m/s\n", uVec(1)));
+fprintf("Flame speed with mixture-averaged transport: %1.4f m/s\n", uVec(1));
 stack.save(fileName, "mix", "Solution with mixture-averaged transport", true);
 
 %%
@@ -135,7 +135,7 @@ stack.save(fileName, "mix", "Solution with mixture-averaged transport", true);
 flame.transportModel = 'multicomponent';
 stack.solve(logLevel, refineGrid);
 uVec = flame.values('velocity');
-disp(sprintf("Flame speed with multicomponent transport: %1.4f m/s\n", uVec(1)));
+fprintf("Flame speed with multicomponent transport: %1.4f m/s\n", uVec(1));
 stack.save(fileName, "multi", "Solution with multicomponent transport", true);
 
 %%
@@ -145,7 +145,7 @@ stack.save(fileName, "multi", "Solution with multicomponent transport", true);
 flame.soretEnabled = true;
 stack.solve(logLevel, refineGrid);
 uVec = flame.values('velocity');
-disp(sprintf("Flame speed with multicomponent transport + Soret: %1.4f m/s\n", uVec(1)));
+fprintf("Flame speed with multicomponent transport + Soret: %1.4f m/s\n", uVec(1));
 stack.save(fileName, "soret", "Solution with multicomponent transport and Soret", true);
 
 %%
