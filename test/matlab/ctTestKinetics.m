@@ -216,6 +216,32 @@ classdef ctTestKinetics < ctTestCase
             end
         end
 
+        function testUnnormalizedCoverages(self)
+            surf = ct.Interface('ptcombust.yaml', 'Pt_surf');
+            nsp = surf.nSpecies;
+
+            cov = zeros(1, nsp);
+            cov(1) = 0.25;
+            cov(2) = 0.25;
+            tol = ones(1, nsp) .* self.atol;
+
+            % Assigning coverages normalizes them to sum to one
+            surf.coverages = cov;
+            self.verifyEqual(sum(surf.coverages), 1.0, 'AbsTol', self.atol);
+            self.verifyEqual(surf.coverages, cov .* 2, 'AbsTol', tol);
+
+            % Setting unnormalized coverages leaves the values unchanged
+            surf.setUnnormalizedCoverages(cov);
+            self.verifyEqual(surf.coverages, cov, 'AbsTol', tol);
+            self.verifyEqual(sum(surf.coverages), 0.5, 'AbsTol', self.atol);
+
+            % Invalid inputs are rejected
+            self.verifyError(@() surf.setUnnormalizedCoverages(cov(1:end-1)), ...
+                             ?MException);
+            self.verifyError(@() surf.setUnnormalizedCoverages('PT(S):1.0'), ...
+                             ?MException);
+        end
+
         function testPdepError(self)
             try
                 gas = ct.Solution('../data/addReactions_err_test.yaml');

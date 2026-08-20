@@ -102,7 +102,7 @@ classdef Interface < ct.Solution
                     error('wrong size for coverage array');
                 end
 
-                ct.impl.call('mSurf_setCoverages', obj.tpID, cov, 0);
+                ct.impl.call('mSurf_setCoveragesNoNorm', obj.tpID, cov);
             else
                 error('Coverage must be a numeric array');
             end

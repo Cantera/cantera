@@ -79,3 +79,36 @@ TEST(ctthermo, atomicWeights)
         ASSERT_NEAR(buf[i], cxx_weights[i], 1e-6);
     }
 }
+
+TEST(ctthermo, coverages)
+{
+    int32_t ret;
+    int32_t surf = sol_newInterface("ptcombust.yaml", "Pt_surf", 0, nullptr);
+    ASSERT_GE(surf, 0);
+    int32_t thermo = sol_thermo(surf);
+    ASSERT_GE(thermo, 0);
+
+    int32_t nsp = thermo_nSpecies(thermo);
+    ASSERT_GT(nsp, 1);
+    vector<double> cov(nsp, 0.0);
+    cov[0] = 0.25;
+    cov[1] = 0.25;
+    vector<double> buf(nsp);
+
+    // setCoverages normalizes the input
+    ret = surf_setCoverages(thermo, nsp, cov.data());
+    ASSERT_EQ(ret, 0);
+    ret = surf_getCoverages(thermo, nsp, buf.data());
+    ASSERT_EQ(ret, 0);
+    ASSERT_NEAR(buf[0], 0.5, 1e-12);
+    ASSERT_NEAR(buf[1], 0.5, 1e-12);
+
+    // setCoveragesNoNorm retains the unnormalized input
+    ret = surf_setCoveragesNoNorm(thermo, nsp, cov.data());
+    ASSERT_EQ(ret, 0);
+    ret = surf_getCoverages(thermo, nsp, buf.data());
+    ASSERT_EQ(ret, 0);
+    for (int32_t i = 0; i < nsp; i++) {
+        ASSERT_NEAR(buf[i], cov[i], 1e-12);
+    }
+}

@@ -153,6 +153,7 @@ recipes:
 - name: setState_Tsat
 - name: getCoverages
 - name: setCoverages
+- name: setCoveragesNoNorm
 - name: getConcentrations  # Changed in Cantera 3.2 (previously used 'surf' prefix')
 - name: setConcentrations  # Changed in Cantera 3.2 (previously used 'surf' prefix')
 - name: siteDensity
