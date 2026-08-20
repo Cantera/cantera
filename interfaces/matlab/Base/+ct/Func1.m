@@ -200,36 +200,47 @@ classdef Func1 < handle
         end
 
         function b = subsref(obj, s)
-            % Redefine subscripted references for functors. ::
+            % Implement subscripted reference behavior for functors. ::
             %
-            %     >> b = a.subsref(s)
+            %     >> b = f(x)
             %
-            % :param a:
+            % MATLAB calls this method automatically to resolve a subscripted
+            % expression on a functor. Its purpose is to make a functor callable
+            % like a function, so that ``f(x)`` evaluates it. Users normally reach
+            % it this way rather than calling ``subsref`` directly. All other
+            % reference forms, such as reading a property with ``f.type``, behave as
+            % they do for any object.
+            %
+            % :param f:
             %     Instance of class :mat:class:`ct.Func1`.
             % :param s:
-            %     Value at which the function should be evaluated.
+            %     Subscript-reference struct array that MATLAB passes to ``subsref``
+            %     (see the built-in ``subsref`` documentation). For a function call,
+            %     ``s(1).type`` is ``'()'`` and ``s(1).subs`` holds the point(s) at
+            %     which to evaluate the function.
             % :return:
-            %     Returns the value of the function evaluated at ``s``.
+            %     For a ``()`` reference, a vector holding the function evaluated at
+            %     each requested point. For any other reference, whatever the default
+            %     ``subsref`` returns.
 
-            if length(s) > 1
-                name = s(1).subs;
-                aa = obj.(name);
-                b = subsref(aa, s(2:end));
-                return
-            end
-            if strcmp(s.type, '()')
-                ind = s.subs{:};
+            if strcmp(s(1).type, '()')
+                ind = s(1).subs{:};
                 b = zeros(1, length(ind));
 
                 for k = 1:length(ind)
                     b(k) = ct.impl.call('mFunc1_eval', obj.id, ind(k));
                 end
 
-            elseif strcmp(s.type, '.')
-                name = s.subs;
-                b = obj.(name);
+                if length(s) > 1
+                    % A chained reference such as f(x).foo applies the rest of
+                    % the subscripts to the computed values.
+                    b = builtin('subsref', b, s(2:end));
+                end
             else
-                error('Specify value for x as p(x)');
+                % Evaluation is the only behavior this class defines. Every
+                % other reference type, such as reading a property, gets the
+                % behavior it would have without this overload.
+                b = builtin('subsref', obj, s);
             end
 
         end
