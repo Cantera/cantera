@@ -31,31 +31,33 @@ classdef Func1 < handle
             %
             % The types of functors you can create in Cantera are these:
             %
-            %     * Basic functors: ``'sin'``, ``'cos'``, ``'exp'``, ``'log'``,
-            %       ``'pow'``, ``'constant'``. Use no or scalar parameters, for example
+            % * Basic functors: ``'sin'``, ``'cos'``, ``'exp'``, ``'log'``,
+            %   ``'pow'``, ``'constant'``. Use no or scalar parameters, for
+            %   example::
             %
             %       >> x = ct.Func1('cos')
             %       >> x = ct.Func1('sin', 2)
             %
-            %     * Advanced functors: ``'polynomial3'``, ``'Fourier'``, ``'Gaussian'``,
-            %       ``'Arrhenius'``. Use vector parameter, for example
+            % * Advanced functors: ``'polynomial3'``, ``'Fourier'``, ``'Gaussian'``,
+            %   ``'Arrhenius'``. Use vector parameter, for example::
             %
             %       >> x = ct.Func1('polynomial3', [1 2 3])  % x^2 + 2x + 3
             %
-            %     * Tabulation functors: ``'tabulated-linear'``,
-            %       ``'tabulated-previous'``. Use pair of vector parameters, for example
+            % * Tabulation functors: ``'tabulated-linear'``,
+            %   ``'tabulated-previous'``. Use pair of vector parameters, for
+            %   example::
             %
             %       >> x = ct.Func1('tabulated-linear', [0 2 4], [1 3 5])
             %
-            %     * Compounding functors: ``'sum'``, ``'diff'``, ``'product'``,
-            %       ``'ratio'``, ``'composite'``. Use two functor parameters or a
-            %       corresponding operator, for example
+            % * Compounding functors: ``'sum'``, ``'diff'``, ``'product'``,
+            %   ``'ratio'``, ``'composite'``. Use two functor parameters or a
+            %   corresponding operator, for example::
             %
             %       >> x = ct.Func1('sum', ct.Func1('sin', 2.), ct.Func1('cos', 3.))
             %       >> x = ct.Func1('sin', 2.) + ct.Func1('cos', 3.)  % alternative
             %
-            %     * Modifying functors: ``'times-constant'``, ``'plus-constant'``,
-            %       ``'periodic'``. Use one functor and one scalar, for example
+            % * Modifying functors: ``'times-constant'``, ``'plus-constant'``,
+            %   ``'periodic'``. Use one functor and one scalar, for example::
             %
             %       >> x = ct.Func1('times-constant', ct.Func1('sin', 2.), 2.)
             %
