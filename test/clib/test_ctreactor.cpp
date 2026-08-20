@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 #include "cantera/core.h"
 #include "cantera/zerodim.h"
@@ -137,4 +138,57 @@ TEST(ctreactor, surface)
         ASSERT_EQ(status, 0);
         count++;
     }
+}
+
+TEST(ctreactor, sensitivity)
+{
+    double T = 1050;
+    double P = 5 * 101325;
+    string X = "CH4:1.0, O2:2.0, N2:7.52";
+
+    int32_t sol = sol_newSolution("gri30.yaml", "gri30", "none");
+    int32_t thermo = sol_thermo(sol);
+    thermo_setMoleFractionsByName(thermo, X.c_str());
+    thermo_setTemperature(thermo, T);
+    thermo_setPressure(thermo, P);
+
+    int32_t reactor = reactor_new("IdealGasReactor", sol, 1, "test");
+    vector<int32_t> reactors{reactor};
+    int32_t net = reactornet_new(1, reactors.data());
+    ASSERT_GE(net, 0);
+    ASSERT_EQ(reactor_addSensitivityReaction(reactor, 2), 0);
+    ASSERT_EQ(reactornet_setSensitivityTolerances(net, 1e-6, 1e-6), 0);
+    ASSERT_EQ(reactornet_advance(net, 1e-3), 0);
+
+    // Locate the index of the temperature component in the global state vector
+    int32_t neq = reactornet_neq(net);
+    ASSERT_GT(neq, 0);
+    int32_t k = -1;
+    for (int32_t i = 0; i < neq; i++) {
+        int32_t len = reactornet_componentName(net, i, 0, 0);
+        vector<char> name(len);
+        reactornet_componentName(net, i, len, name.data());
+        // ReactorNet component names are prefixed with the reactor name
+        if (string(name.data()) == "test: temperature") {
+            k = i;
+            break;
+        }
+    }
+    ASSERT_GE(k, 0);
+
+    // The index-based and name-based overloads agree for the same component
+    double s_index = reactornet_sensitivity(net, k, 0);
+    double s_name = reactornet_sensitivityByName(net, "temperature", 0, 0);
+    ASSERT_NE(s_index, DERR);
+    ASSERT_NE(s_name, DERR);
+    EXPECT_DOUBLE_EQ(s_index, s_name);
+    EXPECT_TRUE(std::isfinite(s_index));
+
+    // Out-of-range requests report an error
+    ASSERT_EQ(reactornet_sensitivity(net, k, 99), DERR);
+    ASSERT_EQ(reactornet_sensitivityByName(net, "spam", 0, 0), DERR);
+    int32_t buflen = ct_getCanteraError(0, 0);
+    vector<char> buf(buflen);
+    ct_getCanteraError(buflen, buf.data());
+    EXPECT_THAT(string(buf.data()), testing::HasSubstr("spam"));
 }

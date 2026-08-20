@@ -22,6 +22,9 @@ recipes:
 - name: rtol
 - name: atol
 - name: sensitivity
+  wraps: sensitivity(size_t, size_t)
+  uses: neq
+- name: sensitivityByName
   wraps: sensitivity(const string&, size_t, int)
 - name: neq  # number of state variables / network components
 - name: getState  # current state vector, length neq()

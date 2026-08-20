@@ -100,6 +100,12 @@ end
     advance!(net, 2e-4)
     s = sensitivity(net, "temperature", 1, r)
     @test isfinite(s)
+    # the same value is reachable through the global state-vector index
+    k = findfirst(endswith(": temperature"), component_names(net))
+    @test k !== nothing
+    @test sensitivity(net, k, 1) == s
+    @test sensitivity(net, "temperature", 1, 1) == s
+    @test_throws CanteraError sensitivity(net, "spam", 1, 1)
     @test rtol(net) > 0
     @test atol(net) > 0
 end
