@@ -177,7 +177,68 @@ classdef ctTestFlowDevice < ctTestCase
         end
 
         function testPressureController(self)
-            self.assumeFail('Skipped until PressureController is implemented');
+            self.makeReactors('nr', 1);
+            g = ct.Solution('h2o2.yaml', '', 'none');
+            g.TPX = {500, 2 * ct.OneAtm, 'H2:1.0'};
+            inletReservoir = ct.zeroD.Reservoir(g);
+            g.TP = {300, ct.OneAtm};
+            outletReservoir = ct.zeroD.Reservoir(g);
+
+            mdot = 0.1;
+            mfc = ct.zeroD.MassFlowController(inletReservoir, self.r1);
+            mfc.massFlowRate = mdot;
+
+            pc = ct.zeroD.PressureController(self.r1, outletReservoir);
+            pc.setPrimary(mfc);
+            k = 2e-5;
+            pc.pressureCoeff = k;
+            self.verifyEqual(pc.pressureCoeff, k, 'RelTol', self.rtol);
+            self.verifyEqual(pc.deviceCoefficient, k, 'RelTol', self.rtol);
+            pc.pressureCoeff = 1e-5;
+            k = 1e-5;
+            self.verifyEqual(pc.pressureCoeff, k, 'RelTol', self.rtol);
+
+            net = ct.zeroD.ReactorNet(self.r1);
+            t = 0;
+
+            while t < 1.0
+                t = net.step();
+                self.verifyEqual(mfc.massFlowRate, mdot, 'RelTol', self.rtol);
+                dP = self.r1.P - outletReservoir.P;
+                self.verifyEqual(pc.massFlowRate, max(mdot + k * dP, 0.0), ...
+                                 'RelTol', self.rtol);
+            end
+        end
+
+        function testPressureControllerType(self)
+            self.makeReactors();
+            res = ct.zeroD.Reservoir(self.gas1);
+            mfc = ct.zeroD.MassFlowController(res, self.r1);
+            mfc.massFlowRate = 0.6;
+            pc = ct.zeroD.PressureController(self.r1, self.r2);
+            pc.setPrimary(mfc);
+            pc.pressureCoeff = 0.5;
+            net = ct.zeroD.ReactorNet({self.r1, self.r2});
+
+            self.verifyEqual(pc.type, 'PressureController');
+            self.verifyTrue(startsWith(pc.name, 'PressureController_'));
+            pc.name = 'name-of-pressure-controller';
+            self.verifyEqual(pc.name, 'name-of-pressure-controller');
+        end
+
+        function testPressureControllerErrors(self)
+            self.makeReactors();
+            res = ct.zeroD.Reservoir(self.gas1);
+            mfc = ct.zeroD.MassFlowController(res, self.r1);
+            mfc.massFlowRate = 0.6;
+            pc = ct.zeroD.PressureController(self.r1, self.r2);
+
+            % Mass flow rate cannot be evaluated before the primary device is set
+            self.verifyError(@() pc.massFlowRate, 'Cantera:ctError');
+
+            % Only pressure controllers accept a primary device
+            v = ct.zeroD.Valve(self.r1, self.r2);
+            self.verifyError(@() v.setPrimary(mfc), ?MException);
         end
 
     end

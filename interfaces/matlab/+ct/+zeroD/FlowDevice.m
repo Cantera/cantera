@@ -12,12 +12,13 @@ classdef (Abstract) FlowDevice < ct.zeroD.Connector
     % pressure difference equals the difference in pressure between the
     % upstream and downstream reactors.
     %
-    % See also: :mat:class:`ct.zeroD.MassFlowController`, :mat:class:`ct.zeroD.Valve`
+    % See also: :mat:class:`ct.zeroD.MassFlowController`,
+    % :mat:class:`ct.zeroD.PressureController`, :mat:class:`ct.zeroD.Valve`
     %
     % :param typ:
     %     Type of :mat:class:`ct.zeroD.FlowDevice` to be created. ``typ='MassFlowController'``
     %     for :mat:class:`ct.zeroD.MassFlowController`,  ``typ='PressureController'`` for
-    %     :mat:class:`ct.PressureController`, and ``typ='Valve'`` for
+    %     :mat:class:`ct.zeroD.PressureController`, and ``typ='Valve'`` for
     %     :mat:class:`ct.zeroD.Valve`.
     % :param upstream:
     %     Upstream reactor or reservoir.
@@ -53,6 +54,14 @@ classdef (Abstract) FlowDevice < ct.zeroD.Connector
         % as long as this produces a positive value.  If this expression is
         % negative, zero is returned.
         valveCoeff
+
+        % The coefficient defining the behavior of this
+        % :mat:class:`ct.zeroD.FlowDevice`, with a meaning that depends on the type
+        % of the device: the mass flow rate [kg/s] for a
+        % :mat:class:`ct.zeroD.MassFlowController`, the valve coefficient [kg/s/Pa]
+        % for a :mat:class:`ct.zeroD.Valve`, and the pressure coefficient [kg/s/Pa]
+        % for a :mat:class:`ct.zeroD.PressureController`.
+        deviceCoefficient
     end
 
     methods
@@ -75,6 +84,10 @@ classdef (Abstract) FlowDevice < ct.zeroD.Connector
 
         function mdot = get.massFlowRate(obj)
             mdot = ct.impl.call('mFlowdev_massFlowRate', obj.id);
+        end
+
+        function c = get.deviceCoefficient(obj)
+            c = ct.impl.call('mFlowdev_deviceCoefficient', obj.id);
         end
 
         %% FlowDevice Set Methods
@@ -104,8 +117,12 @@ classdef (Abstract) FlowDevice < ct.zeroD.Connector
             % :param d:
             %     Instance of class :mat:class:`ct.zeroD.FlowDevice`.
 
+            if ~isa(d, 'ct.zeroD.FlowDevice')
+                error('Primary device must be an instance of ct.zeroD.FlowDevice.');
+            end
+
             if strcmp(obj.type, 'PressureController')
-                ct.impl.call('mFlowdev_setPrimary', obj.id, d);
+                ct.impl.call('mFlowdev_setPrimary', obj.id, d.id);
             else
                 error('Primary flow device can only be set for pressure controllers.');
             end
@@ -118,7 +135,11 @@ classdef (Abstract) FlowDevice < ct.zeroD.Connector
                 error('Valve coefficient can only be set for valves.');
             end
 
-            ct.impl.call('mFlowdev_setDeviceCoefficient', obj.id, k);
+            obj.deviceCoefficient = k;
+        end
+
+        function set.deviceCoefficient(obj, c)
+            ct.impl.call('mFlowdev_setDeviceCoefficient', obj.id, c);
         end
 
     end
