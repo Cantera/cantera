@@ -30,7 +30,7 @@ env.Alias("doxygen_tags", tags)
 # Generated file names can be anticipated
 generated_files = []
 auto_path = Path(Dir("#interfaces/sourcegen/src/sourcegen/headers").abspath)
-yaml_files = auto_path.glob("ct*.yaml")
+yaml_files = sorted(auto_path.glob("ct*.yaml"))
 for yaml_file in yaml_files:
     base_name = yaml_file.stem
     generated_files.extend([
