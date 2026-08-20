@@ -43,7 +43,7 @@ turbine_work = expand(w, p1, eta_turbine);
 %%
 % Compute the efficiency
 efficiency = (turbine_work - pump_work) / heat_added;
-disp(sprintf('efficiency = %.2f%%', efficiency*100));
+fprintf('efficiency = %.2f%%\n', efficiency*100);
 
 %%
 % Local Functions
