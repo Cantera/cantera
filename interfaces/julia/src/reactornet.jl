@@ -100,10 +100,16 @@ end
 
 """
     sensitivity(net, component, p, reactor) -> Float64
+    sensitivity(net, k, p) -> Float64
 
-Normalized sensitivity of `component` (e.g. `"temperature"` or a species name)
-in `reactor` with respect to sensitivity parameter `p` (1-based).  `reactor` may
-be a [`Reactor`](@ref) belonging to the network or its 1-based position.
+Normalized sensitivity with respect to sensitivity parameter `p` (1-based).
+
+In the first form, `component` is the name of a state variable (for example
+`"temperature"` or a species name) resolved within `reactor`, which may be a
+[`Reactor`](@ref) belonging to the network or its 1-based position.
+
+In the second form, `k` is the 1-based index of the component in the global
+state vector of the network, as ordered by [`component_names`](@ref).
 """
 function sensitivity(net::ReactorNet, component::AbstractString, p::Integer,
                      reactor::Reactor)
@@ -114,8 +120,14 @@ end
 
 function sensitivity(net::ReactorNet, component::AbstractString, p::Integer,
                      reactor::Integer)
-    return checkd(LibCantera.reactornet_sensitivity(net.handle, component,
-                                                    Int32(p - 1), Int32(reactor - 1)))
+    return checkd(LibCantera.reactornet_sensitivityByName(net.handle, component,
+                                                          Int32(p - 1),
+                                                          Int32(reactor - 1)))
+end
+
+function sensitivity(net::ReactorNet, k::Integer, p::Integer)
+    return checkd(LibCantera.reactornet_sensitivity(net.handle, Int32(k - 1),
+                                                    Int32(p - 1)))
 end
 
 """

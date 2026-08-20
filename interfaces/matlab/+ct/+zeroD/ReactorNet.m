@@ -14,6 +14,10 @@ classdef ReactorNet < handle
 
     properties (SetAccess = immutable)
         id = -1
+
+        % Cell array of the :mat:class:`ct.zeroD.ReactorBase` objects that make up
+        % the network, in the order in which they were installed.
+        reactors
     end
 
     properties (SetAccess = public)
@@ -54,6 +58,7 @@ classdef ReactorNet < handle
             reactorIDs = cellfun(@(r) r.id, reactors);
 
             obj.id = ct.impl.call('mReactornet_new', reactorIDs);
+            obj.reactors = reactors;
             obj.time = 0;
 
         end
@@ -158,21 +163,61 @@ classdef ReactorNet < handle
         end
 
         function s = sensitivity(obj, component, p, r)
-            % Sensitivity of the solution variable `c` in reactor `r`
-            % with respect to the parameter `p` ::
+            % Sensitivity of a solution variable with respect to a sensitivity
+            % parameter. ::
             %
+            %     >> s = n.sensitivity(component, p)
             %     >> s = n.sensitivity(component, p, r)
             %
             % :param component:
-            %    String name of variable.
+            %    Name of the solution variable, given as a character array or a
+            %    string, for example ``'temperature'`` or a species name. It is
+            %    resolved within the reactor `r`. Alternatively, an integer giving
+            %    the 1-based index of the variable in the global state vector of
+            %    the network, in which case `r` is not used.
             % :param p:
-            %    Integer sensitivity parameter.
+            %    Integer, 1-based index of the sensitivity parameter.
             % :param r:
-            %    Instance of class :mat:class:`ct.zeroD.ReactorBase`.
+            %    The reactor in which `component` is to be found, given either as an
+            %    instance of :mat:class:`ct.zeroD.ReactorBase` belonging to this
+            %    network or as its 1-based position within the network. Defaults to
+            %    the first reactor in the network.
+            % :return:
+            %    Scalar normalized sensitivity coefficient.
 
-            if isa(component, 'string')
-                s = ct.impl.call('mReactornet_sensitivity', obj.id, component, p, r.id);
+            arguments
+                obj
+                component
+                p (1,1) double
+                r = 1
             end
+
+            if isnumeric(component)
+                % Global index into the network state vector
+                s = ct.impl.call('mReactornet_sensitivity', obj.id, ...
+                                 component - 1, p - 1);
+                return
+            end
+
+            if ~(ischar(component) || isstring(component))
+                error(['Sensitivity component must be a character array, a ' ...
+                       'string, or an integer index, not a %s.'], class(component));
+            end
+
+            if isa(r, 'ct.zeroD.ReactorBase')
+                index = find(cellfun(@(x) x == r, obj.reactors), 1);
+                if isempty(index)
+                    error('The given reactor is not part of this network.');
+                end
+            elseif isnumeric(r) && isscalar(r)
+                index = r;
+            else
+                error(['Reactor must be a ct.zeroD.ReactorBase object or a ' ...
+                       '1-based index, not a %s.'], class(r));
+            end
+
+            s = ct.impl.call('mReactornet_sensitivityByName', obj.id, ...
+                             char(component), p - 1, index - 1);
 
         end
 
