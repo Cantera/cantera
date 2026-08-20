@@ -80,6 +80,10 @@ MassFlowController
 ^^^^^^^^^^^^^^^^^^
 .. autoclass:: MassFlowController(upstream, downstream[, name])
 
+PressureController
+^^^^^^^^^^^^^^^^^^
+.. autoclass:: PressureController(upstream, downstream[, name])
+
 Valve
 ^^^^^
 .. autoclass:: Valve(upstream, downstream[, name])
