@@ -78,6 +78,10 @@ Boundary
 ^^^^^^^^
 .. autoclass:: Boundary
 
+Flow
+^^^^
+.. autoclass:: Flow
+
 Sim1D
 ^^^^^
 .. autoclass:: Sim1D(domains)
