@@ -18,7 +18,10 @@ The fields common to all `reaction` entries are:
   - [`Blowers-Masel`](sec-yaml-Blowers-Masel)
   - [`two-temperature-plasma`](sec-yaml-two-temperature-plasma)
   - [`electron-collision-plasma`](sec-yaml-electron-collision-plasma)
-  - [`vibrational-relaxation`](sec-yaml-vibrational-relaxation)
+  - [`constant-vibrational-relaxation`](sec-yaml-constant-vibrational-relaxation)
+  - [`multi-state-resolved-vibrational-relaxation`](sec-yaml-multi-state-resolved-vibrational-relaxation)
+  - [`Castela-vibrational-relaxation`](sec-yaml-Castela-vibrational-relaxation)
+  - [`Starikovskiy-vibrational-relaxation`](sec-yaml-Starikovskiy-vibrational-relaxation)
   - [`electron-collisions`](sec-yaml-electron-collisions)
   - [`falloff`](sec-yaml-falloff)
   - [`chemically-activated`](sec-yaml-chemically-activated)
@@ -292,96 +295,76 @@ Example:
 ```
 
 (sec-yaml-vibrational-relaxation)=
-### `vibrational-relaxation`
-In plasma phases, vibrationally excited species play an important role in 
-the process of slow gas heating. Their vibrational-translational (V-T) and 
-vibrational-vibrational (V-V) relaxation rates are therefore important to model.
-This reaction type offers four options to model V-T and V-V relaxation rates:
-- [`constant`](subsec-vibrational-relaxation-constant-rate)
-- [`multi-state-resolved`](subsec-vibrational-relaxation-multi-state-resolved-rate)
-- [`Castela`](subsec-vibrational-relaxation-castela-rate)
-- [`Starikovskiy`](subsec-vibrational-relaxation-starikovskiy-rate)
+### Vibrational relaxation rates
 
-There are two fields common to all options: `vibration-model` which states
-which of the four options above is used, and `rate-constant` in which all 
-the rate parameters described in the corresponding subsections are provided.
+Cantera provides four reaction rate types for vibrational relaxation:
+
+- [`constant-vibrational-relaxation`](sec-yaml-constant-vibrational-relaxation)
+- [`multi-state-resolved-vibrational-relaxation`](sec-yaml-multi-state-resolved-vibrational-relaxation)
+- [`Castela-vibrational-relaxation`](sec-yaml-Castela-vibrational-relaxation)
+- [`Starikovskiy-vibrational-relaxation`](sec-yaml-Starikovskiy-vibrational-relaxation)
+
+The scientific background and rate expressions for these models are
+[described in the scientific reference documentation](sec-vibrational-relaxation-rate).
+
+All vibrational relaxation rate types support the optional `negative-A` field,
+which allows a negative leading rate coefficient when set to `true`. The
+default is `false`.
 
 
-(subsec-vibrational-relaxation-constant-rate)=
+(sec-yaml-constant-vibrational-relaxation)=
+#### `constant-vibrational-relaxation`
 
-#### Vibrational relaxation: constant
+A constant vibrational relaxation rate as
+[described here](sec-constant-vibrational-relaxation-rate).
 
-The `constant` vibrational relaxation rate expression is
-
-$$
-k_f = A
-$$
-
-where $A$ is a temperature-independent rate coefficient.
-
-The rate parameters are specified as a mapping with fields:
+The `rate-constant` field is a mapping with the following required field:
 
 `A`
-: The pre-exponential factor. The units are the standard Cantera rate coefficient
-units for the reaction order and are converted using the unit system.
+: Temperature-independent rate coefficient. The units are the standard
+  Cantera rate coefficient units determined by the reaction order.
 
-No other rate parameters are allowed for this model.
-
-This model describes relaxation of one vibrationally excited reactant to its ground
-state by collision with an unchanged collider.
+No other rate parameters are accepted.
 
 Example:
 
 ```yaml
 - equation: N2(v) + O => N2 + O
-  type: vibrational-relaxation
-  vibration-model: constant
+  type: constant-vibrational-relaxation
   rate-constant: {A: 1e2}
 ```
 
-(subsec-vibrational-relaxation-multi-state-resolved-rate)=
+(sec-yaml-multi-state-resolved-vibrational-relaxation)=
+#### `multi-state-resolved-vibrational-relaxation`
 
-#### Vibrational relaxation: multi-state-resolved
+A state-resolved V-T / V-V rate as
+[described here](sec-multi-state-resolved-vibrational-relaxation-rate).
 
-The `multi-state-resolved` vibrational relaxation rate expression is
-
-$$
-k_f = A T^b
-\exp \left(B + C T^{-1/3} + D T^{-2/3}\right)
-$$
-
-where $T$ is the gas temperature in K.
-
-The rate parameters are specified as a mapping with fields:
+The `rate-constant` field is a mapping with the following fields:
 
 `A`
-: The pre-exponential factor. The units are the standard Cantera rate coefficient
-units for the reaction order and are converted using the unit system.
+: Required. Pre-exponential factor. The units are the standard Cantera rate
+  coefficient units determined by the reaction order.
 
 `b`
-: The dimensionless temperature exponent. Defaults to 0.0.
+: Required. Dimensionless temperature exponent.
 
 `B`
-: Dimensionless constant term in the exponential. Defaults to 0.0.
+: Optional dimensionless constant in the exponential. Defaults to 0.0.
 
 `C`
-: Coefficient multiplying $T^{-1/3}$. This value is interpreted assuming that
-$T$ is in K. Defaults to 0.0.
+: Optional coefficient multiplying $T^{-1/3}$, interpreted with $T$ in K.
+  Defaults to 0.0.
 
 `D`
-: Coefficient multiplying $T^{-2/3}$. This value is interpreted assuming that
-$T$ is in K. Defaults to 0.0.
-
-This model is intended for detailed V-T and V-V relaxation reactions involving
-vibrationally resolved species. All vibrational species in the reaction must belong
-to the same vibrational family.
+: Optional coefficient multiplying $T^{-2/3}$, interpreted with $T$ in K.
+  Defaults to 0.0.
 
 Example:
 
 ```yaml
 - equation: N2(v2) + O => N2(v1) + O
-  type: vibrational-relaxation
-  vibration-model: multi-state-resolved
+  type: multi-state-resolved-vibrational-relaxation
   rate-constant:
     A: 6.02e+23
     b: 1.0
@@ -390,124 +373,84 @@ Example:
     D: 0.0
 ```
 
-(subsec-vibrational-relaxation-castela-rate)=
+(sec-yaml-Castela-vibrational-relaxation)=
+#### `Castela-vibrational-relaxation`
 
-#### Vibrational relaxation: Castela
+The Castela vibrational relaxation rate is
+[described here](sec-castela-vibrational-relaxation-rate).
 
-The `Castela` vibrational relaxation rate expression is based on the relaxation time
-
-$$
-\tau_k = \frac{p_0}{p_k}
-\exp \left[a_k \left(T^{-1/3} - b_k \right) - 18.42\right]
-$$
-
-and is converted internally to the equivalent bimolecular rate coefficient
-
-$$
-k_k(T) = \frac{R T}{p_0}
-\exp \left[18.42 + a_k b_k - a_k T^{-1/3}\right]
-$$
-
-where $T$ is the gas temperature in K, $R$ is the gas constant, and $p_0$ is the
-reference pressure.
-
-The rate parameters are specified as a mapping with fields:
+The `rate-constant` field is a mapping with the following fields:
 
 `a`
-: Castela coefficient $a_k$. This value is interpreted assuming that $T$ is in K.
+: Required. Castela coefficient $a_k$, interpreted with $T$ in K.
 
 `b`
-: Castela coefficient $b_k$. This value is interpreted assuming that $T$ is in K.
+: Required. Castela coefficient $b_k$, interpreted with $T$ in K.
 
 `reference-pressure`
-: Reference pressure $p_0$. Defaults to 1 atm.
-
-The parameter `A` is not specified by the user for this model. The internal
-pre-exponential factor is computed as $R / p_0$.
-
-The `Castela` model is only valid for N2 vibrational relaxation and only supports
-the colliders `N2`, `O2`, and `O`. It describes relaxation to the ground state, so
-the reaction must have the form `N2(v) + M => N2 + M`, where `M` is one of the
-supported colliders.
-
-This model is intended to implement the mean vibrational energy equation model by
-means of a fictitious species N2(v) lumping together all N2 vibrational states.
+: Optional reference pressure $p_0$. Defaults to 1 atm and must be positive.
 
 Example:
 
 ```yaml
 - equation: N2(v) + O => N2 + O
-  type: vibrational-relaxation
-  vibration-model: Castela
+  type: Castela-vibrational-relaxation
   rate-constant:
     a: 72.4
     b: 0.015
     reference-pressure: 1 atm
 ```
 
-(subsec-vibrational-relaxation-starikovskiy-rate)=
+(sec-yaml-Starikovskiy-vibrational-relaxation)=
+#### `Starikovskiy-vibrational-relaxation`
 
-#### Vibrational relaxation: Starikovskiy
+The Starikovskiy vibrational relaxation rate is
+[described here](sec-starikovskiy-vibrational-relaxation-rate).
 
-The `Starikovskiy` vibrational relaxation rate expression is
-
-$$
-k_f = A T^n
-\exp \left(K + B T^{-1/3} + C T^{-m} + D T^{-z} \right)
-$$
-
-where $T$ is the gas temperature in K.
-
-The rate parameters are specified as a mapping with fields:
+The `rate-constant` field is a mapping with the following fields:
 
 `A`
-: The pre-exponential factor. The units are the standard Cantera rate coefficient
-units for the reaction order and are converted using the unit system.
+: Required. Pre-exponential factor. The units are the standard Cantera rate
+  coefficient units determined by the reaction order.
 
 `n`
-: The dimensionless temperature exponent. Defaults to 0.0.
+: Optional dimensionless temperature exponent. Defaults to 0.0.
 
 `K`
-: Dimensionless constant term in the exponential. Defaults to 0.0.
+: Optional dimensionless constant in the exponential. Defaults to 0.0.
 
 `B`
-: Signed coefficient multiplying $T^{-1/3}$. This value is interpreted assuming
-that $T$ is in K. Defaults to 0.0.
+: Optional signed coefficient multiplying $T^{-1/3}$, interpreted with $T$ in K.
+  Defaults to 0.0.
 
 `C`
-: Signed coefficient multiplying $T^{-m}$. This value is interpreted assuming
-that $T$ is in K. Defaults to 0.0.
+: Optional signed coefficient multiplying $T^{-m}$, interpreted with $T$ in K.
+  Defaults to 0.0.
 
 `m`
-: Positive exponent used by the `C` term. Defaults to 1.0.
+: Optional positive exponent for the `C` term. Defaults to 1.0.
 
 `D`
-: Signed coefficient multiplying $T^{-z}$. This value is interpreted assuming
-that $T$ is in K. Defaults to 0.0.
+: Optional signed coefficient multiplying $T^{-z}$, interpreted with $T$ in K.
+  Defaults to 0.0.
 
 `z`
-: Positive exponent used by the `D` term. Defaults to 1.0.
-
-The coefficients `B`, `C`, and `D` are signed values. For example, a negative
-coefficient multiplying $T^{-1/3}$ should be written directly as `B: -...` in
-the YAML input.
-
-This model describes relaxation of one vibrationally excited reactant to its ground
-state by collision with an unchanged collider.
-
-This model is intended to extend the mean vibrational energy equation model from Castela 
-by allowing collisions with more potential colliders. It should be employed alongside a
-fictitious species X(v) lumping together all X molecule vibrational states for each molecule
-that the user wishes to describe vibrationally.
-
+: Optional positive exponent for the `D` term. Defaults to 1.0.
 
 Example:
 
 ```yaml
 - equation: N2(v) + O => N2 + O
-  type: vibrational-relaxation
-  vibration-model: Starikovskiy
-  rate-constant: {A: 6.0221407600e+23, n: 1.0, K: -34.03, B: -33.11, C: 0.0, m: 1.0, D: 0.0, z: 1.0}
+  type: Starikovskiy-vibrational-relaxation
+  rate-constant:
+    A: 6.0221407600e+23
+    n: 1.0
+    K: -34.03
+    B: -33.11
+    C: 0.0
+    m: 1.0
+    D: 0.0
+    z: 1.0
 ```
 
 (sec-yaml-electron-collision-plasma)=

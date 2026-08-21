@@ -14,13 +14,19 @@
 namespace Cantera
 {
 
-//! Constant vibrational relaxation rate.
+//! Constant vibrational relaxation rate implementation.
 /**
+ * Maps the user-facing constant rate coefficient onto the common
+ * VibrationalRelaxationRate representation with all temperature-dependent
+ * terms set to zero.
+ * 
  * Implements
  *
  * @f[
  * k_f = A.
  * @f]
+ * 
+ * @ingroup otherRateGroup
  */
 class ConstantVibrationalRelaxationRate final
     : public VibrationalRelaxationRate

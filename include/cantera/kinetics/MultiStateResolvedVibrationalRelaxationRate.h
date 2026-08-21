@@ -14,7 +14,13 @@
 namespace Cantera
 {
 
-//! Multi-state-resolved vibrational relaxation rate.
+//! Multi-state-resolved vibrational relaxation rate implementation.
+/**
+ * Maps the coefficients A, b, B, C, and D onto the common
+ * VibrationalRelaxationRate representation, with m fixed to 2/3.
+ * 
+ * @ingroup otherRateGroup
+ */
 class MultiStateResolvedVibrationalRelaxationRate final
     : public VibrationalRelaxationRate
 {

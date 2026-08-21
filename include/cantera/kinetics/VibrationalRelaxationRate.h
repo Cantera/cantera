@@ -39,99 +39,32 @@ struct VibrationalRelaxationData : public ReactionData
     double recipT13 = 1.0; //!< @f$T^(-1/3)@f$
 };
 
-//! Vibrational relaxation reaction rate class definition.
+//! Common implementation for vibrational relaxation reaction rates.
 /**
- * This class provides a common implementation for several vibrational
- * relaxation models:
- * - `constant`
- * - `multi-state-resolved`
- * - `Starikovskiy`
- * - `Castela`
- * 
- * Internally, all models are mapped to the following generic expression:
+ * This intermediate class provides the common data storage and evaluation
+ * used by the concrete vibrational relaxation rate implementations.
+ *
+ * Internally, the supported parameterizations are mapped to
+ *
  * @f[
  * k_f =
- * A \,
- * \exp \left(
+ * A \exp\left(
  *     b \ln T
  *     + B
  *     + C T^{-1/3}
  *     + D T^{-m}
  *     + E T^{-z}
- * \right)
+ * \right).
  * @f]
- * where `T` is the gas temperature in Kelvin (K).
  *
- * The `constant` model relaxes the vibrational species with a constant rate 
- * coefficient. It could just as well be an Arrhenius rate, but the constant 
- * model is provided for convenience and to avoid confusion with conventional 
- * Arrhenius rates for the YAML file user.
+ * Concrete derived classes are responsible for mapping their user-facing
+ * parameters onto this internal representation.
  *
- * The `multi-state-resolved` model fully resolves vibrational relaxation by
- * taking into account all vibrational species in the phase, for example
- * `N₂(v=1-8)`, and solves for their vibrational-translational (V-T) and 
- * vibrational-vibrational (V-V) relaxation. The scaling of the
- * rates is based on the Schwartz–Slawsky–Herzfeld (SSH) theory detailed 
- * in Chapter 7 of Capitelli et al. @cite capitelli2000. The simplified SSH 
- * theory implemented here is based on the harmonic oscillator approximation 
- * and can be found in equations 18 and 19 of Guerra et al. @cite guerra2019. 
- * The @f$ k_{10} @f$ rates are taken from Zhong et al. @cite zhong2023, 
- * Capitelli et al. @cite capitelli2000, and Starikovskiy and 
- * Aleksandrov @cite starikovskiy2013.
- *
- * The `Castela` model is meant to be used only for N₂ vibrational relaxation,
- * by collisions with N₂, O₂, and O exclusively. It implements the mean
- * vibrational energy relaxation model using a fictitious Cantera species and
- * is based on Castela et al. @cite castela2016.
- *
- * The `Starikovskiy` model is an extension of the Castela model to several
- * vibrational species and additional colliders. Many vibrational relaxation
- * rates can be found in Table 1 of Starikovskiy and Aleksandrov @cite starikovskiy2013, 
- * hence the model's name. The rates for the vibrational relaxation of NH₃ can be 
- * found in the reaction mechanism provided in the supplementary material of
- * Zhong et al. @cite zhong2023. More rates for the vibrational relaxation of
- * CH₄ can be found in Popov @cite popov2016.
- *
- * Unit conventions:
- *
- * - `A` uses standard Cantera rate coefficient units. Its units depend on the
- *   reaction order and are converted using the rate-coefficient units
- *   configured by `ReactionRate`.
- * - `b`, `B`, `m`, `z` are dimensionless.
- * - `C` is interpreted as @f$ K^{1/3} @f$, assuming `T` is in K.
- * - `D` is interpreted as @f$ K^{m} @f$, assuming `T` is in K.
- * - `E` is interpreted as @f$ K^{z} @f$, assuming `T` is in K.
- *
- * The coefficients `B`, `C`, `D`, `E`, `m`, `z` are read as
- * raw floating-point values. They are not converted by Cantera's unit system.
- * 
- * IMPORTANT: No internal checks are conducted to verify the physical compatibility of
- * the modelling of vibrational relaxation rates chosen by the user.
- * The `Castela` model should be used alone, exception being made for the `constant`
- * model for other vibrational species than N₂ provided that they are relaxed fast
- * enough to be considered as fast gas heating.
- * Generally, it should be avoided to mix different models together for a same ground 
- * species, except in the case of conventional reactions producing vibration, for example:
- * 
- * ```yaml
- * - equation: O(1D) + O2 => O + 0.0098321587 O2(v) + 0.9901678413 O2(a1)
- *   rate-constant: {A: 6.022e11, b: 0.0, Ea: 0.0}
- * ```
- * in which case it is impossible to know which vibrational state is generated, thus
- * requiring a description with either one of `constant`, `Castela` or `Starikovskiy`
- * for O₂(v). It is in this case possible to combine for example this mean vibrational
- * energy equation treatment for O₂ with a detailed vibration treament via `multi-state-resolved`
- * since the electron impact reactions themselves are able to discriminate between the
- * different vibrational excitations of O₂.
- * To avoid any mixup, the user is invite to thoroughly read the present documentation
- * and to consult the YAML examples. 
- * 
- * For further information on the YAML implementation of this class, please 
- * refer to [the corresponding YAML documentation section]
- * (../YAML/reactions.html#sec-yaml-vibrational-relaxation).
+ * Vibrational relaxation rates are restricted to irreversible reactions.
  *
  * @ingroup otherRateGroup
  */
+
 class VibrationalRelaxationRate : public ReactionRate
 {
 public:

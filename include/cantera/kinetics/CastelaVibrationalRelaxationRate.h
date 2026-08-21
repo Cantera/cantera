@@ -14,7 +14,21 @@
 namespace Cantera
 {
 
-//! Castela vibrational relaxation rate.
+//! Castela vibrational relaxation rate implementation.
+/**
+ * Maps the Castela coefficients onto the common internal representation using
+ *
+ * @f[
+ * A = R/p_0,\qquad
+ * b = 1,\qquad
+ * B = 18.42 + a_k b_k,\qquad
+ * C = -a_k.
+ * @f]
+ *
+ * The remaining temperature-dependent coefficients are zero.
+ * 
+ * @ingroup otherRateGroup
+ */
 class CastelaVibrationalRelaxationRate final
     : public VibrationalRelaxationRate
 {

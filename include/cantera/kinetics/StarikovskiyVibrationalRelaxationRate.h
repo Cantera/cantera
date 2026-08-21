@@ -14,7 +14,13 @@
 namespace Cantera
 {
 
-//! Starikovskiy vibrational relaxation rate.
+//! Starikovskiy vibrational relaxation rate implementation.
+/**
+ * Maps the user-facing parameters n, K, B, C, m, D, and z onto the generic
+ * coefficients stored by VibrationalRelaxationRate.
+ * 
+ * @ingroup otherRateGroup
+ */
 class StarikovskiyVibrationalRelaxationRate final
     : public VibrationalRelaxationRate
 {
