@@ -135,38 +135,10 @@ struct VibrationalRelaxationData : public ReactionData
 class VibrationalRelaxationRate : public ReactionRate
 {
 public:
-    //! Default constructor.
-    VibrationalRelaxationRate();
-
-    //! Constructor using the internal representation for the default 
-    //! model multi-state-resolved.
-    /**
-     * @param A       Pre-exponential factor.
-     * @param B       Dimensionless constant in the exponential.
-     * @param C       Coefficient multiplying @f$ T^{-1/3} @f$.
-     * @param D       Coefficient multiplying @f$ T^{-m} @f$.
-     * @param b       Dimensionless temperature exponent.
-     */
-    VibrationalRelaxationRate(double A, double B, double C, double D, double b);
-
-    //! Constructor based on AnyMap content.
-    explicit VibrationalRelaxationRate(const AnyMap& node,
-                                       const UnitStack& rate_units = {});
-
+    
     void setParameters(const AnyMap& node, const UnitStack& rate_units) override;
 
     void getParameters(AnyMap& node) const override;
-
-    //! Create a rate evaluator for this reaction rate type.
-    unique_ptr<MultiRateBase> newMultiRate() const override {
-        return make_unique<MultiRate<VibrationalRelaxationRate,
-                                     VibrationalRelaxationData>>();
-    }
-
-    //! String identifying this reaction rate type.
-    const string type() const override {
-        return "vibrational-relaxation";
-    }
 
     //! Set context of reaction rate evaluation.
     /**
@@ -213,16 +185,40 @@ public:
     void validate(
         const string& equation, const Kinetics& kin) override;
 
-private:
+protected:
+    //! Default constructor.
+    VibrationalRelaxationRate();
+
+    //! Constructor using the internal representation for the default 
+    //! model multi-state-resolved.
+    /**
+     * @param A       Pre-exponential factor.
+     * @param B       Dimensionless constant in the exponential.
+     * @param C       Coefficient multiplying @f$ T^{-1/3} @f$.
+     * @param D       Coefficient multiplying @f$ T^{-m} @f$.
+     * @param b       Dimensionless temperature exponent.
+     */
+    VibrationalRelaxationRate(double A, double B, double C, double D, double b);
+
+    static void requireKeys(
+        const AnyMap& node,
+        const string& rateType,
+        const string& where,
+        std::initializer_list<string> keys);
+
+    static void forbidKeys(
+        const AnyMap& node,
+        const string& rateType,
+        const string& where,
+        std::initializer_list<string> keys);
+
+    void getPreExponentialFactor(AnyMap& rateNode) const;
 
     //! Pre-exponential constant for the reaction rate
     double m_A = NAN;
 
     //! Temperature exponent for the reaction rate.
     double m_b = NAN;
-
-    //! Whether a negative leading coefficient is explicitly allowed.
-    bool m_negativeA_ok = false;
 
     //! Dimensionless constant in the exponential.
     double m_B = 0.0;
@@ -242,48 +238,11 @@ private:
     //! Temperature exponent used by the E term.
     double m_z = 1.0;
 
-    //! Castela coefficient a.
-    double m_castela_a = 0.0;
+private:
 
-    //! Castela coefficient b.
-    double m_castela_b = 0.0;
+    //! Whether a negative leading coefficient is explicitly allowed.
+    bool m_negativeA_ok = false;
 
-    //! Castela reference pressure.
-    double m_referencePressure = OneAtm;
-
-    //! Selected vibrational relaxation model.
-    /**
-     * Accepted values:
-     * - `constant`
-     * - `multi-state-resolved`
-     * - `Starikovskiy`
-     * - `Castela`
-     */
-    string m_vibration_model = "multi-state-resolved";
-    
-    //! Sub-function of setParameters relative to the 'constant' model
-    void setConstantParameters(const AnyMap& node, const AnyMap& rateMap);
-
-    //! Sub-function of setParameters relative to the 'multi-state-resolved' model
-    void setMultiStateParameters(const AnyMap& node, const AnyMap& rateMap);
-
-    //! Sub-function of setParameters relative to the 'Starikovskiy' model
-    void setStarikovskiyParameters(const AnyMap& node, const AnyMap& rateMap);
-
-    //! Sub-function of setParameters relative to the 'Castela' model
-    void setCastelaParameters(const AnyMap& node, const AnyMap& rateMap);
-
-    //! Sub-function of getParameters relative to the 'constant' model
-    void getConstantParameters(AnyMap& rateNode) const;
-
-    //! Sub-function of getParameters relative to the 'multi-state-resolved' model
-    void getMultiStateParameters(AnyMap& rateNode) const;
-
-    //! Sub-function of getParameters relative to the 'Starikovskiy' model
-    void getStarikovskiyParameters(AnyMap& rateNode) const;
-
-    //! Sub-function of getParameters relative to the 'Castela' model
-    void getCastelaParameters(AnyMap& rateNode) const;
 };
 
 }
