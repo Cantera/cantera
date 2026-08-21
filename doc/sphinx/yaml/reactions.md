@@ -18,6 +18,10 @@ The fields common to all `reaction` entries are:
   - [`Blowers-Masel`](sec-yaml-Blowers-Masel)
   - [`two-temperature-plasma`](sec-yaml-two-temperature-plasma)
   - [`electron-collision-plasma`](sec-yaml-electron-collision-plasma)
+  - [`constant-vibrational-relaxation`](sec-yaml-constant-vibrational-relaxation)
+  - [`multi-state-resolved-vibrational-relaxation`](sec-yaml-multi-state-resolved-vibrational-relaxation)
+  - [`Castela-vibrational-relaxation`](sec-yaml-Castela-vibrational-relaxation)
+  - [`Starikovskiy-vibrational-relaxation`](sec-yaml-Starikovskiy-vibrational-relaxation)
   - [`electron-collisions`](sec-yaml-electron-collisions)
   - [`falloff`](sec-yaml-falloff)
   - [`chemically-activated`](sec-yaml-chemically-activated)
@@ -118,18 +122,26 @@ a mapping with fields:
 : The pre-exponential factor
 
 `b`
-: The temperature exponent, which is applied to the electron temperature
+: The electron temperature exponent
+
+`b-gas`
+: The gas temperature exponent
 
 `Ea-gas`
 : The activation energy term $E_{a,g}$ that is related to the gas temperature
 
 `Ea-electron`
 : The activation energy term $E_{a,e}$ that is related to the electron temperature
+or a corresponding four-element list. 
 
-or a corresponding four-element list. The following are equivalent:
+`T-inv` 
+: Optional gas temperature scale for the term $\exp(-T/T_\mathrm{inv})$.
+If omitted or set to 0, this term is not included.
+
+The following are equivalent:
 
 ```yaml
-{A: 17283, b: -3.1, Ea-gas: -5820 J/mol, Ea-electron: 1081 J/mol}
+{A: 17283, b: -3.1, Ea-gas: -5820 J/mol, Ea-electron: 1081 J/mol, b-gas: 0, T-inv: 0}
 [17283, -3.1, -5820 J/mol, 1081 J/mol]
 ```
 
@@ -282,6 +294,165 @@ Example:
   rate-constant: {A: 17283, b: -3.1, Ea-gas: -5820 J/mol, Ea-electron: 1081 J/mol}
 ```
 
+(sec-yaml-vibrational-relaxation)=
+### Vibrational relaxation rates
+
+Cantera provides four reaction rate types for vibrational relaxation:
+
+- [`constant-vibrational-relaxation`](sec-yaml-constant-vibrational-relaxation)
+- [`multi-state-resolved-vibrational-relaxation`](sec-yaml-multi-state-resolved-vibrational-relaxation)
+- [`Castela-vibrational-relaxation`](sec-yaml-Castela-vibrational-relaxation)
+- [`Starikovskiy-vibrational-relaxation`](sec-yaml-Starikovskiy-vibrational-relaxation)
+
+The scientific background and rate expressions for these models are
+[described in the scientific reference documentation](sec-vibrational-relaxation-rate).
+
+All vibrational relaxation rate types support the optional `negative-A` field,
+which allows a negative leading rate coefficient when set to `true`. The
+default is `false`.
+
+
+(sec-yaml-constant-vibrational-relaxation)=
+#### `constant-vibrational-relaxation`
+
+A constant vibrational relaxation rate as
+[described here](sec-constant-vibrational-relaxation-rate).
+
+The `rate-constant` field is a mapping with the following required field:
+
+`A`
+: Temperature-independent rate coefficient. The units are the standard
+  Cantera rate coefficient units determined by the reaction order.
+
+No other rate parameters are accepted.
+
+Example:
+
+```yaml
+- equation: N2(v) + O => N2 + O
+  type: constant-vibrational-relaxation
+  rate-constant: {A: 1e2}
+```
+
+(sec-yaml-multi-state-resolved-vibrational-relaxation)=
+#### `multi-state-resolved-vibrational-relaxation`
+
+A state-resolved V-T / V-V rate as
+[described here](sec-multi-state-resolved-vibrational-relaxation-rate).
+
+The `rate-constant` field is a mapping with the following fields:
+
+`A`
+: Required. Pre-exponential factor. The units are the standard Cantera rate
+  coefficient units determined by the reaction order.
+
+`b`
+: Required. Dimensionless temperature exponent.
+
+`B`
+: Optional dimensionless constant in the exponential. Defaults to 0.0.
+
+`C`
+: Optional coefficient multiplying $T^{-1/3}$, interpreted with $T$ in K.
+  Defaults to 0.0.
+
+`D`
+: Optional coefficient multiplying $T^{-2/3}$, interpreted with $T$ in K.
+  Defaults to 0.0.
+
+Example:
+
+```yaml
+- equation: N2(v2) + O => N2(v1) + O
+  type: multi-state-resolved-vibrational-relaxation
+  rate-constant:
+    A: 6.02e+23
+    b: 1.0
+    B: -34.03
+    C: 33.11
+    D: 0.0
+```
+
+(sec-yaml-Castela-vibrational-relaxation)=
+#### `Castela-vibrational-relaxation`
+
+The Castela vibrational relaxation rate is
+[described here](sec-castela-vibrational-relaxation-rate).
+
+The `rate-constant` field is a mapping with the following fields:
+
+`a`
+: Required. Castela coefficient $a_k$, interpreted with $T$ in K.
+
+`b`
+: Required. Castela coefficient $b_k$, interpreted with $T$ in K.
+
+`reference-pressure`
+: Optional reference pressure $p_0$. Defaults to 1 atm and must be positive.
+
+Example:
+
+```yaml
+- equation: N2(v) + O => N2 + O
+  type: Castela-vibrational-relaxation
+  rate-constant:
+    a: 72.4
+    b: 0.015
+    reference-pressure: 1 atm
+```
+
+(sec-yaml-Starikovskiy-vibrational-relaxation)=
+#### `Starikovskiy-vibrational-relaxation`
+
+The Starikovskiy vibrational relaxation rate is
+[described here](sec-starikovskiy-vibrational-relaxation-rate).
+
+The `rate-constant` field is a mapping with the following fields:
+
+`A`
+: Required. Pre-exponential factor. The units are the standard Cantera rate
+  coefficient units determined by the reaction order.
+
+`n`
+: Optional dimensionless temperature exponent. Defaults to 0.0.
+
+`K`
+: Optional dimensionless constant in the exponential. Defaults to 0.0.
+
+`B`
+: Optional signed coefficient multiplying $T^{-1/3}$, interpreted with $T$ in K.
+  Defaults to 0.0.
+
+`C`
+: Optional signed coefficient multiplying $T^{-m}$, interpreted with $T$ in K.
+  Defaults to 0.0.
+
+`m`
+: Optional positive exponent for the `C` term. Defaults to 1.0.
+
+`D`
+: Optional signed coefficient multiplying $T^{-z}$, interpreted with $T$ in K.
+  Defaults to 0.0.
+
+`z`
+: Optional positive exponent for the `D` term. Defaults to 1.0.
+
+Example:
+
+```yaml
+- equation: N2(v) + O => N2 + O
+  type: Starikovskiy-vibrational-relaxation
+  rate-constant:
+    A: 6.0221407600e+23
+    n: 1.0
+    K: -34.03
+    B: -33.11
+    C: 0.0
+    m: 1.0
+    D: 0.0
+    z: 1.0
+```
+
 (sec-yaml-electron-collision-plasma)=
 ### `electron-collision-plasma`
 
@@ -291,7 +462,7 @@ rate calculation is [described here](sec-electron-collision-plasma-rate). The ra
 parameters are specified using the following additional fields in the reaction entry:
 
 `energy-levels`
-: A list of electron energy levels [V]
+: A list of electron energy levels [eV]
 
 `cross-sections`
 : A list of collision cross sections [m²] for the reaction at the specified energy
