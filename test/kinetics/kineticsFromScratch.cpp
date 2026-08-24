@@ -15,6 +15,10 @@
 #include "cantera/kinetics/PlogRate.h"
 #include "cantera/kinetics/TwoTempPlasmaRate.h"
 #include "cantera/kinetics/VibrationalRelaxationRate.h"
+#include "cantera/kinetics/ConstantVibrationalRelaxationRate.h"
+#include "cantera/kinetics/MultiStateResolvedVibrationalRelaxationRate.h"
+#include "cantera/kinetics/CastelaVibrationalRelaxationRate.h"
+#include "cantera/kinetics/StarikovskiyVibrationalRelaxationRate.h"
 #include "cantera/base/Array.h"
 #include "cantera/base/stringUtils.h"
 
@@ -807,3 +811,69 @@ TEST_F(KineticsAddSpecies, add_species_err_first)
     ASSERT_EQ((size_t) 1, kin.nReactions());
     check_rates(1, "O:0.001, H2:0.1, H:0.005, OH:0.02, AR:0.88");
 }
+
+class VibrationalRelaxationFromScratch : public testing::Test
+{
+public:
+    VibrationalRelaxationFromScratch()
+        : phase(newThermo("../data/vibrational-relaxation.yaml"))
+        , phase_ref(newThermo("../data/vibrational-relaxation.yaml"))
+    {
+        vector<shared_ptr<ThermoPhase>> phases{phase_ref};
+        kin_ref = newKinetics(
+            phases,
+            "../data/vibrational-relaxation.yaml");
+        kin.addThermo(phase);
+        kin.init();
+    }
+
+    void check_rates()
+    {
+        ASSERT_EQ(kin.nReactions(), (size_t) 4);
+        ASSERT_EQ(kin_ref->nReactions(), (size_t) 4);
+        phase->setState_TP(1200.0, OneAtm);
+        phase_ref->setState_TP(1200.0, OneAtm);
+        vector<double> k(4);
+        vector<double> k_ref(4);
+        kin.getFwdRateConstants(k);
+        kin_ref->getFwdRateConstants(k_ref);
+        for (size_t i = 0; i < 4; i++) {
+            EXPECT_NEAR(
+                k[i],
+                k_ref[i],
+                std::abs(k_ref[i]) * 1e-12
+            ) << "reaction index = " << i;
+        }
+    }
+    shared_ptr<ThermoPhase> phase;
+    shared_ptr<ThermoPhase> phase_ref;
+    BulkKinetics kin;
+    shared_ptr<Kinetics> kin_ref;
+};
+
+TEST_F(VibrationalRelaxationFromScratch, add_reactions)
+{
+    auto constant = make_shared<ConstantVibrationalRelaxationRate>(1.0e7);
+    auto starikovskiy = make_shared<StarikovskiyVibrationalRelaxationRate>(
+            6.0221407600e20, // A
+            1.0,             // n
+            -34.03,          // K
+            -33.11,          // B
+            0.0,             // C
+            1.0,             // m
+            0.0,             // D
+            1.0);            // z
+    auto castela = make_shared<CastelaVibrationalRelaxationRate>(229.0, 0.0295, OneAtm);
+    auto multiState =make_shared<MultiStateResolvedVibrationalRelaxationRate>(
+            6.02e20, // A
+            1.0,     // b
+            -34.03,  // B
+            33.11,   // C
+            0.0);    // D
+    kin.addReaction(make_shared<Reaction>("N2(v) + N2 => N2 + N2",constant));
+    kin.addReaction(make_shared<Reaction>("N2(v) + O => N2 + O", starikovskiy));
+    kin.addReaction(make_shared<Reaction>("N2(v) + O2 => N2 + O2", castela));
+    kin.addReaction(make_shared<Reaction>("N2(v1) + O => N2 + O", multiState));
+    check_rates();
+}
+

@@ -1,0 +1,99 @@
+units: {length: cm, time: s, quantity: mol, activation-energy: cal/mol}
+
+phases:
+- name: gas
+  thermo: ideal-gas
+  elements: [N, O]
+  reaction: all
+  transport: none
+  species: [N2, O2, O, N2(v1), N2(v)]
+  kinetics: gas
+  state:
+    T: 300.0
+    P: 1 atm
+
+species:
+- name: N2
+  composition: {N: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [3.53100528, -1.23660988e-04, -5.02999433e-07, 2.43530612e-09, -1.40881235e-12,
+      -1046.97628, 2.96747038]
+    - [2.95257637, 1.3969004e-03, -4.92631603e-07, 7.86010195e-11, -4.60755204e-15,
+      -923.948688, 5.87188762]
+    note: G-8-02
+
+- name: O2
+  composition: {O: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [3.78245636, -2.99673416e-03, 9.84730201e-06, -9.68129509e-09, 3.24372837e-12,
+      -1063.94356, 3.65767573]
+    - [3.66096065, 6.56365811e-04, -1.41149627e-07, 2.05797935e-11, -1.29913436e-15,
+      -1215.97718, 3.41536279]
+    note: RUS-89
+
+- name: O
+  composition: {O: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [3.1682671, -3.27931884e-03, 6.64306396e-06, -6.12806624e-09, 2.11265971e-12,
+      2.91222592e+04, 2.05193346]
+    - [2.54363697, -2.73162486e-05, -4.1902952e-09, 4.95481845e-12, -4.79553694e-16,
+      2.9226012e+04, 4.92229457]
+    note: L-1-90
+
+- name: N2(v)
+  composition: {N: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [3.53603521, -1.58270944e-04, -4.26984251e-07, 2.37542590e-09,
+       -1.39708206e-12, 1.15940431555e+06, 2.94603724]
+    - [2.93802970, 1.41838030e-03, -5.03281045e-07, 8.07555464e-11,
+       -4.76064275e-15, 1.15953463101e+06, 5.95521985]
+    note: Reduced vibrational-energy reservoir for N2; relative enthalpy shift from N2 = 100 eV.
+
+- name: N2(v1)
+  composition: {N: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [3.53100528, -1.23660988e-04, -5.02999433e-07, 2.43530612e-09, -1.40881235e-12,
+      2316.84067, 2.96747038]
+    - [2.95257637, 1.3969004e-03, -4.92631603e-07, 7.86010195e-11, -4.60755204e-15,
+      2439.86826, 5.87188762]
+    note: G 8/02
+
+reactions:
+# Reaction 0:
+# Constant relaxation model for a lumped N2 vibrational energy reservoir
+- equation: N2(v) + N2 => N2 + N2
+  type: constant-vibrational-relaxation
+  rate-constant: {A: 1e10}
+
+# Reaction 1:
+# Starikovskiy relaxation model for a lumped N2 vibrational energy reservoir
+- equation: N2(v) + O => N2 + O
+  type: Starikovskiy-vibrational-relaxation
+  rate-constant: {A: 6.0221407600e+23, n: 1.0, K: -34.03, B: -33.11, C: 0.0, m: 1.0, D: 0.0, z: 1.0}
+
+# Reaction 2:
+# Castela relaxation model for a lumped N2 vibrational energy reservoir
+- equation: N2(v) + O2 => N2 + O2
+  type: Castela-vibrational-relaxation
+  rate-constant: {a: 229.0, b: 0.0295, reference-pressure: 1 atm}
+
+# Reaction 3:
+# State resolved vibrational relaxation model for N2(v1) to ground N2.
+- equation: N2(v1) + O => N2 + O
+  type: multi-state-resolved-vibrational-relaxation
+  rate-constant: {A: 6.02e+23, b: 1.0, B: -34.03, C: 33.11, D: 0.0}
