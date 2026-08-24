@@ -63,20 +63,69 @@ TwoTempPlasmaRate::TwoTempPlasmaRate(double A, double b, double Ea, double EE, d
     } // no else required here because m_recip_Tinv is otherwise initilised at 0.
 }
 
-TwoTempPlasmaRate::TwoTempPlasmaRate(const AnyMap& node, const UnitStack& rate_units)
-    : TwoTempPlasmaRate()
+TwoTempPlasmaRate::TwoTempPlasmaRate(const AnyMap& node, const UnitStack& rate_units): TwoTempPlasmaRate()
 {
-    setParameters(node, rate_units);
-    m_bg = node.getDouble("b-gas", 0.0);
-    double Tinv = node.getDouble("T-inv", 0.0);
-    if (Tinv!=0){
-        m_recip_Tinv = 1.0/Tinv;
+    // Option 1: there is no rate constant provided
+    if (!node.hasKey("rate-constant")) {
+            return;
+    }
+
+    // Option 2: the rate constant is an AnyMap
+    if (node["rate-constant"].is<AnyMap>()) {
+        ArrheniusBase::setParameters(node, rate_units);
+
+        const auto& rate = node["rate-constant"].as<AnyMap>();
+
+        m_bg = rate.getDouble("b-gas", rate.getDouble("b_gas", 0.0));
+
+        double Tinv = 0.0;
+        if (rate.hasKey("T-inv")) {
+            Tinv = rate.convert("T-inv", "K");
+        } else if (rate.hasKey("T_inv")) {
+            Tinv = rate.convert("T_inv", "K");
+        }
+
+        if (Tinv!=0){
+            m_recip_Tinv = 1.0 / Tinv;
+        }
+        return;
+    }
+
+    // If both other cases fail, the rate constant is
+    // a vector and is treated below.
+    const auto& rate = node["rate-constant"].asVector<AnyValue>(2, 6);
+
+    // Option 3a: the vector is classical Arrhenius
+    if (rate.size() <= 4) {
+        ArrheniusBase::setParameters(node, rate_units);
+        return;
+    }
+
+    ReactionRate::setParameters(node, rate_units);
+    m_negativeA_ok = node.getBool("negative-A", false);
+
+    AnyValue baseRate = node["rate-constant"];
+    baseRate.asVector<AnyValue>().resize(4);
+
+    setRateParameters(baseRate, node.units(), rate_units);
+
+    // Option 3b: the vector has the b-gas parameter
+    m_bg = rate[4].asDouble();
+
+    // Option 3c: the vector has the T-inv parameter
+    if (rate.size() == 6) {
+        double Tinv = node.units().convert(rate[5], "K");
+        m_recip_Tinv = Tinv != 0.0 ? 1.0 / Tinv : 0.0;
     }
 }
 
 void TwoTempPlasmaRate::getParameters(AnyMap& node) const
 {
     ArrheniusBase::getParameters(node);
+
+    if (!node.hasKey("rate-constant")) {
+        return;
+    }
 
     auto& rateNode = node["rate-constant"].as<AnyMap>();
 
