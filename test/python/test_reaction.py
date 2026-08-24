@@ -449,6 +449,31 @@ class TestTwoTempPlasmaRateShort(TestTwoTempPlasmaRate):
         assert rate.activation_electron_energy == approx(0.)
         self.check_rate(rate)
 
+@pytest.mark.parametrize("index, rate_type",
+    [(0, "constant-vibrational-relaxation"),
+     (1, "Starikovskiy-vibrational-relaxation"),
+     (2, "Castela-vibrational-relaxation"),
+     (3, "multi-state-resolved-vibrational-relaxation")],
+    ids=["constant", "Starikovskiy", "Castela", "multi-state-resolved"])
+def test_vibrational_relaxation_rate(index, rate_type):
+    gas = ct.Solution("vibrational-relaxation.yaml", transport_model=None)
+    gas.TP = 1200.0, ct.one_atm
+    reaction = gas.reaction(index)
+    rate0 = reaction.rate
+    k_ref = gas.forward_rate_constants[index]
+    assert rate0.type == rate_type
+    assert rate0(gas.T) == approx(k_ref)
+    rate_data = rate0.input_data
+    assert rate_data["type"] == rate_type
+    rate1 = ct.ReactionRate.from_dict(rate_data)
+    assert rate1.type == rate_type
+    assert rate1(gas.T) == approx(k_ref)
+    reaction_data = reaction.input_data
+    assert reaction_data["type"] == rate_type
+    assert "vibration-model" not in reaction_data
+    reaction1 = ct.Reaction.from_dict(reaction_data, kinetics=gas)
+    assert reaction1.rate.type == rate_type
+    assert reaction1.rate(gas.T) == approx(k_ref)
 
 class FalloffRateTests(ReactionRateTests):
     """Test Falloff rate expressions"""

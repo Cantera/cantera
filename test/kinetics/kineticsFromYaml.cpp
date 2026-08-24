@@ -14,6 +14,10 @@
 #include "cantera/kinetics/PlogRate.h"
 #include "cantera/kinetics/TwoTempPlasmaRate.h"
 #include "cantera/kinetics/VibrationalRelaxationRate.h"
+#include "cantera/kinetics/ConstantVibrationalRelaxationRate.h"
+#include "cantera/kinetics/MultiStateResolvedVibrationalRelaxationRate.h"
+#include "cantera/kinetics/CastelaVibrationalRelaxationRate.h"
+#include "cantera/kinetics/StarikovskiyVibrationalRelaxationRate.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/base/Array.h"
@@ -1075,4 +1079,23 @@ TEST_F(ReactionToYaml, BlowersMaselInterface)
     duplicateReaction(0);
     EXPECT_TRUE(std::dynamic_pointer_cast<InterfaceBlowersMaselRate>(duplicate->rate()));
     compareReactions();
+}
+
+TEST(Reaction, VibrationalRelaxationFromYaml)
+{
+    auto sol = newSolution("vibrational-relaxation.yaml", "gas", "none");
+    auto kin = sol->kinetics();
+    ASSERT_EQ(kin->nReactions(), (size_t) 4);
+    auto constant = kin->reaction(0)->rate();
+    EXPECT_EQ(constant->type(), "constant-vibrational-relaxation");
+    ASSERT_TRUE(std::dynamic_pointer_cast<ConstantVibrationalRelaxationRate>(constant));
+    auto starikovskiy = kin->reaction(1)->rate();
+    EXPECT_EQ(starikovskiy->type(), "Starikovskiy-vibrational-relaxation");
+    ASSERT_TRUE(std::dynamic_pointer_cast<StarikovskiyVibrationalRelaxationRate>(starikovskiy));
+    auto castela = kin->reaction(2)->rate();
+    EXPECT_EQ(castela->type(), "Castela-vibrational-relaxation");
+    ASSERT_TRUE(std::dynamic_pointer_cast<CastelaVibrationalRelaxationRate>(castela));
+    auto multiState = kin->reaction(3)->rate();
+    EXPECT_EQ(multiState->type(),"multi-state-resolved-vibrational-relaxation");
+    ASSERT_TRUE(std::dynamic_pointer_cast<MultiStateResolvedVibrationalRelaxationRate>(multiState));
 }
