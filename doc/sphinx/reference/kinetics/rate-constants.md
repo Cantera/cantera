@@ -497,6 +497,62 @@ Vibrational relaxation reactions are currently implemented as irreversible,
 since a reverse rate cannot in general be obtained from conventional equilibrium
 thermochemistry for these non-equilibrium models.
 
+[](sec-yaml-constant-vibrational-relaxation),
+[](sec-yaml-Castela-vibrational-relaxation),
+and [](sec-yaml-Starikovskiy-vibrational-relaxation)
+are intended to be used in the frame of the mean vibrational energy framework
+(see {cite:t}`castela2016` for reference to this method).
+In Cantera, the mean vibrational energy can be implemented as a fictitious species
+with a high formation enthalpy (typically 100 eV higher than the ground state).
+These ficitious species can be created by simply copying the ground species and
+change its NASA7 sixth coefficient.
+
+Example:
+
+```yaml
+species:
+- name: N2
+  composition: {N: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [3.53100528, -1.23660988e-04, -5.02999433e-07, 2.43530612e-09, -1.40881235e-12,
+      -1046.97628, 2.96747038]
+    - [2.95257637, 1.3969004e-03, -4.92631603e-07, 7.86010195e-11, -4.60755204e-15,
+      -923.948688, 5.87188762]
+    note: G-8-02
+- name: N2(v)
+  composition: {N: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [3.53603521, -1.58270944e-04, -4.26984251e-07, 2.37542590e-09,
+       -1.39708206e-12, 1.15940431555e+06, 2.94603724]
+    - [2.93802970, 1.41838030e-03, -5.03281045e-07, 8.07555464e-11,
+       -4.76064275e-15, 1.15953463101e+06, 5.95521985]
+    note: Reduced vibrational-energy reservoir for N2; relative enthalpy shift from N2 = 100 eV.
+```
+
+Any reaction could potentially generate vibration, may that be a
+[](sec-two-temperature-plasma-rate) or an
+[](sec-electron-collision-plasma-rate), or any other.
+In these cases, using this mean vibrational energy model could look like:
+
+$ Electron + \quad N4^+ => 0.0767303216 \quad N2(v) + 0.9232696784 \quad N2 + N2(C3) $
+
+$ N2 + Electron => 0.0030000000 \quad N2(v) + 0.9970000000 \quad N2 + Electron $
+
+:::{admonition} YAML Usage
+:class: tip
+It must be clear to the user that should the vibrational reservoir species
+molar fraction take up too much of the phase matter, they could become a
+hindrance to phase chemistry precision. Therefore, these species should be declared
+in the phase definition, in the {ref}`vibrational-reservoir-species-mapping` section.
+This declaration activates automatic checks.
+:::
+
 (sec-constant-vibrational-relaxation-rate)=
 ### Constant Vibrational Relaxation Rate
 

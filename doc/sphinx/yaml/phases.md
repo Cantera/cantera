@@ -816,6 +816,29 @@ distribution and electron temperature with different models as
 
 Additional fields:
 
+(vibrational-reservoir-species-mapping)=
+  `vibrational-reservoir-species-mapping`
+  : A mapping of vibrational reservoir species to their ground state in the phase.
+  Species names are arbitrary, no vibrational reservoir species are inferred
+  from naming conventions.
+
+  The mapping is used to monitor the fraction of material stored in each
+  vibrational reservoir relative to its corresponding ground-state species.
+
+  Examples:
+
+  ```yaml
+  - name: vibrational-relaxation-phase
+    thermo: plasma
+    species: [N2, O2, O, H, Electron, N2(v), vib-res-O2]
+    vibrational-reservoir-species-mapping: {N2(v): N2, vib-res-O2: O2}
+    kinetics: gas
+
+  ```
+
+  :::{versionadded} 4.0
+  :::
+
 `electron-energy-distribution`
 : A mapping with the following fields:
 

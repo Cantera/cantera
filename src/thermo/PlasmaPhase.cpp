@@ -19,25 +19,6 @@ namespace Cantera {
 
 namespace {
     const double gamma = sqrt(2 * ElectronCharge / ElectronMass);
-
-    //! A function to check whether a phase species is actually a vibrational reservoir species
-    //! If the species is actually a reservoir species, the function sets the base name
-    //! at the given baseName adress.
-    bool isVibrationalReservoirName(const string& name, string& baseName)
-    {
-        const string suffix = "(v)";
-
-        if (name.size() <= suffix.size()) {
-            return false;
-        }
-
-        if (name.compare(name.size() - suffix.size(), suffix.size(), suffix) != 0) {
-            return false;
-        }
-
-        baseName = name.substr(0, name.size() - suffix.size());
-        return !baseName.empty();
-    }
 }
 
 PlasmaPhase::PlasmaPhase(const string& inputFile, const string& id_)
@@ -80,6 +61,7 @@ void PlasmaPhase::initThermo()
         throw CanteraError("PlasmaPhase::initThermo",
                            "No electron species found.");
     }
+    updateVibrationalReservoirSpecies();
 }
 
 void PlasmaPhase::updateThermo() const
@@ -129,7 +111,8 @@ bool PlasmaPhase::addSpecies(shared_ptr<Species> spec)
         }
     }
 
-    // Adding species may introduce new `X(v)` reservoirs or their base species.
+    // Modifying the species in the phase may also means that the vibrational
+    // reservoir species have been modified.
     // Set the flag to true to run a check.
     if (added) {
         m_vibrationalReservoirSpeciesNeedUpdate = true;
@@ -152,6 +135,10 @@ void PlasmaPhase::setSolution(std::weak_ptr<Solution> soln) {
 void PlasmaPhase::getParameters(AnyMap& phaseNode) const
 {
     IdealGasPhase::getParameters(phaseNode);
+    if (!m_vibrationalReservoirSpeciesMapping.empty()) {
+        phaseNode["vibrational-reservoir-species-mapping"] =
+            m_vibrationalReservoirSpeciesMapping;
+    }
     AnyMap eedf;
     eedf["type"] = m_distributionType;
     vector<double> levels(m_nPoints);
@@ -323,6 +310,12 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
     if (phaseNode.hasKey("electron-energy-distribution")) {
         const AnyMap eedf = phaseNode["electron-energy-distribution"].as<AnyMap>();
         setElectronEnergyDistributionParameters(eedf);
+    }
+
+    m_vibrationalReservoirSpeciesMapping.clear();
+    if (phaseNode.hasKey("vibrational-reservoir-species-mapping")) {
+        m_vibrationalReservoirSpeciesMapping =
+            phaseNode["vibrational-reservoir-species-mapping"].asMap<string>();
     }
 
     if (rootNode.hasKey("electron-collisions")) {
@@ -1042,28 +1035,29 @@ void PlasmaPhase::updateVibrationalReservoirSpecies()
 {
     m_vibrationalReservoirSpecies.clear();
 
-    for (size_t k = 0; k < nSpecies(); k++) {
-        string baseName;
-        const string& reservoirName = speciesName(k);
-
-        if (!isVibrationalReservoirName(reservoirName, baseName)) {
-            continue;
-        }
-
+    for (const auto& [reservoirName, baseName] : m_vibrationalReservoirSpeciesMapping) {
+        size_t kReservoir = speciesIndex(reservoirName, false);
         size_t kBase = speciesIndex(baseName, false);
 
-        // Check that the base species of the vibrational reservoir actually exists in the phase.
+        if (kReservoir == npos) {
+            throw CanteraError(
+                "PlasmaPhase::updateVibrationalReservoirSpecies",
+                "Vibrational reservoir species '{}' is not present "
+                "in the phase.",
+                reservoirName);
+        }
+
         if (kBase == npos) {
-            warn_user("PlasmaPhase::updateVibrationalReservoirSpecies",
-                "Species '{}' matches the fictive vibrational-reservoir naming "
-                "convention, but the corresponding base species '{}' was not found. "
-                "This species will not be monitored as a vibrational reservoir.",
-                reservoirName, baseName);
-            continue;
+            throw CanteraError(
+                "PlasmaPhase::updateVibrationalReservoirSpecies",
+                "Base species '{}' associated with vibrational "
+                "reservoir '{}' is not present in the phase.",
+                baseName,
+                reservoirName);
         }
 
         VibrationalReservoirSpecies reservoir;
-        reservoir.reservoirIndex = k;
+        reservoir.reservoirIndex = kReservoir;
         reservoir.baseSpeciesIndex = kBase;
 
         m_vibrationalReservoirSpecies.push_back(reservoir);
@@ -1078,17 +1072,22 @@ void PlasmaPhase::checkVibrationalReservoirMoleFractions()
         updateVibrationalReservoirSpecies();
     }
 
-    for (const auto& reservoir : m_vibrationalReservoirSpecies) {
+    const double resetThreshold = 0.5 * m_vibrationalMoleFractionThreshold;
+
+    for (auto& reservoir : m_vibrationalReservoirSpecies) {
         const size_t kReservoir = reservoir.reservoirIndex;
         const size_t kBase = reservoir.baseSpeciesIndex;
 
-        const double Xv = moleFraction(kReservoir); // mole fraction of the vibrational reservoir species
-        const double Xb = moleFraction(kBase); // mole fraction of the base species it is associated to
+        // Mole fractions of the vibrational reservoir species and of the base
+        // species it is associated with
+        const double Xv = moleFraction(kReservoir);
+        const double Xb = moleFraction(kBase);
 
         const double pool = Xv + Xb;
 
         // Ignore species pools that are too diluted to meaningfully affect chemistry.
         if (pool <= m_vibrationalAbsoluteMoleFractionThreshold) {
+            reservoir.warningActive = false;
             continue;
         }
 
@@ -1097,6 +1096,15 @@ void PlasmaPhase::checkVibrationalReservoirMoleFractions()
         // is a risk for the phase chemistry to be altered by the reservoir:
         // the code raises a warning to the user.
         const double reservoirFraction = Xv / pool;
+
+        // Re-arm the warning only after the reservoir fraction has
+        // dropped sufficiently below the warning threshold.
+        if (reservoir.warningActive) {
+            if (reservoirFraction < resetThreshold) {
+                reservoir.warningActive = false;
+            }
+            continue;
+        }
 
         if (reservoirFraction > m_vibrationalMoleFractionThreshold) {
             const string& reservoirName = speciesName(kReservoir);
@@ -1115,6 +1123,7 @@ void PlasmaPhase::checkVibrationalReservoirMoleFractions()
                       baseName, Xb,
                       m_vibrationalMoleFractionThreshold,
                       baseName);
+            reservoir.warningActive = true;
         }
     }
 }
