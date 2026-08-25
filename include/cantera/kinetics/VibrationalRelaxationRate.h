@@ -68,7 +68,6 @@ struct VibrationalRelaxationData : public ReactionData
 class VibrationalRelaxationRate : public ReactionRate
 {
 public:
-    
     void setParameters(const AnyMap& node, const UnitStack& rate_units) override;
 
     void getParameters(AnyMap& node) const override;
@@ -102,7 +101,7 @@ public:
     // =
     // \frac{d \ln k_f}{dT}
     // @f]
-    // 
+    //
     // For the internal generic expression, this is:
     //
     // @f[

@@ -41,7 +41,7 @@ VibrationalRelaxationRate::VibrationalRelaxationRate() = default;
 VibrationalRelaxationRate::VibrationalRelaxationRate(
     double A, double b, double B, double C,
     double D, double m, double E, double z)
-    : m_A(A), m_b(b) , m_B(B), m_C(C), m_D(D), 
+    : m_A(A), m_b(b) , m_B(B), m_C(C), m_D(D),
     m_m(m), m_E(E), m_z(z)
 {
     m_valid = true;
