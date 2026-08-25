@@ -6,6 +6,7 @@
 #include "cantera/kinetics/KineticsFactory.h"
 #include "cantera/kinetics/BulkKinetics.h"
 #include "cantera/kinetics/Reaction.h"
+#include "cantera/kinetics/ReactionRateFactory.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/kinetics/Arrhenius.h"
 #include "cantera/kinetics/ChebyshevRate.h"
@@ -21,6 +22,7 @@
 #include "cantera/kinetics/StarikovskiyVibrationalRelaxationRate.h"
 #include "cantera/base/Array.h"
 #include "cantera/base/stringUtils.h"
+
 
 using namespace Cantera;
 
@@ -276,6 +278,37 @@ TEST_F(KineticsFromScratch, add_two_temperature_plasma)
     auto rate = make_shared<TwoTempPlasmaRate>(17283, -3.1, -5820000, 1081000);
     auto R = make_shared<Reaction>(equation, rate);
     EXPECT_FALSE(R->usesThirdBody());
+}
+
+TEST_F(KineticsFromScratch, two_temperature_plasma_extended_parameters)
+{
+    const double A = 2.0e7;
+    const double T = 500.0;
+    const double Te = 1000.0;
+    const double Tinv = 1000.0;
+    const double expected = A * T * std::exp(-T / Tinv);
+
+    TwoTempPlasmaData data;
+    data.update(T, Te);
+
+    TwoTempPlasmaRate directRate(A, 0.0, 0.0, 0.0, 1.0, Tinv);
+    EXPECT_NEAR(directRate.evalFromStruct(data), expected, 1e-12 * expected);
+
+    AnyMap node = AnyMap::fromYamlString(
+        "{type: two-temperature-plasma,"
+        " rate-constant: {A: 2.0e7, b: 0.0, Ea-gas: 0 K,"
+        " Ea-electron: 0 K, b-gas: 1.0, T-inv: 1000 K}}");
+
+    auto rate = std::dynamic_pointer_cast<TwoTempPlasmaRate>(newReactionRate(node));
+    ASSERT_NE(rate, nullptr);
+
+    EXPECT_NEAR(rate->evalFromStruct(data), expected, 1e-12 * expected);
+
+    AnyMap output = rate->parameters();
+    const auto& rateNode = output["rate-constant"].as<AnyMap>();
+
+    EXPECT_DOUBLE_EQ(rateNode["b-gas"].asDouble(), 1.0);
+    EXPECT_DOUBLE_EQ(rateNode.convert("T-inv", "K"), Tinv);
 }
 
 TEST_F(KineticsFromScratch, undefined_third_body)
@@ -864,7 +897,7 @@ TEST_F(VibrationalRelaxationFromScratch, add_reactions)
             0.0,             // D
             1.0);            // z
     auto castela = make_shared<CastelaVibrationalRelaxationRate>(229.0, 0.0295, OneAtm);
-    auto multiState =make_shared<MultiStateResolvedVibrationalRelaxationRate>(
+    auto multiState = make_shared<MultiStateResolvedVibrationalRelaxationRate>(
             6.02e20, // A
             1.0,     // b
             -34.03,  // B
@@ -875,4 +908,109 @@ TEST_F(VibrationalRelaxationFromScratch, add_reactions)
     kin.addReaction(make_shared<Reaction>("N2(v) + O2 => N2 + O2", castela));
     kin.addReaction(make_shared<Reaction>("N2(v1) + O => N2 + O", multiState));
     check_rates();
+}
+
+TEST_F(VibrationalRelaxationFromScratch, temperature_derivative)
+{
+    const double T = 1200.0;
+    StarikovskiyVibrationalRelaxationRate rate(
+        1.0e7, 1.2, -10.0, 4.0, 5.0, 0.8, 6.0, 1.1);
+
+    VibrationalRelaxationData data;
+    data.update(T);
+
+    const double expected =
+        1.2 / T
+        - (4.0 / 3.0) * std::pow(T, -4.0 / 3.0)
+        - 0.8 * 5.0 * std::pow(T, -1.8)
+        - 1.1 * 6.0 * std::pow(T, -2.1);
+
+    EXPECT_NEAR(
+        rate.ddTScaledFromStruct(data),
+        expected,
+        1e-12 * std::abs(expected));
+}
+
+TEST_F(VibrationalRelaxationFromScratch, reversible_reaction)
+{
+    AnyMap node = AnyMap::fromYamlString(
+        "{equation: N2(v) + O <=> N2 + O,"
+        " type: constant-vibrational-relaxation,"
+        " rate-constant: {A: 1e10}}");
+
+    auto R = std::shared_ptr<Reaction>(
+        newReaction(node, kin));
+
+    ASSERT_THROW(kin.addReaction(R), InputFileError);
+    ASSERT_EQ(kin.nReactions(), (size_t) 0);
+}
+
+TEST_F(VibrationalRelaxationFromScratch, constant_invalid_parameters)
+{
+    AnyMap node = AnyMap::fromYamlString(
+        "{type: constant-vibrational-relaxation,"
+        " rate-constant: {}}");
+
+    ASSERT_THROW(newReactionRate(node), InputFileError);
+
+    node = AnyMap::fromYamlString(
+        "{type: constant-vibrational-relaxation,"
+        " rate-constant: {A: 1e10, b: 1.0}}");
+
+    ASSERT_THROW(newReactionRate(node), InputFileError);
+}
+
+TEST_F(VibrationalRelaxationFromScratch, castela_invalid_reference_pressure)
+{
+    ASSERT_THROW(
+        CastelaVibrationalRelaxationRate(229.0, 0.0295, 0.0),
+        CanteraError);
+
+    AnyMap node = AnyMap::fromYamlString(
+        "{type: Castela-vibrational-relaxation,"
+        " rate-constant: {a: 229.0, b: 0.0295,"
+        " reference-pressure: 0 Pa}}");
+
+    ASSERT_THROW(newReactionRate(node), InputFileError);
+}
+
+TEST_F(VibrationalRelaxationFromScratch, castela_default_reference_pressure)
+{
+    AnyMap node = AnyMap::fromYamlString(
+        "{type: Castela-vibrational-relaxation,"
+        " rate-constant: {a: 229.0, b: 0.0295}}");
+
+    auto rate = newReactionRate(node);
+    AnyMap output = rate->parameters();
+    output.applyUnits();
+
+    const auto& rateNode = output["rate-constant"].as<AnyMap>();
+    EXPECT_DOUBLE_EQ(
+        rateNode["reference-pressure"].asDouble(),
+        OneAtm);
+}
+
+TEST_F(VibrationalRelaxationFromScratch, starikovskiy_invalid_exponents)
+{
+    ASSERT_THROW(
+        StarikovskiyVibrationalRelaxationRate(
+            1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0),
+        CanteraError);
+
+    ASSERT_THROW(
+        StarikovskiyVibrationalRelaxationRate(
+            1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0),
+        CanteraError);
+
+    AnyMap node = AnyMap::fromYamlString(
+        "{type: Starikovskiy-vibrational-relaxation,"
+        " rate-constant: {A: 1.0, m: 0.0, z: 1.0}}");
+
+    ASSERT_THROW(newReactionRate(node), InputFileError);
+
+    auto& rateNode = node["rate-constant"].as<AnyMap>();
+    rateNode["m"] = 1.0;
+    rateNode["z"] = 0.0;
+
+    ASSERT_THROW(newReactionRate(node), InputFileError);
 }
