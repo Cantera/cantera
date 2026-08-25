@@ -619,6 +619,28 @@ TEST(Reaction, TwoTempPlasmaFromYaml)
     EXPECT_DOUBLE_EQ(rate->activationElectronEnergy(), 700 * GasConstant);
 }
 
+TEST(Reaction, TwoTempPlasmaExtendedListFromYaml)
+{
+    auto sol = newSolution("ET_test.yaml");
+    AnyMap rxn = AnyMap::fromYamlString(
+        "{equation: E + O2 + O2 => O2^- + O2,"
+        " type: two-temperature-plasma,"
+        " rate-constant: [1.523e+27 cm^6/mol^2/s, 0.0, 0 K, 0 K, 1.0, 1000 K]}");
+
+    auto R = newReaction(rxn, *(sol->kinetics()));
+    const auto rate = std::dynamic_pointer_cast<TwoTempPlasmaRate>(R->rate());
+    ASSERT_NE(rate, nullptr);
+    EXPECT_DOUBLE_EQ(rate->preExponentialFactor(), 1.523e21);
+    EXPECT_DOUBLE_EQ(rate->temperatureExponent(), 0.0);
+    EXPECT_DOUBLE_EQ(rate->activationEnergy(), 0.0);
+    EXPECT_DOUBLE_EQ(rate->activationElectronEnergy(), 0.0);
+
+    TwoTempPlasmaData data;
+    data.update(500.0, 1000.0);
+    const double expected = 1.523e21 * 500.0 * std::exp(-0.5);
+    EXPECT_NEAR(rate->evalFromStruct(data), expected, 1e-12 * expected);
+}
+
 TEST(Reaction, ElectronCollisionPlasmaFromYaml)
 {
     auto sol = newSolution("oxygen-plasma.yaml", "discretized-electron-energy-plasma", "none");
