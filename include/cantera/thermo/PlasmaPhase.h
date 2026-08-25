@@ -1028,12 +1028,22 @@ private:
 
     //! A structure to describe species serving as mean vibrational energy reservoirs
     struct VibrationalReservoirSpecies {
-        size_t reservoirIndex = npos; // index of the vibrational reservoir species
-        size_t baseSpeciesIndex = npos; // index of the corresponding ground state phase species
+        //! Index of the vibrational reservoir species
+        size_t reservoirIndex = npos;
+
+        //! Index of the corresponding ground state phase species
+        size_t baseSpeciesIndex = npos;
+
+        //! Flag controlling the warning hysteresis, to avoid too much repetition
+        bool warningActive = false;
     };
 
+    //! Mapping of vibrational reservoir species names to their
+    //! corresponding base species names.
+    map<string, string> m_vibrationalReservoirSpeciesMapping;
+
     //! Vector of species serving as mean vibrational energy reservoirs
-    std::vector<VibrationalReservoirSpecies> m_vibrationalReservoirSpecies;
+    vector<VibrationalReservoirSpecies> m_vibrationalReservoirSpecies;
 
     //! A boolean flag to update vibrational reservoir species
     bool m_vibrationalReservoirSpeciesNeedUpdate = true;
@@ -1046,8 +1056,8 @@ private:
     //! assumed to be safe from alterations from vibrational reservoirs.
     double m_vibrationalAbsoluteMoleFractionThreshold = 1e-20;
 
-    //! Detects species serving as vibrational reservoirs and
-    //! adds them to m_vibrationalReservoirSpecies.
+    //! Resolve configured vibrational reservoir and base species names
+    //! to their corresponding phase species indices.
     void updateVibrationalReservoirSpecies();
 
     //! A function to check that vibrational reservoir species
