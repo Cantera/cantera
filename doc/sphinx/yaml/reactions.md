@@ -132,9 +132,9 @@ a mapping with fields:
 
 `Ea-electron`
 : The activation energy term $E_{a,e}$ that is related to the electron temperature
-or a corresponding four-element list. 
+or a corresponding four-element list.
 
-`T-inv` 
+`T-inv`
 : Optional gas temperature scale for the term $\exp(-T/T_\mathrm{inv})$.
 If omitted or set to 0, this term is not included.
 

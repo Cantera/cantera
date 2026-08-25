@@ -18,7 +18,7 @@ namespace Cantera
 /**
  * Maps the coefficients A, b, B, C, and D onto the common
  * VibrationalRelaxationRate representation, with m fixed to 2/3.
- * 
+ *
  * @ingroup otherRateGroup
  */
 class MultiStateResolvedVibrationalRelaxationRate final

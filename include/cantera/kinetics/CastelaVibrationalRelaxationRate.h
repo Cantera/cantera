@@ -26,7 +26,7 @@ namespace Cantera
  * @f]
  *
  * The remaining temperature-dependent coefficients are zero.
- * 
+ *
  * @ingroup otherRateGroup
  */
 class CastelaVibrationalRelaxationRate final

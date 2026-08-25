@@ -56,9 +56,9 @@ struct TwoTempPlasmaData : public ReactionData
  * where @f$ T_e @f$ is the electron temperature, @f$ E_{a,g} @f$ is the activation
  * energy for gas, and @f$ E_{a,e} @f$ is the activation energy for electron, see
  * Kossyi, et al. @cite kossyi1992.
- * The Kossyi parameterization is generalized by the addition of two optional terms, the optional gas temperature 
- * exponent b_g (defaulting to 0) and the optional temperature scale @f$ T_\mathrm{inv} @f$ @cite capitelli2013. 
- * The term @f$ \exp(-T/T_\mathrm{inv}) @f$ @cite capitelli2013 is active only if a value is provided 
+ * The Kossyi parameterization is generalized by the addition of two optional terms, the optional gas temperature
+ * exponent b_g (defaulting to 0) and the optional temperature scale @f$ T_\mathrm{inv} @f$ @cite capitelli2013.
+ * The term @f$ \exp(-T/T_\mathrm{inv}) @f$ @cite capitelli2013 is active only if a value is provided
  * for @f$ T_\mathrm{inv} @f$.
  *
  * @ingroup arrheniusGroup
@@ -132,12 +132,12 @@ protected:
     //! Gas temperature exponent.
     double m_bg = 0.0;
 
-    //! Reciprocate of the temperature scale for the optional term 
+    //! Reciprocate of the temperature scale for the optional term
     //! @f$ \exp(-T/T_\mathrm{inv}) @f$.
     /*!
      * A value of zero disables this term.
      */
-    double m_recip_Tinv = 0.0; 
+    double m_recip_Tinv = 0.0;
 };
 
 }

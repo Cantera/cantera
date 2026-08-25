@@ -876,4 +876,3 @@ TEST_F(VibrationalRelaxationFromScratch, add_reactions)
     kin.addReaction(make_shared<Reaction>("N2(v1) + O => N2 + O", multiState));
     check_rates();
 }
-

@@ -493,8 +493,8 @@ Four vibrational relaxation rate parameterizations are available:
 - [](sec-castela-vibrational-relaxation-rate)
 - [](sec-starikovskiy-vibrational-relaxation-rate)
 
-Vibrational relaxation reactions are currently implemented as irreversible, 
-since a reverse rate cannot in general be obtained from conventional equilibrium 
+Vibrational relaxation reactions are currently implemented as irreversible,
+since a reverse rate cannot in general be obtained from conventional equilibrium
 thermochemistry for these non-equilibrium models.
 
 (sec-constant-vibrational-relaxation-rate)=
@@ -603,7 +603,7 @@ where $T$ is the gas temperature.
 
 A collection of vibrational relaxation rates is given by
 {cite:t}`starikovskiy2013`. Parameters for NH3 vibrational relaxation are also
-available from {cite:t}`zhong2023` (in the supplemetary materials), while CH4 
+available from {cite:t}`zhong2023` (in the supplementary materials), while CH4
 vibrational relaxation rates are discussed by {cite:t}`popov2016`.
 
 :::{admonition} YAML Usage
