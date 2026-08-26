@@ -24,7 +24,13 @@ classdef FlowReactor < ct.zeroD.ReactorBase
 
     properties (SetAccess = public)
 
-        massFlowRate % Mass flow rate [kg/s].
+        % Mass flow rate through the reactor [kg/s].
+        %
+        % Setting the mass flow rate sets the flow speed based on the current
+        % density of the reactor contents and the reactor area. The value read
+        % back is computed from the flow speed, density and area at the end of
+        % the last call to "advance" or "step".
+        massFlowRate
 
     end
 
@@ -43,7 +49,7 @@ classdef FlowReactor < ct.zeroD.ReactorBase
 
         %% FlowReactor Get Methods
 
-        function flag = get.massFlowRate(obj)
+        function rate = get.massFlowRate(obj)
             rate = ct.impl.call('mReactor_massFlowRate', obj.id);
         end
 
@@ -51,7 +57,6 @@ classdef FlowReactor < ct.zeroD.ReactorBase
 
         function set.massFlowRate(obj, MFR)
             ct.impl.call('mReactor_setMassFlowRate', obj.id, MFR);
-            obj.massFlowRate = MFR;
         end
 
     end

@@ -8,6 +8,10 @@ classdef ctTestFlowReactor1 < ctTestCase
         rsurf
     end
 
+    properties (SetAccess = protected)
+        rtol = 1e-6;
+    end
+
     methods (Test)
 
         function testNonReacting(self)
@@ -84,6 +88,24 @@ classdef ctTestFlowReactor1 < ctTestCase
             % kCH4 = self.gas.speciesIndex('CH4');
             % kH2 = self.gas.speciesIndex('H2');
             % kCO = self.gas.speciesIndex('CO');
+        end
+
+        function testMassFlowRate(self)
+            self.gas = ct.Solution('../data/ch4_minimal.yaml', ...
+                                   'testConstPressureReactor');
+            self.gas.TPX = {300, ct.OneAtm, 'O2:1.0'};
+            self.reactor = ct.zeroD.FlowReactor(self.gas);
+
+            self.reactor.massFlowRate = 10;
+            self.verifyEqual(self.reactor.massFlowRate, 10, 'RelTol', self.rtol);
+
+            % Changing the area rescales the flow speed, leaving the mass flow
+            % rate unchanged.
+            self.reactor.area = 0.5;
+            self.verifyEqual(self.reactor.massFlowRate, 10, 'RelTol', self.rtol);
+
+            self.reactor.massFlowRate = 2.5;
+            self.verifyEqual(self.reactor.massFlowRate, 2.5, 'RelTol', self.rtol);
         end
 
         function testComponentNames(self)
