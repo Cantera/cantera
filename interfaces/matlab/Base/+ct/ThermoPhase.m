@@ -373,7 +373,7 @@ classdef (Abstract) ThermoPhase < handle
             disp(obj.report);
         end
 
-        function tp = equilibrate(obj, xy, solver, rtol, maxsteps, maxiter, loglevel)
+        function equilibrate(obj, xy, solver, rtol, maxsteps, maxiter, loglevel)
             % Set the phase to a state of chemical equilibrium ::
             %
             %     >> tp.equilibrate(xy, solver, rtol, maxsteps, maxiter, loglevel)
