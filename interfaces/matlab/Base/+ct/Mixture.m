@@ -361,7 +361,7 @@ classdef Mixture < handle
 
         end
 
-        function r = equilibrate(obj, XY, solver, rtol, maxsteps, maxiter, estimate_equil)
+        function equilibrate(obj, XY, solver, rtol, maxsteps, maxiter, estimate_equil)
             % Set the mixture to a state of chemical equilibrium. ::
             %
             %     >> m.equilibrate(XY, solver, rtol, maxsteps, maxiter, estimate_equil)
@@ -402,8 +402,6 @@ classdef Mixture < handle
             %     If -1, the initial mole fraction vector is thrown out,
             %     and an estimate is formulated.
             %     Default: 0.
-            % :return:
-            %     The error in the solution.
 
             arguments
                 obj
@@ -416,7 +414,7 @@ classdef Mixture < handle
                 estimate_equil (1,1) double {mustBeInteger} = 0
             end
 
-            r = ct.impl.call('mMix_equilibrate', obj.mixID, XY, solver, rtol, ...
+            ct.impl.call('mMix_equilibrate', obj.mixID, XY, solver, rtol, ...
                         maxsteps, maxiter, estimate_equil);
         end
 
