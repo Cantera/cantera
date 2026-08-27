@@ -33,7 +33,6 @@ nz = 11;
 
 logLevel = 1;  % amount of diagnostic output (0 to 5)
 refineGrid = 1;  % 1 to enable refinement, 0 to disable
-maxJacobianAge = [5, 10];
 
 %%
 % **Create the gas object**
@@ -90,7 +89,6 @@ uOut = mdot / rhoOut;
 % Once the component parts have been created, they can be assembled
 % to create the flame object.
 fl = ct.oneD.Sim1D({burner, flow, out});
-fl.setMaxJacAge(maxJacobianAge(1), maxJacobianAge(2));
 
 % Supply initial guess
 locs = [0.0, 0.2, 1.0];
