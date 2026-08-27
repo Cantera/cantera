@@ -10,12 +10,8 @@ classdef ReactingSurface < ct.oneD.Boundary
     %     String ID of the reacting surface.
 
     properties
-        % Set bounds on the solution components. ::
-        %
-        %     >> d.coverageEnabled = flag
-        %
-        % :param flag:
-        %     Boolean flag indicating whether coverage equations are enabled.
+        % Boolean flag that controls whether or not the surface coverage equations
+        % are solved as part of the 1D problem.
         coverageEnabled
     end
 
