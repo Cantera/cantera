@@ -52,6 +52,18 @@ classdef ctTestThermo < ctTestCase
             self.verifyEqual(self.phase.Y, Y, 'AbsTol', self.atol);
         end
 
+        % Check the concentrations of a phase against expected values. Agreement is
+        % expected to round-off, so the class-wide tolerances are far too loose.
+        % 'scale' is the magnitude of a fully occupied concentration, which the
+        % absolute tolerance has to track: surface concentrations are ~1e-8
+        % kmol/m^2, and self.atol alone would exceed every element and make the
+        % comparison vacuous.
+        function checkConcentrations(self, phase, exp, scale)
+            c = phase.concentrations;
+            self.verifySize(c, [1, phase.nSpecies]);
+            self.verifyEqual(c, exp, 'RelTol', 1e-12, 'AbsTol', 1e-12*scale);
+        end
+
         % Check multi properties
         function checkMultiProperties(self, str)
             val = self.phase.(str);
@@ -336,6 +348,28 @@ classdef ctTestThermo < ctTestCase
             exp = 1.0 / self.phase.T;
             self.verifyEqual(val, exp, 'RelTol', self.rtol);
 
+        end
+
+        function testConcentrations(self)
+            self.phase.TPX = {800.0, 2 * ct.OneAtm, 'H2:0.4, O2:0.3, AR:0.3'};
+
+            molarDensity = self.phase.molarDensity;
+            self.checkConcentrations(self.phase, self.phase.X*molarDensity, ...
+                                     molarDensity);
+        end
+
+        function testSurfaceConcentrations(self)
+            gas = ct.Solution('ptcombust.yaml', 'gas');
+            surf = ct.Interface('ptcombust.yaml', 'Pt_surf', gas);
+            surf.coverages = 'O(S):0.1, PT(S):0.5, H(S):0.4';
+
+            % Surface concentrations [kmol/m^2] are the site density weighted by
+            % the coverages. Every species in 'Pt_surf' occupies a single site, so
+            % no division by a site size is needed and the concentrations sum to
+            % the site density.
+            siteDensity = surf.siteDensity;
+            self.checkConcentrations(surf, surf.coverages*siteDensity, siteDensity);
+            self.verifyEqual(sum(surf.concentrations), siteDensity, 'RelTol', 1e-12);
         end
 
         function testGetStateMole(self)
