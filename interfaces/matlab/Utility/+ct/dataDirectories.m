@@ -9,5 +9,5 @@ function d = dataDirectories()
     %     Cell array with strings representing the data file search directories
 
     ct.isLoaded(true);
-    d = ct.impl.getString('mCt_getDataDirectories', ';');
+    d = strsplit(ct.impl.getString('mCt_getDataDirectories', pathsep), pathsep);
 end
