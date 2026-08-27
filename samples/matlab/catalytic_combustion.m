@@ -46,9 +46,6 @@ comp2 = 'CH4:0.095, O2:0.21, N2:0.78, AR:0.01';
 initial_grid = [0.0, 0.02, 0.04, 0.06, 0.08, 0.1];  % m
 
 % numerical parameters
-tol_ss = {1.0e-8 1.0e-14};  % {rtol atol} for steady-state problem
-tol_ts = {1.0e-4 1.0e-9};  % {rtol atol} for time stepping
-
 loglevel = 1;  % amount of diagnostic output (0 to 5)
 
 refine_grid = 1;  % 1 to enable refinement, 0 to disable
@@ -119,8 +116,6 @@ flow = ct.oneD.AxisymmetricFlow(gas, 'flow');
 % set some parameters for the flow
 flow.P = p;
 flow.grid = initial_grid;
-flow.setSteadyTolerances(tol_ss{:});
-flow.setTransientTolerances(tol_ts{:});
 
 %%
 % **Create the surface**
@@ -157,7 +152,6 @@ fprintf("Profile used for initial guess:\n\n")
 flow.info()
 
 stack.setTimeStep(1.0e-5, [1, 3, 6, 12]);
-stack.setMaxJacAge(4, 5);
 
 %%
 % Solution

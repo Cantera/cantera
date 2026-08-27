@@ -28,13 +28,11 @@ mdot_f = 0.24;  % Fuel mass flux, kg/m^2/s
 transport = 'mixture-averaged';  % Transport model
 
 %%
-% Set-up initial grid, loglevel, tolerances. Enable/Disable grid refinement
+% Set-up initial grid and loglevel. Enable/Disable grid refinement
 
 width = 0.02;
 nz = 11;
 
-tol_ss = {1.0e-5, 1.0e-9};  % {rtol atol} for steady-state problem
-tol_ts = {1.0e-3, 1.0e-9};  % {rtol atol} for time stepping
 logLevel = 1;  % Amount of diagnostic output (0 to 5)
 refineGrid = 1;  % 1 to enable refinement, 0 to disable
 
@@ -53,14 +51,15 @@ fuelcomp = 'C2H6:1';  % Fuel composition
 %
 % For this problem, the ``AxisymmetricFlow`` model is needed. Set the state of
 % the flow as the fuel gas object. This is arbitrary and is only used to
-% initialize the flow object. Set the grid to the initial grid defined
-% prior, same for the tolerances.
+% initialize the flow object. Set the grid to the initial grid defined prior.
 
 flow = ct.oneD.AxisymmetricFlow(gas, 'flow');
 flow.P = p;
 flow.setupUniformGrid(nz, width, 0.0);
-flow.setSteadyTolerances(tol_ss{:}, 'default');
-flow.setTransientTolerances(tol_ts{:}, 'default');
+% Relax the transient absolute tolerance. The default is too tight for the time
+% stepping needed to get this flame started, and the solver stalls at its minimum
+% timestep. The relative tolerance is left at its default value.
+flow.setTransientTolerances(1.0e-4, 1.0e-9);
 
 %%
 % **Create the fuel and oxidizer inlet steams**

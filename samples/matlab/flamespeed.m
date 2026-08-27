@@ -57,7 +57,6 @@ fprintf("phi = %1.1f, Tad = %1.1f\n", phi, Tad);
 % Create the flow domain
 flame = ct.oneD.FreeFlow(gas);
 flame.setupUniformGrid(nz, lz, 0.);
-flame.setSteadyTolerances(1e-5, 1e-11);
 flame.P = pressure;
 
 % Create the inlet
