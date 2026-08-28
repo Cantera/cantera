@@ -69,8 +69,6 @@ class VibrationalRelaxationRate : public ReactionRate
 public:
     void setParameters(const AnyMap& node, const UnitStack& rate_units) override;
 
-    void getParameters(AnyMap& node) const override;
-
     //! Set context of reaction rate evaluation.
     /**
      * Vibrational relaxation rates are intended for irreversible
@@ -91,24 +89,25 @@ public:
         );
     }
 
-    // Evaluate the scaled temperature derivative.
-    //
-    // This returns:
-    //
-    // @f[
-    // \frac{1}{k_f} \frac{d k_f}{dT}
-    // =
-    // \frac{d \ln k_f}{dT}
-    // @f]
-    //
-    // For the internal generic expression, this is:
-    //
-    // @f[
-    // \frac{b}{T}
-    // - \frac{C_{1/3}}{3} T^{-4/3}
-    // - m Cm T^{-m-1}
-    // - n Cn T^{-n-1}
-    // @f]
+    //! Evaluate the scaled temperature derivative.
+    /**
+     * This returns:
+     *
+     * @f[
+     * \frac{1}{k_f} \frac{d k_f}{dT}
+     * =
+     * \frac{d \ln k_f}{dT}
+     * @f]
+     *
+     * For the internal generic expression, this is:
+     *
+     * @f[
+     * \frac{b}{T}
+     * - \frac{C_{1/3}}{3} T^{-4/3}
+     * - m C_m T^{-m-1}
+     * - n C_n T^{-n-1}
+     * @f]
+     */
     double ddTScaledFromStruct(const VibrationalRelaxationData& shared_data) const;
 
     void check(const string& equation) override;
@@ -147,6 +146,13 @@ protected:
         const string& where,
         std::initializer_list<string> keys);
 
+    //! Write the fields shared by all vibrational relaxation rates, then delegate
+    //! the model-specific `rate-constant` entries to getRateParameters().
+    void getParameters(AnyMap& node) const override;
+
+    //! Store the model-specific coefficients in the `rate-constant` node.
+    virtual void getRateParameters(AnyMap& rateNode) const = 0;
+
     void getPreExponentialFactor(AnyMap& rateNode) const;
 
     //! Pre-exponential constant for the reaction rate
@@ -180,5 +186,6 @@ private:
 
 };
 
-}
+} // namespace Cantera
+
 #endif

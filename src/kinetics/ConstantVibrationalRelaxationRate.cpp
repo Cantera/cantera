@@ -19,7 +19,8 @@ const string WhereSetParameters =
 
 ConstantVibrationalRelaxationRate::
     ConstantVibrationalRelaxationRate(
-        const AnyMap& node, const UnitStack& rate_units){
+        const AnyMap& node, const UnitStack& rate_units)
+{
     setParameters(node, rate_units);
 }
 
@@ -31,7 +32,8 @@ ConstantVibrationalRelaxationRate::
 }
 
 void ConstantVibrationalRelaxationRate::setParameters(
-    const AnyMap& node, const UnitStack& rate_units){
+    const AnyMap& node, const UnitStack& rate_units)
+{
     VibrationalRelaxationRate::setParameters(node, rate_units);
 
     const auto& rateMap =
@@ -61,21 +63,9 @@ void ConstantVibrationalRelaxationRate::setParameters(
     m_valid = true;
 }
 
-void ConstantVibrationalRelaxationRate::getParameters(
-    AnyMap& node) const
+void ConstantVibrationalRelaxationRate::getRateParameters(AnyMap& rateNode) const
 {
-    if (!valid()) {
-        return;
-    }
-
-    VibrationalRelaxationRate::getParameters(node);
-
-    AnyMap rateNode;
-
     getPreExponentialFactor(rateNode);
-
-    rateNode.setFlowStyle();
-    node["rate-constant"] = std::move(rateNode);
 }
 
 } // namespace Cantera

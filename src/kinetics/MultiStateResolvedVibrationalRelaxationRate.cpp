@@ -67,26 +67,15 @@ void MultiStateResolvedVibrationalRelaxationRate::setParameters(
     m_valid = true;
 }
 
-void MultiStateResolvedVibrationalRelaxationRate::getParameters(
-    AnyMap& node) const
+void MultiStateResolvedVibrationalRelaxationRate::getRateParameters(
+    AnyMap& rateNode) const
 {
-    if (!valid()) {
-        return;
-    }
-
-    VibrationalRelaxationRate::getParameters(node);
-
-    AnyMap rateNode;
-
     getPreExponentialFactor(rateNode);
 
     rateNode["b"] = m_b;
     rateNode["C0"] = m_C0;
     rateNode["C13"] = m_C13;
     rateNode["C23"] = m_Cm;
-
-    rateNode.setFlowStyle();
-    node["rate-constant"] = std::move(rateNode);
 }
 
 } // namespace Cantera

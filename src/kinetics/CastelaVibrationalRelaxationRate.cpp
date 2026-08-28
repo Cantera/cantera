@@ -19,37 +19,39 @@ const string WhereSetParameters =
 
 CastelaVibrationalRelaxationRate::
     CastelaVibrationalRelaxationRate(
-        const AnyMap& node, const UnitStack& rate_units){
+        const AnyMap& node, const UnitStack& rate_units)
+{
     setParameters(node, rate_units);
 }
 
 CastelaVibrationalRelaxationRate::
     CastelaVibrationalRelaxationRate(double a, double b,
-        double referencePressure){
+        double referencePressure)
+{
+    if (referencePressure <= 0.0) {
+        throw CanteraError(
+            "CastelaVibrationalRelaxationRate",
+            "Reference pressure must be positive.");
+    }
 
-            if (referencePressure <= 0.0) {
-                throw CanteraError(
-                    "CastelaVibrationalRelaxationRate",
-                    "Reference pressure must be positive.");
-            }
+    m_A = GasConstant / referencePressure;
+    m_b = 1.0;
+    m_C0 = 18.42 + a * b;
+    m_C13 = -a;
+    m_Cm = 0.0;
+    m_m = 2.0 / 3.0;
+    m_Cn = 0.0;
+    m_n = 1.0;
 
-            m_A = GasConstant / referencePressure;
-            m_b = 1.0;
-            m_C0 = 18.42 + a * b;
-            m_C13 = -a;
-            m_Cm = 0.0;
-            m_m = 2.0 / 3.0;
-            m_Cn = 0.0;
-            m_n = 1.0;
-
-            m_valid = true;
-            m_castela_a = a;
-            m_castela_b = b;
-            m_referencePressure = referencePressure;
+    m_valid = true;
+    m_castela_a = a;
+    m_castela_b = b;
+    m_referencePressure = referencePressure;
 }
 
 void CastelaVibrationalRelaxationRate::setParameters(
-    const AnyMap& node, const UnitStack& rate_units){
+    const AnyMap& node, const UnitStack& rate_units)
+{
     VibrationalRelaxationRate::setParameters(node, rate_units);
 
     const auto& rateMap = node["rate-constant"].as<AnyMap>();
@@ -116,27 +118,14 @@ void CastelaVibrationalRelaxationRate::setParameters(
     m_valid = true;
 }
 
-
-void CastelaVibrationalRelaxationRate::getParameters(
-    AnyMap& node) const
+void CastelaVibrationalRelaxationRate::getRateParameters(AnyMap& rateNode) const
 {
-    if (!valid()) {
-        return;
-    }
-
-    VibrationalRelaxationRate::getParameters(node);
-
-    AnyMap rateNode;
-
     rateNode["a"] = m_castela_a;
 
     rateNode["b"] = m_castela_b;
 
     rateNode["reference-pressure"].setQuantity(
         m_referencePressure, "Pa");
-
-    rateNode.setFlowStyle();
-    node["rate-constant"] = std::move(rateNode);
 }
 
 } // namespace Cantera

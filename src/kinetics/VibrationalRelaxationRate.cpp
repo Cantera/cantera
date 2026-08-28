@@ -50,7 +50,8 @@ VibrationalRelaxationRate::VibrationalRelaxationRate(
 void VibrationalRelaxationRate::setParameters(const AnyMap& node,
                                               const UnitStack& rate_units)
 {
-    m_valid = false; // m_valid will be set to true by the overriding class's setParameters() function.
+    // m_valid is set back to true by the derived class's setParameters() function.
+    m_valid = false;
 
     ReactionRate::setParameters(node, rate_units);
 
@@ -66,6 +67,11 @@ void VibrationalRelaxationRate::getParameters(AnyMap& node) const
     if (m_negativeA_ok) {
         node["negative-A"] = true;
     }
+
+    AnyMap rateNode;
+    getRateParameters(rateNode);
+    rateNode.setFlowStyle();
+    node["rate-constant"] = std::move(rateNode);
 }
 
 void VibrationalRelaxationRate::getPreExponentialFactor(

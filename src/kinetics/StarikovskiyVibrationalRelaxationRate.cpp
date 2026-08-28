@@ -19,7 +19,8 @@ const string WhereSetParameters =
 
 StarikovskiyVibrationalRelaxationRate::
     StarikovskiyVibrationalRelaxationRate(
-        const AnyMap& node, const UnitStack& rate_units){
+        const AnyMap& node, const UnitStack& rate_units)
+{
     setParameters(node, rate_units);
 }
 
@@ -77,18 +78,8 @@ void StarikovskiyVibrationalRelaxationRate::setParameters(
     m_valid = true;
 }
 
-
-void StarikovskiyVibrationalRelaxationRate::getParameters(
-    AnyMap& node) const
+void StarikovskiyVibrationalRelaxationRate::getRateParameters(AnyMap& rateNode) const
 {
-    if (!valid()) {
-        return;
-    }
-
-    VibrationalRelaxationRate::getParameters(node);
-
-    AnyMap rateNode;
-
     getPreExponentialFactor(rateNode);
 
     rateNode["b"] = m_b;
@@ -101,9 +92,6 @@ void StarikovskiyVibrationalRelaxationRate::getParameters(
 
     rateNode["Cn"] = m_Cn;
     rateNode["n"] = m_n;
-
-    rateNode.setFlowStyle();
-    node["rate-constant"] = std::move(rateNode);
 }
 
 } // namespace Cantera
