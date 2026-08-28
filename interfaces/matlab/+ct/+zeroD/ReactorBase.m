@@ -16,6 +16,23 @@ classdef (Abstract) ReactorBase < handle
 
     end
 
+    properties (SetAccess = protected)
+
+        % Number of state variables (equations) for this reactor, that is, the
+        % length of its state vector.
+        %
+        % For a :mat:class:`ct.zeroD.Reactor` or
+        % :mat:class:`ct.zeroD.IdealGasReactor`, this is the number of species plus
+        % three (mass, volume, and internal energy or temperature). For a
+        % :mat:class:`ct.zeroD.ConstPressureReactor` or
+        % :mat:class:`ct.zeroD.IdealGasConstPressureReactor`, it is the number of
+        % species plus two (mass, and enthalpy or temperature). Reactor types that
+        % have no state vector of their own, such as
+        % :mat:class:`ct.zeroD.Reservoir`, report zero.
+        nVars
+
+    end
+
     properties (SetAccess = public)
 
         type  % reactor type.
@@ -112,7 +129,66 @@ classdef (Abstract) ReactorBase < handle
             ct.impl.call('mReactor_addSensitivityReaction', obj.id, m - 1);
         end
 
+        function n = componentIndex(obj, name)
+            % Index of a state-vector component of this reactor, given its name. ::
+            %
+            %     >> n = r.componentIndex(name)
+            %
+            % :param name:
+            %    String name of the component, without the reactor-name prefix that
+            %    :mat:meth:`ct.zeroD.ReactorNet.componentName` adds. Which names are
+            %    accepted depends on the reactor type; a species name always is, as
+            %    are ``'mass'`` and ``'volume'`` for a :mat:class:`ct.zeroD.Reactor`
+            %    and its descendants. Reactor types that have no state vector of
+            %    their own, such as :mat:class:`ct.zeroD.Reservoir`, raise an error.
+            % :return:
+            %    Integer, 1-based index of the component within the state vector of
+            %    this reactor. Use
+            %    :mat:meth:`ct.zeroD.ReactorNet.globalComponentIndex` to get the
+            %    corresponding index within the state vector of a network.
+
+            arguments
+                obj (1,1) ct.zeroD.ReactorBase
+                name (1,:) char
+            end
+
+            n = ct.impl.call('mReactor_componentIndex', obj.id, name);
+
+            if n < 0
+                error('Cantera:ctError', ct.impl.getError());
+            end
+
+            n = n + 1;
+        end
+
+        function s = componentName(obj, k)
+            % Name of a state-vector component of this reactor, given its index. ::
+            %
+            %     >> s = r.componentName(k)
+            %
+            % :param k:
+            %    Integer, 1-based index of the component within the state vector of
+            %    this reactor.
+            % :return:
+            %    Character array naming the component, for example ``'int_energy'``
+            %    for a :mat:class:`ct.zeroD.Reactor` or ``'temperature'`` for a
+            %    :mat:class:`ct.zeroD.IdealGasReactor`. The name is not prefixed with
+            %    the name of the reactor; compare
+            %    :mat:meth:`ct.zeroD.ReactorNet.componentName`.
+
+            arguments
+                obj (1,1) ct.zeroD.ReactorBase
+                k (1,1) double {mustBeInteger, mustBePositive}
+            end
+
+            s = ct.impl.getString('mReactor_componentName', obj.id, k - 1);
+        end
+
         %% ReactorBase Get Methods
+
+        function n = get.nVars(obj)
+            n = ct.impl.call('mReactor_neq', obj.id);
+        end
 
         function typ = get.type(obj)
             typ = ct.impl.getString('mReactor_type', obj.id);

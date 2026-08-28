@@ -402,11 +402,10 @@ classdef ctTestReactor < ctTestCase
             self.verifyNotEqual(s, 0);
 
             % A char array, a string, and the 1-based index of 'temperature' within the
-            % global state vector all name the same component. For an IdealGasReactor
-            % that vector is [mass, volume, temperature, mass fractions...], so
-            % 'temperature' is component 3.
+            % global state vector all name the same component.
             self.verifyEqual(net.sensitivity("temperature", 1), s);
-            self.verifyEqual(net.sensitivity(3, 1), s);
+            k = net.globalComponentIndex('temperature');
+            self.verifyEqual(net.sensitivity(k, 1), s);
 
             % The reactor may be omitted, given as an object, or given as its 1-based
             % position within the network.
@@ -421,9 +420,8 @@ classdef ctTestReactor < ctTestCase
             self.verifyTrue(isfinite(s));
             self.verifyNotEqual(s, 0);
 
-            % Species k follows the three non-species components of the reactor.
-            k = self.gas1.speciesIndex('OH');
-            self.verifyEqual(net.sensitivity(k + 3, 1), s);
+            k = net.globalComponentIndex('OH');
+            self.verifyEqual(net.sensitivity(k, 1), s);
         end
 
         function testSensitivityReactorArgument(self)
@@ -448,16 +446,16 @@ classdef ctTestReactor < ctTestCase
             self.verifyNotEqual(s2, 0);
             self.verifyEqual(net.sensitivity('temperature', 1, 2), s2);
 
-            % The state of the second reactor follows that of the first, whose
-            % length is 3 plus the number of species.
-            offset = 3 + self.gas1.nSpecies;
-            self.verifyEqual(net.sensitivity(offset + 3, 1), s2);
+            % The state of the second reactor follows that of the first.
+            k2 = net.globalComponentIndex('temperature', self.r2);
+            self.verifyEqual(net.sensitivity(k2, 1), s2);
 
             % The first reactor is unaffected by the parameter, and is what the
             % default reactor argument selects.
             self.verifyEqual(net.sensitivity('temperature', 1), 0, ...
                              'AbsTol', self.atol);
-            self.verifyEqual(net.sensitivity(3, 1), 0, 'AbsTol', self.atol);
+            k1 = net.globalComponentIndex('temperature');
+            self.verifyEqual(net.sensitivity(k1, 1), 0, 'AbsTol', self.atol);
         end
 
         function testSensitivityInvalidComponent(self)
@@ -507,7 +505,95 @@ classdef ctTestReactor < ctTestCase
             % Only one sensitivity parameter was registered.
             self.verifyError(@() net.sensitivity('temperature', 2), ...
                              'Cantera:ctError');
-            self.verifyError(@() net.sensitivity(3, 2), 'Cantera:ctError');
+            k = net.globalComponentIndex('temperature');
+            self.verifyError(@() net.sensitivity(k, 2), 'Cantera:ctError');
+        end
+
+        function testReactorComponents(self)
+            gas = ct.Solution('h2o2.yaml', '', 'none');
+            r = ct.zeroD.IdealGasReactor(gas);
+            net = ct.zeroD.ReactorNet(r);
+
+            % The state vector of an IdealGasReactor is
+            % [mass, volume, temperature, mass fractions...]
+            self.verifyEqual(r.nVars, 3 + gas.nSpecies);
+            self.verifyEqual(net.nVars, r.nVars);
+            self.verifyEqual(r.componentName(3), 'temperature');
+            self.verifyEqual(r.componentIndex('temperature'), 3);
+            self.verifyEqual(r.componentIndex('OH'), 3 + gas.speciesIndex('OH'));
+
+            % Names and 1-based indices round-trip for every component
+            for k = 1:r.nVars
+                self.verifyEqual(r.componentIndex(r.componentName(k)), k);
+            end
+
+            % Indices outside the 1-based range are rejected
+            self.verifyError(@() r.componentName(0), ...
+                             'MATLAB:validators:mustBePositive');
+            self.verifyError(@() r.componentName(r.nVars + 1), 'Cantera:ctError');
+
+            % So is an unknown component name
+            self.verifyError(@() r.componentIndex('spam'), 'Cantera:ctError');
+        end
+
+        function testReactorNetComponents(self)
+            gas = ct.Solution('h2o2.yaml', '', 'none');
+            first = ct.zeroD.IdealGasReactor(gas, 'first');
+            second = ct.zeroD.IdealGasReactor(gas, 'second');
+            net = ct.zeroD.ReactorNet({first, second});
+
+            self.verifyEqual(net.nVars, first.nVars + second.nVars);
+
+            % Components of the second reactor are offset by the length of the first
+            k = net.globalComponentIndex('temperature', 2);
+            self.verifyEqual(k, first.nVars + second.componentIndex('temperature'));
+
+            % The reactor may be omitted, given as an object, or given as its
+            % 1-based position within the network
+            self.verifyEqual(net.globalComponentIndex('temperature', second), k);
+            self.verifyEqual(net.globalComponentIndex('temperature'), ...
+                             first.componentIndex('temperature'));
+
+            % ReactorNet.componentName returns the reactor-prefixed name, while
+            % globalComponentIndex takes the unprefixed one
+            self.verifyEqual(net.componentName(k), 'second: temperature');
+            self.verifyEqual(second.componentName( ...
+                             second.componentIndex('temperature')), 'temperature');
+            self.verifyError(@() net.globalComponentIndex('second: temperature', 2), ...
+                             'Cantera:ctError');
+
+            % Indices outside the 1-based range are rejected
+            self.verifyError(@() net.componentName(0), ...
+                             'MATLAB:validators:mustBePositive');
+            self.verifyError(@() net.componentName(net.nVars + 1), 'Cantera:ctError');
+
+            % So is a reactor that is not in the network, in either form
+            try
+                net.globalComponentIndex('temperature', 3);
+                self.verifyFail('Expected an error for an out-of-range reactor.');
+            catch ME
+                self.verifySubstring(ME.message, 'between 1 and 2');
+            end
+
+            stranger = ct.zeroD.IdealGasReactor(gas);
+            try
+                net.globalComponentIndex('temperature', stranger);
+                self.verifyFail('Expected an error for a foreign reactor.');
+            catch ME
+                self.verifySubstring(ME.message, 'not part of this network');
+            end
+        end
+
+        function testReservoirComponentIndex(self)
+            % ReactorBase::componentIndex and componentName are not implemented for
+            % reactor types that have no state vector of their own.
+            gas = ct.Solution('h2o2.yaml', '', 'none');
+            res = ct.zeroD.Reservoir(gas);
+
+            self.verifyEqual(res.nVars, 0);
+            self.verifyError(@() res.componentIndex('temperature'), ...
+                             'Cantera:ctError');
+            self.verifyError(@() res.componentName(1), 'Cantera:ctError');
         end
 
         function testInvalidProperty(self)

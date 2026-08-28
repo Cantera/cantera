@@ -30,6 +30,7 @@ recipes:
 - name: getState  # current state vector, length neq()
 - name: componentName  # name of state-vector component i
   uses: neq
+- name: globalComponentIndex  # index of a named component in the global state vector
 # service functions
 - name: del
 - name: cabinetSize

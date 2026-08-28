@@ -20,6 +20,15 @@ classdef ReactorNet < handle
         reactors
     end
 
+    properties (SetAccess = protected)
+
+        % Number of state variables (equations) in the network, that is, the length
+        % of its global state vector. Equal to the sum of the
+        % :mat:attr:`ct.zeroD.ReactorBase.nVars` of the reactors it contains.
+        nVars
+
+    end
+
     properties (SetAccess = public)
 
         % Current time [s].
@@ -150,6 +159,10 @@ classdef ReactorNet < handle
 
         %% ReactorNet get methods
 
+        function n = get.nVars(obj)
+            n = ct.impl.call('mReactornet_neq', obj.id);
+        end
+
         function t = get.time(obj)
             t = ct.impl.call('mReactornet_time', obj.id);
         end
@@ -204,6 +217,85 @@ classdef ReactorNet < handle
                        'string, or an integer index, not a %s.'], class(component));
             end
 
+            index = obj.reactorIndex(r);
+
+            s = ct.impl.call('mReactornet_sensitivityByName', obj.id, ...
+                             char(component), p - 1, index - 1);
+
+        end
+
+        function i = globalComponentIndex(obj, component, r)
+            % Index of a component of the global state vector of the network, given
+            % the name of the component and the reactor it belongs to. ::
+            %
+            %     >> i = n.globalComponentIndex(component)
+            %     >> i = n.globalComponentIndex(component, r)
+            %
+            % This is the inverse of :mat:meth:`ct.zeroD.ReactorNet.componentName`,
+            % except that the name given here is *not* prefixed with the name of the
+            % reactor.
+            %
+            % :param component:
+            %    Name of the component within the reactor `r`, given as a character
+            %    array or a string, for example ``'temperature'`` or a species name.
+            % :param r:
+            %    The reactor in which `component` is to be found, given either as an
+            %    instance of :mat:class:`ct.zeroD.ReactorBase` belonging to this
+            %    network or as its 1-based position within the network. Defaults to
+            %    the first reactor in the network.
+            % :return:
+            %    Integer, 1-based index of the component within the global state
+            %    vector of the network.
+
+            arguments
+                obj (1,1) ct.zeroD.ReactorNet
+                component (1,:) char
+                r = 1
+            end
+
+            index = obj.reactorIndex(r);
+
+            i = ct.impl.call('mReactornet_globalComponentIndex', obj.id, ...
+                             component, index - 1);
+
+            if i < 0
+                error('Cantera:ctError', ct.impl.getError());
+            end
+
+            i = i + 1;
+        end
+
+        function s = componentName(obj, i)
+            % Name of a component of the global state vector of the network, given
+            % its index. ::
+            %
+            %     >> s = n.componentName(i)
+            %
+            % :param i:
+            %    Integer, 1-based index of the component within the global state
+            %    vector of the network.
+            % :return:
+            %    Character array naming the component, prefixed with the name of the
+            %    reactor it belongs to, for example ``'reactor1: temperature'``. The
+            %    unprefixed name is what
+            %    :mat:meth:`ct.zeroD.ReactorNet.globalComponentIndex` and
+            %    :mat:meth:`ct.zeroD.ReactorNet.sensitivity` accept.
+
+            arguments
+                obj (1,1) ct.zeroD.ReactorNet
+                i (1,1) double {mustBeInteger, mustBePositive}
+            end
+
+            s = ct.impl.getString('mReactornet_componentName', obj.id, i - 1);
+        end
+
+    end
+
+    methods (Access = private)
+
+        function index = reactorIndex(obj, r)
+            % Resolve a reactor argument to its 1-based position in the network.
+
             if isa(r, 'ct.zeroD.ReactorBase')
                 index = find(cellfun(@(x) x == r, obj.reactors), 1);
                 if isempty(index)
@@ -211,13 +303,15 @@ classdef ReactorNet < handle
                 end
             elseif isnumeric(r) && isscalar(r)
                 index = r;
+                if mod(index, 1) ~= 0 || index < 1 || index > numel(obj.reactors)
+                    error(['Reactor must be given as a 1-based index between 1 ' ...
+                           'and %d for this network, not %g.'], ...
+                          numel(obj.reactors), index);
+                end
             else
                 error(['Reactor must be a ct.zeroD.ReactorBase object or a ' ...
                        '1-based index, not a %s.'], class(r));
             end
-
-            s = ct.impl.call('mReactornet_sensitivityByName', obj.id, ...
-                             char(component), p - 1, index - 1);
 
         end
 
