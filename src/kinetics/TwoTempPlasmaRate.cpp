@@ -51,23 +51,58 @@ TwoTempPlasmaRate::TwoTempPlasmaRate()
     m_E4_str = "Ea-electron";
 }
 
-TwoTempPlasmaRate::TwoTempPlasmaRate(double A, double b, double Ea, double EE, double bg, double Tinv)
+TwoTempPlasmaRate::TwoTempPlasmaRate(double A, double b, double Ea, double EE,
+                                     double bg, double Tinv)
     : ArrheniusBase(A, b, Ea)
 {
     m_Ea_str = "Ea-gas";
     m_E4_str = "Ea-electron";
     m_E4_R = EE / GasConstant;
     m_bg = bg;
-    if (Tinv != 0){
-        m_recip_Tinv = 1.0/Tinv;
-    } // no else required here because m_recip_Tinv is otherwise initilised at 0.
+    if (Tinv != 0) {
+        m_recip_Tinv = 1.0 / Tinv;
+    } // no else required here because m_recip_Tinv is otherwise initialized at 0.
 }
 
-TwoTempPlasmaRate::TwoTempPlasmaRate(const AnyMap& node, const UnitStack& rate_units): TwoTempPlasmaRate()
+TwoTempPlasmaRate::TwoTempPlasmaRate(const AnyMap& node, const UnitStack& rate_units)
+    : TwoTempPlasmaRate()
 {
+    setParameters(node, rate_units);
+}
+
+void TwoTempPlasmaRate::getParameters(AnyMap& node) const
+{
+    ArrheniusBase::getParameters(node);
+
+    if (!node.hasKey("rate-constant")) {
+        return;
+    }
+
+    auto& rateNode = node["rate-constant"].as<AnyMap>();
+
+    if (m_bg != 0.0) {
+        rateNode["b-gas"] = m_bg;
+    }
+
+    if (m_recip_Tinv != 0.0) {
+        rateNode["T-inv"] = 1.0/m_recip_Tinv;
+    }
+
+    rateNode.setFlowStyle();
+}
+
+void TwoTempPlasmaRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
+{
+    // First, set back to zero these two first parameters to avoid any unwanted
+    // remanence should setParameters be called several times and not contain b-gas or
+    // T-inv in one of the calls.
+    m_bg = 0.0;
+    m_recip_Tinv = 0.0;
+
     // Option 1: there is no rate constant provided
     if (!node.hasKey("rate-constant")) {
-            return;
+        ArrheniusBase::setParameters(node, rate_units);
+        return;
     }
 
     // Option 2: the rate constant is an AnyMap
@@ -76,16 +111,14 @@ TwoTempPlasmaRate::TwoTempPlasmaRate(const AnyMap& node, const UnitStack& rate_u
 
         const auto& rate = node["rate-constant"].as<AnyMap>();
 
-        m_bg = rate.getDouble("b-gas", rate.getDouble("b_gas", 0.0));
+        m_bg = rate.getDouble("b-gas", 0.0);
 
         double Tinv = 0.0;
         if (rate.hasKey("T-inv")) {
             Tinv = rate.convert("T-inv", "K");
-        } else if (rate.hasKey("T_inv")) {
-            Tinv = rate.convert("T_inv", "K");
         }
 
-        if (Tinv!=0){
+        if (Tinv != 0) {
             m_recip_Tinv = 1.0 / Tinv;
         }
         return;
@@ -117,27 +150,6 @@ TwoTempPlasmaRate::TwoTempPlasmaRate(const AnyMap& node, const UnitStack& rate_u
         double Tinv = node.units().convert(rate[5], "K");
         m_recip_Tinv = Tinv != 0.0 ? 1.0 / Tinv : 0.0;
     }
-}
-
-void TwoTempPlasmaRate::getParameters(AnyMap& node) const
-{
-    ArrheniusBase::getParameters(node);
-
-    if (!node.hasKey("rate-constant")) {
-        return;
-    }
-
-    auto& rateNode = node["rate-constant"].as<AnyMap>();
-
-    if (m_bg != 0.0) {
-        rateNode["b-gas"] = m_bg;
-    }
-
-    if (m_recip_Tinv != 0.0) {
-        rateNode["T-inv"] = 1.0/m_recip_Tinv;
-    }
-
-    rateNode.setFlowStyle();
 }
 
 double TwoTempPlasmaRate::ddTScaledFromStruct(const TwoTempPlasmaData& shared_data) const
