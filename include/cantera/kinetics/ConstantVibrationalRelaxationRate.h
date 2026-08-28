@@ -42,8 +42,6 @@ public:
     void setParameters(
         const AnyMap& node, const UnitStack& rate_units) override;
 
-    void getParameters(AnyMap& node) const override;
-
     unique_ptr<MultiRateBase> newMultiRate() const override
     {
         return make_unique<
@@ -55,6 +53,9 @@ public:
     {
         return "constant-vibrational-relaxation";
     }
+
+protected:
+    void getRateParameters(AnyMap& rateNode) const override;
 };
 
 } // namespace Cantera

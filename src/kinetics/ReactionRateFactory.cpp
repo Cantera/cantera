@@ -46,24 +46,28 @@ ReactionRateFactory::ReactionRateFactory()
     });
 
     // Constant vibrational relaxation
-    reg("constant-vibrational-relaxation", [](const AnyMap& node, const UnitStack& rate_units) {
-        return new ConstantVibrationalRelaxationRate(node, rate_units);
-    });
+    reg("constant-vibrational-relaxation",
+        [](const AnyMap& node, const UnitStack& rate_units) {
+            return new ConstantVibrationalRelaxationRate(node, rate_units);
+        });
 
     // Multi-state-resolved vibrational relaxation rate
-    reg("multi-state-resolved-vibrational-relaxation", [](const AnyMap& node, const UnitStack& rate_units) {
-        return new MultiStateResolvedVibrationalRelaxationRate(node, rate_units);
-    });
+    reg("multi-state-resolved-vibrational-relaxation",
+        [](const AnyMap& node, const UnitStack& rate_units) {
+            return new MultiStateResolvedVibrationalRelaxationRate(node, rate_units);
+        });
 
     // Starikovskiy vibrational relaxation rate
-    reg("Starikovskiy-vibrational-relaxation", [](const AnyMap& node, const UnitStack& rate_units) {
-        return new StarikovskiyVibrationalRelaxationRate(node, rate_units);
-    });
+    reg("Starikovskiy-vibrational-relaxation",
+        [](const AnyMap& node, const UnitStack& rate_units) {
+            return new StarikovskiyVibrationalRelaxationRate(node, rate_units);
+        });
 
     // Castela vibrational relaxation rate
-    reg("Castela-vibrational-relaxation", [](const AnyMap& node, const UnitStack& rate_units) {
-        return new CastelaVibrationalRelaxationRate(node, rate_units);
-    });
+    reg("Castela-vibrational-relaxation",
+        [](const AnyMap& node, const UnitStack& rate_units) {
+            return new CastelaVibrationalRelaxationRate(node, rate_units);
+        });
 
     // ElectronCollisionPlasmaRate evaluator
     reg("electron-collision-plasma", [](const AnyMap& node, const UnitStack& rate_units) {

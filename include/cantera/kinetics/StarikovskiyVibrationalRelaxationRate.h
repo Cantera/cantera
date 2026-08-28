@@ -27,16 +27,15 @@ class StarikovskiyVibrationalRelaxationRate final
 public:
     StarikovskiyVibrationalRelaxationRate() = default;
 
-    explicit StarikovskiyVibrationalRelaxationRate(double A, double b = 0.0, double C0 = 0.0,
-        double C13 = 0.0, double Cm = 0.0, double m = 1.0, double Cn = 0.0,  double n = 1.0);
+    explicit StarikovskiyVibrationalRelaxationRate(
+        double A, double b = 0.0, double C0 = 0.0, double C13 = 0.0, double Cm = 0.0,
+        double m = 1.0, double Cn = 0.0, double n = 1.0);
 
     explicit StarikovskiyVibrationalRelaxationRate(
         const AnyMap& node, const UnitStack& rate_units = {});
 
     void setParameters(
         const AnyMap& node, const UnitStack& rate_units) override;
-
-    void getParameters(AnyMap& node) const override;
 
     unique_ptr<MultiRateBase> newMultiRate() const override
     {
@@ -49,6 +48,9 @@ public:
     {
         return "Starikovskiy-vibrational-relaxation";
     }
+    
+protected:
+    void getRateParameters(AnyMap& rateNode) const override;
 };
 
 } // namespace Cantera
