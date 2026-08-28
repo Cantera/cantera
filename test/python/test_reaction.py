@@ -449,31 +449,210 @@ class TestTwoTempPlasmaRateShort(TestTwoTempPlasmaRate):
         assert rate.activation_electron_energy == approx(0.)
         self.check_rate(rate)
 
-@pytest.mark.parametrize("index, rate_type",
-    [(0, "constant-vibrational-relaxation"),
-     (1, "Starikovskiy-vibrational-relaxation"),
-     (2, "Castela-vibrational-relaxation"),
-     (3, "multi-state-resolved-vibrational-relaxation")],
-    ids=["constant", "Starikovskiy", "Castela", "multi-state-resolved"])
-def test_vibrational_relaxation_rate(index, rate_type):
-    gas = ct.Solution("vibrational-relaxation.yaml", transport_model=None)
-    gas.TP = 1200.0, ct.one_atm
-    reaction = gas.reaction(index)
-    rate0 = reaction.rate
-    k_ref = gas.forward_rate_constants[index]
-    assert rate0.type == rate_type
-    assert rate0(gas.T) == approx(k_ref)
-    rate_data = rate0.input_data
-    assert rate_data["type"] == rate_type
-    rate1 = ct.ReactionRate.from_dict(rate_data)
-    assert rate1.type == rate_type
-    assert rate1(gas.T) == approx(k_ref)
-    reaction_data = reaction.input_data
-    assert reaction_data["type"] == rate_type
-    assert "vibration-model" not in reaction_data
-    reaction1 = ct.Reaction.from_dict(reaction_data, kinetics=gas)
-    assert reaction1.rate.type == rate_type
-    assert reaction1.rate(gas.T) == approx(k_ref)
+class VibrationalRelaxationRateTests(ReactionRateTests):
+    """Test suite for vibrational relaxation rate expressions."""
+
+    _cls = ct.ReactionRate
+    _reference_rate = None
+    _reference_ddT = None
+
+    @pytest.fixture(scope='class')
+    @classmethod
+    def solution(cls):
+        return ct.Solution("vibrational-relaxation.yaml", transport_model=None)
+
+    @pytest.fixture(scope='function', autouse=True)
+    def setup_test_data(self, solution):
+        self.soln = solution
+        self.soln.TP = 1200.0, ct.one_atm
+
+    def from_input(self, input=None):
+        # Vibrational relaxation rates currently use the generic ReactionRate
+        # Python wrapper, so construct hand-written input through the factory.
+        if input is None:
+            input = self._input
+        else:
+            assert isinstance(input, dict)
+        return self.finalize(ct.ReactionRate.from_dict(input))
+
+    def check_rate(self, rate):
+        # Reference values are fixed values calculated independently by hand
+        # from the analytical rate expressions at T = 1200 K.
+        assert rate.type == self._type
+        value = self.eval(rate)
+        assert np.isfinite(value)
+        assert value == approx(self._reference_rate, rel=1e-12)
+        assert value == approx(self.soln.forward_rate_constants[self._index])
+
+    @pytest.mark.skip("construction from parts is not exposed by the generic ReactionRate wrapper")
+    def test_from_parts(self):
+        pass
+
+    @pytest.mark.skip("deferred construction is not exposed by the generic ReactionRate wrapper")
+    def test_unconfigured(self):
+        pass
+
+    def test_kinetics_rate(self):
+        # Check the rate used by Kinetics against the same independent reference.
+        assert (self.soln.forward_rate_constants[self._index]
+                == approx(self._reference_rate, rel=1e-12))
+
+    def test_serialization(self):
+        # Check that serialization preserves the concrete rate type and does not
+        # reintroduce the legacy vibration-model field.
+        rate_data = self.from_yaml().input_data
+        assert rate_data["type"] == self._type
+        assert "vibration-model" not in rate_data
+
+        reaction_data = self.soln.reaction(self._index).input_data
+        assert reaction_data["type"] == self._type
+        assert "vibration-model" not in reaction_data
+
+        reaction = ct.Reaction.from_dict(reaction_data, kinetics=self.soln)
+        assert reaction.rate.type == self._type
+        assert (reaction.rate(self.soln.T)
+                == approx(self._reference_rate, rel=1e-12))
+
+    def test_derivative_ddT(self):
+        # Compare the analytical derivative used by Kinetics against a fixed
+        # reference calculated independently by hand.
+        dkdT = self.soln.forward_rate_constants_ddT[self._index]
+
+        assert dkdT == approx(self._reference_ddT, rel=1e-10, abs=1e-12)
+
+        # Also compare against a centered numerical derivative of the
+        # standalone rate expression.
+        rate = self.from_yaml()
+        T = self.soln.T
+        deltaT = 1e-6 * T
+
+        k_plus = rate(T + deltaT)
+        k_minus = rate(T - deltaT)
+        dkdT_numeric = (k_plus - k_minus) / (2 * deltaT)
+
+        assert dkdT_numeric == approx(self._reference_ddT, rel=1e-6, abs=1e-12)
+
+class TestConstantVibrationalRelaxationRate(
+        VibrationalRelaxationRateTests):
+    """Test constant vibrational relaxation rate expressions."""
+
+    _type = "constant-vibrational-relaxation"
+    _index = 0
+    _input = {
+        "type": _type,
+        "rate-constant": {"A": 1.0e7},
+    }
+    _yaml = """
+        type: constant-vibrational-relaxation
+        rate-constant: {A: 1.0e7}
+        """
+
+    # By hand: k = A at T = 1200 K.
+    _reference_rate = 1.00000000000000e7
+
+    # By hand: dk/dT = 0.
+    _reference_ddT = 0.0
+
+
+class TestStarikovskiyVibrationalRelaxationRate(
+        VibrationalRelaxationRateTests):
+    """Test Starikovskiy vibrational relaxation rate expressions."""
+
+    _type = "Starikovskiy-vibrational-relaxation"
+    _index = 1
+    _input = {
+        "type": _type,
+        "rate-constant": {
+            "A": 6.02214076e20,
+            "b": 1.0,
+            "C0": -34.03,
+            "C13": -33.11,
+            "Cm": 0.0,
+            "m": 1.0,
+            "Cn": 0.0,
+            "n": 1.0,
+        },
+    }
+    _yaml = """
+        type: Starikovskiy-vibrational-relaxation
+        rate-constant: {A: 6.02214076e20, b: 1.0, C0: -34.03,
+                        C13: -33.11, Cm: 0.0, m: 1.0, Cn: 0.0, n: 1.0}
+        """
+
+    # By hand: k = A T exp(C0 + C13 T^(-1/3)) at T = 1200 K.
+    _reference_rate = 5.33002302019430e7
+
+    # By hand:
+    # dk/dT = k * [1/T - (C13/3) * T^(-4/3)] at T = 1200 K.
+    _reference_ddT = 9.05477678905056e4
+
+
+class TestCastelaVibrationalRelaxationRate(
+        VibrationalRelaxationRateTests):
+    """Test Castela vibrational relaxation rate expressions."""
+
+    _type = "Castela-vibrational-relaxation"
+    _index = 2
+    _input = {
+        "type": _type,
+        "rate-constant": {
+            "a": 229.0,
+            "b": 0.0295,
+            "reference-pressure": 101325.0,
+        },
+    }
+    _yaml = """
+        type: Castela-vibrational-relaxation
+        rate-constant: {a: 229.0, b: 0.0295, reference-pressure: 1 atm}
+        """
+
+    # By hand: k = (R T / p0) exp(18.42 + a*b - a*T^(-1/3))
+    # at T = 1200 K and p0 = 1 atm.
+    _reference_rate = 3.69788045480879e3
+
+    # By hand:
+    # dk/dT = k * [1/T + (a/3) * T^(-4/3)] at T = 1200 K.
+    _reference_ddT = 2.52172079098305e1
+
+    def test_with_units(self):
+        # Castela has no user-specified rate coefficient A. Changing the base
+        # length and quantity units therefore does not create an undefined
+        # standalone rate-coefficient conversion.
+        units = "units: {length: cm, quantity: mol}"
+        yaml = f"{textwrap.dedent(self._yaml)}\n{units}"
+        self.check_rate(ct.ReactionRate.from_yaml(yaml))
+
+
+class TestMultiStateResolvedVibrationalRelaxationRate(
+        VibrationalRelaxationRateTests):
+    """Test multi-state-resolved vibrational relaxation rate expressions."""
+
+    _type = "multi-state-resolved-vibrational-relaxation"
+    _index = 3
+    _input = {
+        "type": _type,
+        "rate-constant": {
+            "A": 6.02e20,
+            "b": 1.0,
+            "C0": -34.03,
+            "C13": 33.11,
+            "C23": 0.0,
+        },
+    }
+    _yaml = """
+        type: multi-state-resolved-vibrational-relaxation
+        rate-constant: {A: 6.02e20, b: 1.0, C0: -34.03,
+                        C13: 33.11, C23: 0.0}
+        """
+
+    # By hand: k = A T exp(C0 + C13 T^(-1/3) + C23 T^(-2/3))
+    # at T = 1200 K.
+    _reference_rate = 2.70955744373848e10
+
+    # By hand:
+    # dk/dT = k * [1/T - (C13/3) * T^(-4/3)
+    #              - (2*C23/3) * T^(-5/3)] at T = 1200 K.
+    _reference_ddT = -8.71350709545904e5
 
 class FalloffRateTests(ReactionRateTests):
     """Test Falloff rate expressions"""
