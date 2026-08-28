@@ -12,6 +12,19 @@
 
 using namespace Cantera;
 
+namespace {
+
+//! Text of the most recent %Cantera error
+string lastError()
+{
+    int32_t buflen = ct_getCanteraError(0, 0);
+    vector<char> buf(buflen);
+    ct_getCanteraError(buflen, buf.data());
+    return string(buf.data());
+}
+
+}
+
 TEST(ctreactor, reactor_soln)
 {
     int32_t sol = sol_newSolution("gri30.yaml", "gri30", "none");
@@ -187,8 +200,74 @@ TEST(ctreactor, sensitivity)
     // Out-of-range requests report an error
     ASSERT_EQ(reactornet_sensitivity(net, k, 99), DERR);
     ASSERT_EQ(reactornet_sensitivityByName(net, "spam", 0, 0), DERR);
-    int32_t buflen = ct_getCanteraError(0, 0);
-    vector<char> buf(buflen);
-    ct_getCanteraError(buflen, buf.data());
-    EXPECT_THAT(string(buf.data()), testing::HasSubstr("spam"));
+    EXPECT_THAT(lastError(), testing::HasSubstr("spam"));
+}
+
+TEST(ctreactor, components)
+{
+    int32_t sol = sol_newSolution("h2o2.yaml", "", "none");
+    int32_t reactor = reactor_new("IdealGasReactor", sol, 1, "first");
+    vector<int32_t> reactors{reactor};
+    int32_t net = reactornet_new(1, reactors.data());
+    ASSERT_GE(net, 0);
+
+    // The state vector of an IdealGasReactor is [mass, volume, temperature,
+    // mass fractions...]
+    int32_t neq = reactor_neq(reactor);
+    ASSERT_EQ(neq, thermo_nSpecies(sol_thermo(sol)) + 3);
+    ASSERT_EQ(reactornet_neq(net), neq);
+
+    // Names and indices round-trip for every component of the reactor
+    for (int32_t k = 0; k < neq; k++) {
+        int32_t len = reactor_componentName(reactor, k, 0, 0);
+        ASSERT_GT(len, 0);
+        vector<char> name(len);
+        reactor_componentName(reactor, k, len, name.data());
+        EXPECT_EQ(reactor_componentIndex(reactor, name.data()), k);
+    }
+    EXPECT_EQ(reactor_componentIndex(reactor, "temperature"), 2);
+
+    // An unknown name and an out-of-range index each report an error
+    ASSERT_EQ(reactor_componentIndex(reactor, "spam"), ERR);
+    EXPECT_THAT(lastError(), testing::HasSubstr("spam"));
+
+    ASSERT_EQ(reactor_componentName(reactor, neq, 0, 0), -1);
+    EXPECT_THAT(lastError(), testing::HasSubstr("IndexError"));
+}
+
+TEST(ctreactor, global_component_index)
+{
+    int32_t sol = sol_newSolution("h2o2.yaml", "", "none");
+    int32_t first = reactor_new("IdealGasReactor", sol, 1, "first");
+    int32_t second = reactor_new("IdealGasReactor", sol, 1, "second");
+    vector<int32_t> reactors{first, second};
+    int32_t net = reactornet_new(2, reactors.data());
+    ASSERT_GE(net, 0);
+
+    // Components of the second reactor are offset by the length of the first
+    int32_t offset = reactor_neq(first);
+    ASSERT_GT(offset, 0);
+    int32_t local = reactor_componentIndex(second, "OH");
+    ASSERT_GE(local, 0);
+    int32_t global = reactornet_globalComponentIndex(net, "OH", 1);
+    EXPECT_EQ(global, offset + local);
+
+    // globalComponentIndex takes an unprefixed name, while componentName returns
+    // the name prefixed with that of the reactor it belongs to
+    int32_t len = reactornet_componentName(net, global, 0, 0);
+    ASSERT_GT(len, 0);
+    vector<char> name(len);
+    reactornet_componentName(net, global, len, name.data());
+    EXPECT_EQ(string(name.data()), "second: OH");
+
+    // The first reactor is the default
+    EXPECT_EQ(reactornet_globalComponentIndex(net, "temperature", 0),
+              reactor_componentIndex(first, "temperature"));
+
+    // An unknown name and an out-of-range index each report an error
+    ASSERT_EQ(reactornet_globalComponentIndex(net, "spam", 0), ERR);
+    EXPECT_THAT(lastError(), testing::HasSubstr("spam"));
+
+    ASSERT_EQ(reactornet_componentName(net, reactornet_neq(net), 0, 0), -1);
+    EXPECT_THAT(lastError(), testing::HasSubstr("IndexError"));
 }

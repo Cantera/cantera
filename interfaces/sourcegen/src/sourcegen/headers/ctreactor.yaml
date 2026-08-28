@@ -39,6 +39,10 @@ recipes:
 - name: massFractions
 - name: nSensParams
 - name: addSensitivityReaction
+- name: neq  # number of state variables for this reactor
+- name: componentName  # name of state-vector component k
+  uses: neq
+- name: componentIndex
 # FlowReactor
 - name: massFlowRate
 - name: setMassFlowRate
