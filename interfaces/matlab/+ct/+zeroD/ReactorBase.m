@@ -106,9 +106,10 @@ classdef (Abstract) ReactorBase < handle
             %     >> r.addSensitivityReaction(m)
             %
             % :param m:
-            %    Index number of reaction.
+            %    Integer, 1-based index of the reaction within the reactor's
+            %    `Kinetics` object.
 
-            ct.impl.call('mReactor_addSensitivityReaction', obj.id, m);
+            ct.impl.call('mReactor_addSensitivityReaction', obj.id, m - 1);
         end
 
         %% ReactorBase Get Methods
