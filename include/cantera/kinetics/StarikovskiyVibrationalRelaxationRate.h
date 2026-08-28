@@ -48,7 +48,7 @@ public:
     {
         return "Starikovskiy-vibrational-relaxation";
     }
-    
+
 protected:
     void getRateParameters(AnyMap& rateNode) const override;
 };
