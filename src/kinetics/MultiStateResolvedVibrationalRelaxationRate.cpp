@@ -19,9 +19,9 @@ const string WhereSetParameters =
 
 MultiStateResolvedVibrationalRelaxationRate::
     MultiStateResolvedVibrationalRelaxationRate(
-        double A, double b, double B, double C, double D)
+        double A, double b, double C0, double C13, double C23)
     : VibrationalRelaxationRate(
-        A, b, B, C, D, 2.0 / 3.0, 0.0, 1.0)
+        A, b, C0, C13, C23, 2.0 / 3.0, 0.0, 1.0)
 {
 }
 
@@ -47,7 +47,7 @@ void MultiStateResolvedVibrationalRelaxationRate::setParameters(
 
     forbidKeys(
         rateMap, type(), WhereSetParameters,
-        {"n", "m", "E", "z", "Ea", "K",
+        {"n", "m", "Cn", "Cm", "Ea",
         "a", "reference-pressure"});
 
     m_A = node.units().convertRateCoeff(
@@ -55,14 +55,14 @@ void MultiStateResolvedVibrationalRelaxationRate::setParameters(
 
     m_b = rateMap["b"].asDouble();
 
-    m_B = rateMap.getDouble("B", 0.0);
-    m_C = rateMap.getDouble("C", 0.0);
-    m_D = rateMap.getDouble("D", 0.0);
+    m_C0 = rateMap.getDouble("C0", 0.0);
+    m_C13 = rateMap.getDouble("C13", 0.0);
+    m_Cm = rateMap.getDouble("C23", 0.0);
 
     m_m = 2.0 / 3.0;
 
-    m_E = 0.0;
-    m_z = 1.0;
+    m_Cn = 0.0;
+    m_n = 1.0;
 
     m_valid = true;
 }
@@ -81,9 +81,9 @@ void MultiStateResolvedVibrationalRelaxationRate::getParameters(
     getPreExponentialFactor(rateNode);
 
     rateNode["b"] = m_b;
-    rateNode["B"] = m_B;
-    rateNode["C"] = m_C;
-    rateNode["D"] = m_D;
+    rateNode["C0"] = m_C0;
+    rateNode["C13"] = m_C13;
+    rateNode["C23"] = m_Cm;
 
     rateNode.setFlowStyle();
     node["rate-constant"] = std::move(rateNode);

@@ -48,12 +48,11 @@ struct VibrationalRelaxationData : public ReactionData
  *
  * @f[
  * k_f =
- * A \exp\left(
- *     b \ln T
- *     + B
- *     + C T^{-1/3}
- *     + D T^{-m}
- *     + E T^{-z}
+ * A T^b \exp\left(
+ *     C_0
+ *     + C_{1/3} T^{-1/3}
+ *     + C_m T^{-m}
+ *     + C_n T^{-n}
  * \right).
  * @f]
  *
@@ -85,10 +84,10 @@ public:
 
         return m_A * std::exp(
             m_b * shared_data.logT
-            + m_B
-            + m_C * shared_data.recipT13
-            + m_D * std::pow(shared_data.recipT, m_m)
-            + m_E * std::pow(shared_data.recipT, m_z)
+            + m_C0
+            + m_C13 * shared_data.recipT13
+            + m_Cm * std::pow(shared_data.recipT, m_m)
+            + m_Cn * std::pow(shared_data.recipT, m_n)
         );
     }
 
@@ -106,9 +105,9 @@ public:
     //
     // @f[
     // \frac{b}{T}
-    // - \frac{C}{3} T^{-4/3}
-    // - m D T^{-m-1}
-    // - z E T^{-z-1}
+    // - \frac{C_{1/3}}{3} T^{-4/3}
+    // - m Cm T^{-m-1}
+    // - n Cn T^{-n-1}
     // @f]
     double ddTScaledFromStruct(const VibrationalRelaxationData& shared_data) const;
 
@@ -125,16 +124,16 @@ protected:
     /**
      * @param A Pre-exponential factor.
      * @param b Temperature exponent.
-     * @param B Constant exponential coefficient.
-     * @param C Coefficient multiplying T^(-1/3).
-     * @param D Coefficient multiplying T^(-m).
-     * @param m Exponent associated with D.
-     * @param E Coefficient multiplying T^(-z).
-     * @param z Exponent associated with E.
+     * @param C0 Constant exponential coefficient.
+     * @param C13 Coefficient multiplying T^(-1/3).
+     * @param Cm Coefficient multiplying T^(-m).
+     * @param m Exponent associated with Cm.
+     * @param Cn Coefficient multiplying T^(-n).
+     * @param n Exponent associated with Cn.
      */
     VibrationalRelaxationRate(
-        double A, double b, double B, double C,
-        double D, double m, double E, double z);
+        double A, double b, double C0, double C13,
+        double Cm, double m, double Cn, double n);
 
     static void requireKeys(
         const AnyMap& node,
@@ -157,22 +156,22 @@ protected:
     double m_b = NAN;
 
     //! Dimensionless constant in the exponential.
-    double m_B = 0.0;
+    double m_C0 = 0.0;
 
     //! Coefficient multiplying @f$ T^{-1/3} @f$.
-    double m_C = 0.0;
+    double m_C13 = 0.0;
 
     //! Coefficient multiplying @f$ T^{-m} @f$.
-    double m_D = 0.0;
+    double m_Cm = 0.0;
 
-    //! Temperature exponent used by the D term.
-    double m_m = 2.0 / 3.0;
+    //! Temperature exponent used by the Cm term.
+    double m_m = 1.0;
 
-    //! Coefficient multiplying @f$ T^{-z} @f$.
-    double m_E = 0.0;
+    //! Coefficient multiplying @f$ T^{-n} @f$.
+    double m_Cn = 0.0;
 
-    //! Temperature exponent used by the E term.
-    double m_z = 1.0;
+    //! Temperature exponent used by the Cn term.
+    double m_n = 1.0;
 
 private:
 

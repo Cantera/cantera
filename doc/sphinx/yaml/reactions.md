@@ -349,14 +349,14 @@ The `rate-constant` field is a mapping with the following fields:
 `b`
 : Required. Dimensionless temperature exponent.
 
-`B`
+`C0`
 : Optional dimensionless constant in the exponential. Defaults to 0.0.
 
-`C`
+`C13`
 : Optional coefficient multiplying $T^{-1/3}$, interpreted with $T$ in K.
   Defaults to 0.0.
 
-`D`
+`C23`
 : Optional coefficient multiplying $T^{-2/3}$, interpreted with $T$ in K.
   Defaults to 0.0.
 
@@ -368,9 +368,9 @@ Example:
   rate-constant:
     A: 6.02e+23
     b: 1.0
-    B: -34.03
-    C: 33.11
-    D: 0.0
+    C0: -34.03
+    C13: 33.11
+    C23: 0.0
 ```
 
 (sec-yaml-Castela-vibrational-relaxation)=
@@ -413,29 +413,29 @@ The `rate-constant` field is a mapping with the following fields:
 : Required. Pre-exponential factor. The units are the standard Cantera rate
   coefficient units determined by the reaction order.
 
-`n`
+`b`
 : Optional dimensionless temperature exponent. Defaults to 0.0.
 
-`K`
+`C0`
 : Optional dimensionless constant in the exponential. Defaults to 0.0.
 
-`B`
+`C13`
 : Optional signed coefficient multiplying $T^{-1/3}$, interpreted with $T$ in K.
   Defaults to 0.0.
 
-`C`
+`Cm`
 : Optional signed coefficient multiplying $T^{-m}$, interpreted with $T$ in K.
   Defaults to 0.0.
 
 `m`
 : Optional positive exponent for the `C` term. Defaults to 1.0.
 
-`D`
-: Optional signed coefficient multiplying $T^{-z}$, interpreted with $T$ in K.
+`Cn`
+: Optional signed coefficient multiplying $T^{-n}$, interpreted with $T$ in K.
   Defaults to 0.0.
 
-`z`
-: Optional positive exponent for the `D` term. Defaults to 1.0.
+`n`
+: Optional positive exponent for the `Cn` term. Defaults to 1.0.
 
 Example:
 
@@ -444,13 +444,13 @@ Example:
   type: Starikovskiy-vibrational-relaxation
   rate-constant:
     A: 6.0221407600e+23
-    n: 1.0
-    K: -34.03
-    B: -33.11
-    C: 0.0
+    b: 1.0
+    C0: -34.03
+    C13: -33.11
+    Cm: 0.0
     m: 1.0
-    D: 0.0
-    z: 1.0
+    Cn: 0.0
+    n: 1.0
 ```
 
 (sec-yaml-electron-collision-plasma)=

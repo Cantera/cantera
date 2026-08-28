@@ -25,28 +25,14 @@ StarikovskiyVibrationalRelaxationRate::
 
 StarikovskiyVibrationalRelaxationRate::
     StarikovskiyVibrationalRelaxationRate(
-        double A,
-        double n,
-        double K,
-        double B,
-        double C,
-        double m,
-        double D,
-        double z)
-    : VibrationalRelaxationRate(
-        A,
-        n,  // internal b
-        K,  // internal B
-        B,  // internal C
-        C,  // internal D
-        m,
-        D,  // internal E
-        z)
+        double A, double b, double C0, double C13, double Cm, double m,
+        double Cn, double n)
+    : VibrationalRelaxationRate(A, b, C0, C13, Cm, m, Cn, n)
 {
-    if (m <= 0.0 || z <= 0.0) {
+    if (m <= 0.0 || n <= 0.0) {
         throw CanteraError(
             "StarikovskiyVibrationalRelaxationRate",
-            "The exponents 'm' and 'z' must be positive.");
+            "The exponents 'm' and 'n' must be positive.");
     }
 }
 
@@ -61,32 +47,32 @@ void StarikovskiyVibrationalRelaxationRate::setParameters(
 
     forbidKeys(
         rateMap, type(), WhereSetParameters,
-        {"b", "Ea", "a", "reference-pressure"});
+        {"C23", "Ea", "a", "reference-pressure"});
 
     const double m = rateMap.getDouble("m", 1.0);
 
-    const double z = rateMap.getDouble("z", 1.0);
+    const double n = rateMap.getDouble("n", 1.0);
 
-    if (m <= 0.0 || z <= 0.0) {
+    if (m <= 0.0 || n <= 0.0) {
         throw InputFileError(
             WhereSetParameters,
             node,
-            "The Starikovskiy exponents 'm' and 'z' "
+            "The Starikovskiy exponents 'm' and 'n' "
             "must be positive.");
     }
 
     m_A = node.units().convertRateCoeff(
         rateMap["A"], conversionUnits());
 
-    m_b = rateMap.getDouble("n", 0.0);
+    m_b = rateMap.getDouble("b", 0.0);
 
-    m_B = rateMap.getDouble("K", 0.0);
-    m_C = rateMap.getDouble("B", 0.0);
-    m_D = rateMap.getDouble("C", 0.0);
+    m_C0 = rateMap.getDouble("C0", 0.0);
+    m_C13 = rateMap.getDouble("C13", 0.0);
+    m_Cm = rateMap.getDouble("Cm", 0.0);
     m_m = m;
 
-    m_E = rateMap.getDouble("D", 0.0);
-    m_z = z;
+    m_Cn = rateMap.getDouble("Cn", 0.0);
+    m_n = n;
 
     m_valid = true;
 }
@@ -105,16 +91,16 @@ void StarikovskiyVibrationalRelaxationRate::getParameters(
 
     getPreExponentialFactor(rateNode);
 
-    rateNode["n"] = m_b;
+    rateNode["b"] = m_b;
 
-    rateNode["K"] = m_B;
-    rateNode["B"] = m_C;
+    rateNode["C0"] = m_C0;
+    rateNode["C13"] = m_C13;
 
-    rateNode["C"] = m_D;
+    rateNode["Cm"] = m_Cm;
     rateNode["m"] = m_m;
 
-    rateNode["D"] = m_E;
-    rateNode["z"] = m_z;
+    rateNode["Cn"] = m_Cn;
+    rateNode["n"] = m_n;
 
     rateNode.setFlowStyle();
     node["rate-constant"] = std::move(rateNode);

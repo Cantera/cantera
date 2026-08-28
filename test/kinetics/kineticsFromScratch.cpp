@@ -889,20 +889,20 @@ TEST_F(VibrationalRelaxationFromScratch, add_reactions)
     auto constant = make_shared<ConstantVibrationalRelaxationRate>(1.0e7);
     auto starikovskiy = make_shared<StarikovskiyVibrationalRelaxationRate>(
             6.0221407600e20, // A
-            1.0,             // n
-            -34.03,          // K
-            -33.11,          // B
-            0.0,             // C
+            1.0,             // b
+            -34.03,          // C0
+            -33.11,          // C13
+            0.0,             // Cm
             1.0,             // m
-            0.0,             // D
-            1.0);            // z
+            0.0,             // Cn
+            1.0);            // n
     auto castela = make_shared<CastelaVibrationalRelaxationRate>(229.0, 0.0295, OneAtm);
     auto multiState = make_shared<MultiStateResolvedVibrationalRelaxationRate>(
             6.02e20, // A
             1.0,     // b
-            -34.03,  // B
-            33.11,   // C
-            0.0);    // D
+            -34.03,  // C0
+            33.11,   // C13
+            0.0);    // C23
     kin.addReaction(make_shared<Reaction>("N2(v) + N2 => N2 + N2",constant));
     kin.addReaction(make_shared<Reaction>("N2(v) + O => N2 + O", starikovskiy));
     kin.addReaction(make_shared<Reaction>("N2(v) + O2 => N2 + O2", castela));
@@ -1004,13 +1004,13 @@ TEST_F(VibrationalRelaxationFromScratch, starikovskiy_invalid_exponents)
 
     AnyMap node = AnyMap::fromYamlString(
         "{type: Starikovskiy-vibrational-relaxation,"
-        " rate-constant: {A: 1.0, m: 0.0, z: 1.0}}");
+        " rate-constant: {A: 1.0, m: 0.0, n: 1.0}}");
 
     ASSERT_THROW(newReactionRate(node), InputFileError);
 
     auto& rateNode = node["rate-constant"].as<AnyMap>();
     rateNode["m"] = 1.0;
-    rateNode["z"] = 0.0;
+    rateNode["n"] = 0.0;
 
     ASSERT_THROW(newReactionRate(node), InputFileError);
 }

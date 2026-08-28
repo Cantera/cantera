@@ -16,7 +16,7 @@ namespace Cantera
 
 //! Starikovskiy vibrational relaxation rate implementation.
 /**
- * Maps the user-facing parameters n, K, B, C, m, D, and z onto the generic
+ * Maps the user-facing parameters b, C0, C13, Cm, m, Cn, and n onto the generic
  * coefficients stored by VibrationalRelaxationRate.
  *
  * @ingroup otherRateGroup
@@ -27,8 +27,8 @@ class StarikovskiyVibrationalRelaxationRate final
 public:
     StarikovskiyVibrationalRelaxationRate() = default;
 
-    explicit StarikovskiyVibrationalRelaxationRate(double A, double n = 0.0, double K = 0.0,
-        double B = 0.0, double C = 0.0, double m = 1.0, double D = 0.0,  double z = 1.0);
+    explicit StarikovskiyVibrationalRelaxationRate(double A, double b = 0.0, double C0 = 0.0,
+        double C13 = 0.0, double Cm = 0.0, double m = 1.0, double Cn = 0.0,  double n = 1.0);
 
     explicit StarikovskiyVibrationalRelaxationRate(
         const AnyMap& node, const UnitStack& rate_units = {});
