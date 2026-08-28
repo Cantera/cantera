@@ -256,13 +256,7 @@ classdef ReactorNet < handle
             index = obj.reactorIndex(r);
 
             i = ct.impl.call('mReactornet_globalComponentIndex', obj.id, ...
-                             component, index - 1);
-
-            if i < 0
-                error('Cantera:ctError', ct.impl.getError());
-            end
-
-            i = i + 1;
+                             component, index - 1) + 1;
         end
 
         function s = componentName(obj, i)
