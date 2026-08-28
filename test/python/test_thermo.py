@@ -1627,6 +1627,77 @@ class TestPlasmaPhase:
         expected_h = self._expected_h_mole(phase.X, phase.T, phase.Te)
         assert phase.enthalpy_mole == approx(expected_h)
 
+    def test_vibrational_reservoir_warning(self, recwarn):
+        gas = ct.Solution("vibrational-relaxation.yaml", "reservoir-plasma")
+
+        # The warning threshold is 1%. Start above it.
+        gas.TPX = 300.0, ct.one_atm, {"N2": 0.98, "N2(v)": 0.02}
+        reactor = ct.Reactor(gas, clone=True)
+        sim = ct.ReactorNet([reactor])
+        warning_text = "fictive vibrational reservoir species"
+
+        # Crossing the upper threshold issues a warning.
+        with pytest.warns(UserWarning, match=warning_text) as caught:
+            sim.step()
+        assert sum(warning_text in str(item.message) for item in caught) == 1
+
+        # Remaining above the threshold must not issue another warning.
+        recwarn.clear()
+        sim.step()
+        assert not any(warning_text in str(item.message) for item in recwarn)
+
+        # Dropping below the warning threshold but remaining above the
+        # hysteresis reset threshold must not re-arm the warning.
+        reactor.phase.TPX = 300.0, ct.one_atm, {"N2": 0.992, "N2(v)": 0.008}
+        sim.reinitialize()
+        recwarn.clear()
+        sim.step()
+        assert not any(warning_text in str(item.message) for item in recwarn)
+
+        # Since the warning has not been re-armed, exceeding the upper
+        # threshold again must still not issue another warning.
+        reactor.phase.TPX = 300.0, ct.one_atm, {"N2": 0.98, "N2(v)": 0.02}
+        sim.reinitialize()
+        recwarn.clear()
+        sim.step()
+        assert not any(warning_text in str(item.message) for item in recwarn)
+
+        # Drop below the hysteresis reset threshold (0.5%).
+        reactor.phase.TPX = 300.0, ct.one_atm, {"N2": 0.996, "N2(v)": 0.004}
+        sim.reinitialize()
+        recwarn.clear()
+        sim.step()
+        assert not any(warning_text in str(item.message) for item in recwarn)
+
+        # Exceeding the warning threshold again should issue a new warning.
+        reactor.phase.TPX = 300.0, ct.one_atm, {"N2": 0.98, "N2(v)": 0.02}
+        sim.reinitialize()
+
+        with pytest.warns(UserWarning, match=warning_text): sim.step()
+
+    def test_vibrational_reservoir_mapping_serialization(self):
+        gas = ct.Solution("vibrational-relaxation.yaml", "reservoir-plasma")
+        yaml = gas.write_yaml(skip_user_defined=True)
+        gas2 = ct.Solution(yaml=yaml, name="reservoir-plasma")
+
+        assert gas2.input_data["vibrational-reservoir-species-mapping"] == {"N2(v)": "N2"}
+
+    @pytest.mark.parametrize(
+        "phase_name, message",
+        [
+            (
+                "reservoir-plasma-missing-reservoir",
+                "Vibrational reservoir species 'missing-reservoir' is not present",
+            ),
+            (
+                "reservoir-plasma-missing-base",
+                "Base species 'missing-base' associated with vibrational reservoir",
+            ),
+        ],
+    )
+    def test_vibrational_reservoir_invalid_mapping(self, phase_name, message):
+        with pytest.raises(ct.CanteraError, match=message):
+            ct.Solution("vibrational-relaxation.yaml", phase_name)
 
 class TestImport:
     """

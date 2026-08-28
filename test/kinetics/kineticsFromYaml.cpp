@@ -1113,11 +1113,13 @@ TEST(Reaction, VibrationalRelaxationFromYaml)
     ASSERT_TRUE(std::dynamic_pointer_cast<ConstantVibrationalRelaxationRate>(constant));
     auto starikovskiy = kin->reaction(1)->rate();
     EXPECT_EQ(starikovskiy->type(), "Starikovskiy-vibrational-relaxation");
-    ASSERT_TRUE(std::dynamic_pointer_cast<StarikovskiyVibrationalRelaxationRate>(starikovskiy));
+    ASSERT_TRUE(
+        std::dynamic_pointer_cast<StarikovskiyVibrationalRelaxationRate>(starikovskiy));
     auto castela = kin->reaction(2)->rate();
     EXPECT_EQ(castela->type(), "Castela-vibrational-relaxation");
     ASSERT_TRUE(std::dynamic_pointer_cast<CastelaVibrationalRelaxationRate>(castela));
     auto multiState = kin->reaction(3)->rate();
-    EXPECT_EQ(multiState->type(),"multi-state-resolved-vibrational-relaxation");
-    ASSERT_TRUE(std::dynamic_pointer_cast<MultiStateResolvedVibrationalRelaxationRate>(multiState));
+    EXPECT_EQ(multiState->type(), "multi-state-resolved-vibrational-relaxation");
+    ASSERT_TRUE(std::dynamic_pointer_cast<
+        MultiStateResolvedVibrationalRelaxationRate>(multiState));
 }

@@ -4,13 +4,91 @@ phases:
 - name: gas
   thermo: ideal-gas
   elements: [N, O]
-  reaction: all
+  reactions: all
   transport: none
   species: [N2, O2, O, N2(v1), N2(v)]
   kinetics: gas
   state:
     T: 300.0
     P: 1 atm
+
+- name: reservoir-plasma
+  thermo: plasma
+  elements: [N, E]
+  species: [N2, N2(v), Electron]
+  transport: none
+  reactions: none
+  kinetics: gas
+  vibrational-reservoir-species-mapping: {N2(v): N2}
+  state:
+    T: 300.0
+    P: 1 atm
+    X: {N2: 1.0}
+  electron-energy-distribution:
+    type: Boltzmann-two-term
+    initial-max-energy-level: 60
+    grid-cell-count: 301
+    energy-level-spacing: linear
+    reduced-field-threshold-before-Maxwellian: 1 Td
+    energy-grid-adaptation:
+      enabled: true
+      min-decay-decades: 10
+      max-decay-decades: 12
+      update-factor: 0.1
+      max-iterations: 1000
+      Maxwellian-reset: true
+
+- name: reservoir-plasma-missing-reservoir
+  thermo: plasma
+  elements: [N, E]
+  species: [N2, N2(v), Electron]
+  kinetics: gas
+  reactions: none
+  transport: none
+  vibrational-reservoir-species-mapping: {missing-reservoir: N2}
+  state:
+    T: 300.0
+    P: 1 atm
+    X: {N2: 1.0}
+  electron-energy-distribution:
+    type: Boltzmann-two-term
+    initial-max-energy-level: 60
+    grid-cell-count: 301
+    energy-level-spacing: linear
+    reduced-field-threshold-before-Maxwellian: 1 Td
+    energy-grid-adaptation:
+      enabled: true
+      min-decay-decades: 10
+      max-decay-decades: 12
+      update-factor: 0.1
+      max-iterations: 1000
+      Maxwellian-reset: true
+
+- name: reservoir-plasma-missing-base
+  thermo: plasma
+  elements: [N, E]
+  species: [N2, N2(v), Electron]
+  kinetics: gas
+  reactions: none
+  transport: none
+  vibrational-reservoir-species-mapping: {N2(v): missing-base}
+  state:
+    T: 300.0
+    P: 1 atm
+    X: {N2: 1.0}
+  electron-energy-distribution:
+    type: Boltzmann-two-term
+    initial-max-energy-level: 60
+    grid-cell-count: 301
+    energy-level-spacing: linear
+    reduced-field-threshold-before-Maxwellian: 1 Td
+    energy-grid-adaptation:
+      enabled: true
+      min-decay-decades: 10
+      max-decay-decades: 12
+      update-factor: 0.1
+      max-iterations: 1000
+      Maxwellian-reset: true
 
 species:
 - name: N2
@@ -72,6 +150,15 @@ species:
     - [2.95257637, 1.3969004e-03, -4.92631603e-07, 7.86010195e-11, -4.60755204e-15,
       2439.86826, 5.87188762]
     note: G 8/02
+
+- name: Electron
+  composition: {E: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [298.15, 6000.0]
+    data:
+    - [2.5, 0.0, 0.0, 0.0, 0.0, -745.375, -11.7208122]
+    note: electron gas   g12/98
 
 reactions:
 # Reaction 0:
