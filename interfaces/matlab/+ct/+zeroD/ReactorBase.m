@@ -152,13 +152,7 @@ classdef (Abstract) ReactorBase < handle
                 name (1,:) char
             end
 
-            n = ct.impl.call('mReactor_componentIndex', obj.id, name);
-
-            if n < 0
-                error('Cantera:ctError', ct.impl.getError());
-            end
-
-            n = n + 1;
+            n = ct.impl.call('mReactor_componentIndex', obj.id, name) + 1;
         end
 
         function s = componentName(obj, k)
