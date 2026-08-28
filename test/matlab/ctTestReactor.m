@@ -53,6 +53,28 @@ classdef ctTestReactor < ctTestCase
             self.w.heatTransferCoeff = arg.U;
         end
 
+        function m = sensitivityReaction(self, gas)
+            % 1-based index of the chain-branching reaction, to be used as a
+            % sensitivity parameter.
+            m = find(strcmp(gas.reactionEquations, 'H + O2 <=> O + OH'), 1);
+            self.assertNotEmpty(m);
+        end
+
+        function net = makeSensitivityNet(self)
+            % Single igniting reactor with one sensitivity parameter, advanced
+            % past ignition so that the sensitivity coefficients are nonzero.
+            self.gas1 = ct.Solution('h2o2.yaml', '', 'none');
+            self.gas1.TPX = {1050, 5 * ct.OneAtm, 'H2:2.0, O2:1.0, AR:4.0'};
+            self.r1 = ct.zeroD.IdealGasReactor(self.gas1);
+            net = ct.zeroD.ReactorNet(self.r1);
+
+            % A reactor has to be part of a network before a sensitivity
+            % parameter can be added to it.
+            self.r1.addSensitivityReaction(self.sensitivityReaction(self.gas1));
+            net.setSensitivityTolerances(1e-6, 1e-6);
+            net.advance(0.1);
+        end
+
     end
 
     methods (Test)
@@ -294,7 +316,7 @@ classdef ctTestReactor < ctTestCase
 
             net.advance(2.0);
 
-            self.verifyEqual(selfw.expansionRate, 0.0, 'AbsTol', self.atol);
+            self.verifyEqual(self.expansionRate, 0.0, 'AbsTol', self.atol);
             self.verifyEqual(self.r1.V, V1 + 1.0 * A, 'RelTol', self.rtol);
             self.verifyEqual(self.r2.V, V2 - 1.0 * A, 'RelTol', self.rtol);
         end
@@ -356,6 +378,136 @@ classdef ctTestReactor < ctTestCase
 
         function testPreconditionerUnsupported(self)
             self.assumeFail('Skipped until ReactorNet.preconditioner is implemented');
+        end
+
+        function testAddSensitivityReactionIndexing(self)
+            self.gas1 = ct.Solution('h2o2.yaml', '', 'none');
+            self.r1 = ct.zeroD.IdealGasReactor(self.gas1);
+            net = ct.zeroD.ReactorNet(self.r1);
+
+            % The last reaction is in range; 0 and one past the end are not.
+            n = self.gas1.nReactions;
+            self.r1.addSensitivityReaction(n);
+            self.verifyError(@() self.r1.addSensitivityReaction(0), ...
+                             'Cantera:ctError');
+            self.verifyError(@() self.r1.addSensitivityReaction(n + 1), ...
+                             'Cantera:ctError');
+        end
+
+        function testSensitivityComponentForms(self)
+            net = self.makeSensitivityNet();
+
+            s = net.sensitivity('temperature', 1);
+            self.verifyTrue(isfinite(s));
+            self.verifyNotEqual(s, 0);
+
+            % A char array, a string, and the 1-based index of 'temperature' within the
+            % global state vector all name the same component. For an IdealGasReactor
+            % that vector is [mass, volume, temperature, mass fractions...], so
+            % 'temperature' is component 3.
+            self.verifyEqual(net.sensitivity("temperature", 1), s);
+            self.verifyEqual(net.sensitivity(3, 1), s);
+
+            % The reactor may be omitted, given as an object, or given as its 1-based
+            % position within the network.
+            self.verifyEqual(net.sensitivity('temperature', 1, self.r1), s);
+            self.verifyEqual(net.sensitivity('temperature', 1, 1), s);
+        end
+
+        function testSensitivitySpeciesComponent(self)
+            net = self.makeSensitivityNet();
+
+            s = net.sensitivity('OH', 1);
+            self.verifyTrue(isfinite(s));
+            self.verifyNotEqual(s, 0);
+
+            % Species k follows the three non-species components of the reactor.
+            k = self.gas1.speciesIndex('OH');
+            self.verifyEqual(net.sensitivity(k + 3, 1), s);
+        end
+
+        function testSensitivityReactorArgument(self)
+            % In a network of two disjoint reactors, only the second one carries
+            % a sensitivity parameter, so the component name has to be resolved
+            % within the requested reactor to get the right answer.
+            self.gas1 = ct.Solution('h2o2.yaml', '', 'none');
+            self.gas1.TPX = {300, ct.OneAtm, 'H2:2.0, O2:1.0, AR:4.0'};
+            self.r1 = ct.zeroD.IdealGasReactor(self.gas1);
+
+            self.gas2 = ct.Solution('h2o2.yaml', '', 'none');
+            self.gas2.TPX = {1050, 5 * ct.OneAtm, 'H2:2.0, O2:1.0, AR:4.0'};
+            self.r2 = ct.zeroD.IdealGasReactor(self.gas2);
+
+            net = ct.zeroD.ReactorNet({self.r1, self.r2});
+            self.r2.addSensitivityReaction(self.sensitivityReaction(self.gas2));
+            net.setSensitivityTolerances(1e-6, 1e-6);
+            net.advance(0.1);
+
+            s2 = net.sensitivity('temperature', 1, self.r2);
+            self.verifyTrue(isfinite(s2));
+            self.verifyNotEqual(s2, 0);
+            self.verifyEqual(net.sensitivity('temperature', 1, 2), s2);
+
+            % The state of the second reactor follows that of the first, whose
+            % length is 3 plus the number of species.
+            offset = 3 + self.gas1.nSpecies;
+            self.verifyEqual(net.sensitivity(offset + 3, 1), s2);
+
+            % The first reactor is unaffected by the parameter, and is what the
+            % default reactor argument selects.
+            self.verifyEqual(net.sensitivity('temperature', 1), 0, ...
+                             'AbsTol', self.atol);
+            self.verifyEqual(net.sensitivity(3, 1), 0, 'AbsTol', self.atol);
+        end
+
+        function testSensitivityInvalidComponent(self)
+            net = self.makeSensitivityNet();
+
+            try
+                net.sensitivity({'temperature'}, 1);
+                self.verifyFail('Expected an error for a cell array component.');
+            catch ME
+                self.verifySubstring(ME.message, 'must be a character array');
+                self.verifySubstring(ME.message, 'cell');
+            end
+
+            try
+                net.sensitivity('spam', 1);
+                self.verifyFail('Expected an error for an unknown component.');
+            catch ME
+                self.verifySubstring(ME.identifier, 'Cantera:ctError');
+                self.verifySubstring(ME.message, 'spam');
+            end
+        end
+
+        function testSensitivityInvalidReactor(self)
+            net = self.makeSensitivityNet();
+
+            gas = ct.Solution('h2o2.yaml', '', 'none');
+            stranger = ct.zeroD.IdealGasReactor(gas);
+
+            try
+                net.sensitivity('temperature', 1, stranger);
+                self.verifyFail('Expected an error for a foreign reactor.');
+            catch ME
+                self.verifySubstring(ME.message, 'not part of this network');
+            end
+
+            try
+                net.sensitivity('temperature', 1, 'first');
+                self.verifyFail('Expected an error for a char reactor argument.');
+            catch ME
+                self.verifySubstring(ME.message, 'Reactor must be a');
+            end
+        end
+
+        function testSensitivityInvalidParameter(self)
+            net = self.makeSensitivityNet();
+
+            % Only one sensitivity parameter was registered.
+            self.verifyError(@() net.sensitivity('temperature', 2), ...
+                             'Cantera:ctError');
+            self.verifyError(@() net.sensitivity(3, 2), 'Cantera:ctError');
         end
 
         function testInvalidProperty(self)
