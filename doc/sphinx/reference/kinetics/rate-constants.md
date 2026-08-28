@@ -585,7 +585,7 @@ states.
 The rate coefficient is expressed as
 
 $$
-k_f = A T^b \exp\left(B + C T^{-1/3} + D T^{-2/3}\right),
+k_f = A T^b \exp\left(C_0 + C_{1/3} T^{-1/3} + C_{2/3} T^{-2/3}\right),
 $$
 
 where $T$ is the gas temperature.
@@ -652,7 +652,7 @@ a set of individually resolved vibrational states.
 The rate coefficient is expressed as
 
 $$
-k_f = A T^n \exp\left(K + B T^{-1/3} + C T^{-m} + D T^{-z}\right),
+k_f = A T^b \exp\left(C_0 + C_{1/3} T^{-1/3} + C_m T^{-m} + C_n T^{-n}\right),
 $$
 
 where $T$ is the gas temperature.

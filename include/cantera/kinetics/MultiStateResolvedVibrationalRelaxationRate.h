@@ -16,7 +16,7 @@ namespace Cantera
 
 //! Multi-state-resolved vibrational relaxation rate implementation.
 /**
- * Maps the coefficients A, b, B, C, and D onto the common
+ * Maps the coefficients A, b, C0, C13, and C23 onto the common
  * VibrationalRelaxationRate representation, with m fixed to 2/3.
  *
  * @ingroup otherRateGroup
@@ -28,7 +28,7 @@ public:
     MultiStateResolvedVibrationalRelaxationRate() = default;
 
     MultiStateResolvedVibrationalRelaxationRate(double A, double b,
-        double B = 0.0, double C = 0.0, double D = 0.0);
+        double C0 = 0.0, double C13 = 0.0, double C23 = 0.0);
 
     explicit MultiStateResolvedVibrationalRelaxationRate(
         const AnyMap& node, const UnitStack& rate_units = {});

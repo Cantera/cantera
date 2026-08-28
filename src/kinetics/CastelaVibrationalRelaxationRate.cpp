@@ -35,12 +35,12 @@ CastelaVibrationalRelaxationRate::
 
             m_A = GasConstant / referencePressure;
             m_b = 1.0;
-            m_B = 18.42 + a * b;
-            m_C = -a;
-            m_D = 0.0;
+            m_C0 = 18.42 + a * b;
+            m_C13 = -a;
+            m_Cm = 0.0;
             m_m = 2.0 / 3.0;
-            m_E = 0.0;
-            m_z = 1.0;
+            m_Cn = 0.0;
+            m_n = 1.0;
 
             m_valid = true;
             m_castela_a = a;
@@ -57,8 +57,8 @@ void CastelaVibrationalRelaxationRate::setParameters(
     requireKeys(rateMap, type(), WhereSetParameters,{"a", "b"});
 
     forbidKeys(rateMap, type(), WhereSetParameters,
-        {"A", "n", "K", "B", "C", "D",
-        "m", "E", "z", "Ea"});
+        {"A", "n", "C0", "C13", "C23", "Cn",
+        "m", "Cm", "Ea"});
 
     m_castela_a = rateMap["a"].asDouble();
 
@@ -94,24 +94,24 @@ void CastelaVibrationalRelaxationRate::setParameters(
     //
     // A = R / p0
     // b = 1
-    // B = 18.42 + a_k b_k
-    // C = -a_k
-    // D = 0
-    // E = 0
+    // C0 = 18.42 + a_k b_k
+    // C13 = -a_k
+    // Cm = 0
+    // Cn = 0
 
     m_A = GasConstant / m_referencePressure;
 
     m_b = 1.0;
 
-    m_B = 18.42 + m_castela_a * m_castela_b;
+    m_C0 = 18.42 + m_castela_a * m_castela_b;
 
-    m_C = -m_castela_a;
+    m_C13 = -m_castela_a;
 
-    m_D = 0.0;
+    m_Cm = 0.0;
     m_m = 2.0 / 3.0;
 
-    m_E = 0.0;
-    m_z = 1.0;
+    m_Cn = 0.0;
+    m_n = 1.0;
 
     m_valid = true;
 }

@@ -39,10 +39,10 @@ bool VibrationalRelaxationData::update(const ThermoPhase& phase, const Kinetics&
 VibrationalRelaxationRate::VibrationalRelaxationRate() = default;
 
 VibrationalRelaxationRate::VibrationalRelaxationRate(
-    double A, double b, double B, double C,
-    double D, double m, double E, double z)
-    : m_A(A), m_b(b) , m_B(B), m_C(C), m_D(D),
-    m_m(m), m_E(E), m_z(z)
+    double A, double b, double C0, double C13,
+    double Cm, double m, double Cn, double n)
+    : m_A(A), m_b(b) , m_C0(C0), m_C13(C13), m_Cm(Cm),
+    m_m(m), m_Cn(Cn), m_n(n)
 {
     m_valid = true;
 }
@@ -84,9 +84,9 @@ double VibrationalRelaxationRate::ddTScaledFromStruct(
 {
 
     return m_b * shared_data.recipT
-           - (m_C / 3.0) * shared_data.recipT13 * shared_data.recipT
-           - m_m * m_D * std::pow(shared_data.recipT, m_m) * shared_data.recipT
-           - m_z * m_E * std::pow(shared_data.recipT, m_z) * shared_data.recipT;
+           - (m_C13 / 3.0) * shared_data.recipT13 * shared_data.recipT
+           - m_m * m_Cm * std::pow(shared_data.recipT, m_m) * shared_data.recipT
+           - m_n * m_Cn * std::pow(shared_data.recipT, m_n) * shared_data.recipT;
 }
 
 void VibrationalRelaxationRate::setContext(const Reaction& rxn, const Kinetics& kin)

@@ -43,20 +43,20 @@ void ConstantVibrationalRelaxationRate::setParameters(
 
     forbidKeys(
         rateMap, type(), WhereSetParameters,
-        {"b", "n", "B", "C", "D", "m",
-        "E", "z", "Ea", "K", "a",
+        {"b", "C23", "C0", "C13", "Cm", "m",
+        "Cn", "n", "Ea", "K", "a",
         "reference-pressure"});
 
     m_A = node.units().convertRateCoeff(
         rateMap["A"], conversionUnits());
 
     m_b = 0.0;
-    m_B = 0.0;
-    m_C = 0.0;
-    m_D = 0.0;
+    m_C0 = 0.0;
+    m_C13 = 0.0;
+    m_Cm = 0.0;
     m_m = 2.0 / 3.0;
-    m_E = 0.0;
-    m_z = 1.0;
+    m_Cn = 0.0;
+    m_n = 1.0;
 
     m_valid = true;
 }

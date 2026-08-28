@@ -21,8 +21,8 @@ namespace Cantera
  * @f[
  * A = R/p_0,\qquad
  * b = 1,\qquad
- * B = 18.42 + a_k b_k,\qquad
- * C = -a_k.
+ * C0 = 18.42 + a_k b_k,\qquad
+ * C13 = -a_k.
  * @f]
  *
  * The remaining temperature-dependent coefficients are zero.

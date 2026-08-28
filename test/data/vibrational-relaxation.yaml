@@ -84,7 +84,7 @@ reactions:
 # Starikovskiy relaxation model for a lumped N2 vibrational energy reservoir
 - equation: N2(v) + O => N2 + O
   type: Starikovskiy-vibrational-relaxation
-  rate-constant: {A: 6.0221407600e+23, n: 1.0, K: -34.03, B: -33.11, C: 0.0, m: 1.0, D: 0.0, z: 1.0}
+  rate-constant: {A: 6.0221407600e+23, b: 1.0, C0: -34.03, C13: -33.11, Cm: 0.0, m: 1.0, Cn: 0.0, n: 1.0}
 
 # Reaction 2:
 # Castela relaxation model for a lumped N2 vibrational energy reservoir
@@ -96,4 +96,4 @@ reactions:
 # State resolved vibrational relaxation model for N2(v1) to ground N2.
 - equation: N2(v1) + O => N2 + O
   type: multi-state-resolved-vibrational-relaxation
-  rate-constant: {A: 6.02e+23, b: 1.0, B: -34.03, C: 33.11, D: 0.0}
+  rate-constant: {A: 6.02e+23, b: 1.0, C0: -34.03, C13: 33.11, C23: 0.0}
