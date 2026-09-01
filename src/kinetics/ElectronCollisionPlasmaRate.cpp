@@ -176,78 +176,122 @@ void ElectronCollisionPlasmaRate::modifyRateConstants(
          distribution.cwiseProduct(m_crossSectionsOffset)), eps);
 }
 
-void ElectronCollisionPlasmaRate::setContext(const Reaction& rxn, const Kinetics& kin)
+void ElectronCollisionPlasmaRate::setContext(
+    const Reaction& rxn, const Kinetics& kin)
 {
     const ThermoPhase& thermo = kin.thermo();
-    // get electron species name
-    string electronName;
-    if (thermo.type() == "plasma") {
-        electronName = dynamic_cast<const PlasmaPhase&>(thermo).electronSpeciesName();
-    } else {
+
+    if (thermo.type() != "plasma") {
         throw CanteraError("ElectronCollisionPlasmaRate::setContext",
-                           "ElectronCollisionPlasmaRate requires plasma phase");
+            "ElectronCollisionPlasmaRate requires a plasma phase.");
     }
 
-    // Number of reactants needs to be two
+    const auto& plasma = dynamic_cast<const PlasmaPhase&>(thermo);
+    const string electronName = plasma.electronSpeciesName();
+
+    if (m_collisionName.empty()) {
+        throw InputFileError("ElectronCollisionPlasmaRate::setContext", rxn.input,
+            "Electron-collision reaction '{}' does not specify a named "
+            "'collision' reference.",
+            rxn.equation());
+    }
+
+    if (!plasma.hasElectronCollisionDefinition(m_collisionName)) {
+        throw InputFileError("ElectronCollisionPlasmaRate::setContext", rxn.input,
+            "Reaction '{}' references unknown electron collision '{}'.",
+            rxn.equation(), m_collisionName);
+    }
+
+    applyCollisionData(
+        plasma.electronCollisionDefinition(m_collisionName));
+
     if (rxn.reactants.size() != 2) {
         throw InputFileError("ElectronCollisionPlasmaRate::setContext", rxn.input,
-            "ElectronCollisionPlasmaRate requires exactly two reactants");
+            "ElectronCollisionPlasmaRate requires exactly two reactants.");
     }
 
-    // Must have only one electron
-    // @todo add electron-electron collision rate
-    if (rxn.reactants.at(electronName) != 1) {
+    auto electronReactant = rxn.reactants.find(electronName);
+
+    if (electronReactant == rxn.reactants.end() ||
+        electronReactant->second != 1.0) {
         throw InputFileError("ElectronCollisionPlasmaRate::setContext", rxn.input,
-            "ElectronCollisionPlasmaRate requires one and only one electron");
+            "ElectronCollisionPlasmaRate requires exactly one electron "
+            "reactant.");
     }
 
-    // Determine the "kind" of collision if not specified explicitly
-    if (m_kind.empty()) {
-        m_kind = "excitation"; // default
-        if (rxn.reactants == rxn.products) {
-            m_kind = "effective";
-        } else {
-            for (const auto& [p, stoich] : rxn.products) {
-                if (p == electronName) {
-                    continue;
-                }
-                double q = thermo.charge(thermo.speciesIndex(p, true));
-                if (q > 0) {
-                    m_kind = "ionization";
-                } else if (q < 0) {
-                    m_kind = "attachment";
-                }
-            }
+    string reactionTarget;
+
+    for (const auto& [name, coefficient] : rxn.reactants) {
+        if (name != electronName && coefficient != 0.0) {
+            reactionTarget = name;
+            break;
         }
     }
 
-    if (m_threshold == 0.0 &&
-        (m_kind == "excitation" || m_kind == "ionization" || m_kind == "attachment"))
-    {
-        for (size_t i = 0; i < m_energyLevels.size(); i++) {
-            if (m_energyLevels[i] > 0.0) {  // Look for first non-zero cross-section
-                m_threshold = m_energyLevels[i];
-                break;
-            }
-        }
+    if (reactionTarget != m_target) {
+        throw InputFileError("ElectronCollisionPlasmaRate::setContext", rxn.input,
+            "Electron collision '{}' targets '{}', but reaction '{}' uses '{}'.",
+            m_collisionName, m_target, rxn.equation(), reactionTarget);
+    }
+
+    double reactantElectrons = electronReactant->second;
+    double productElectrons = 0.0;
+
+    auto electronProduct = rxn.products.find(electronName);
+    if (electronProduct != rxn.products.end()) {
+        productElectrons = electronProduct->second;
+    }
+
+    string reactionKind;
+
+    if (productElectrons > reactantElectrons) {
+        reactionKind = "ionization";
+    } else if (productElectrons < reactantElectrons) {
+        reactionKind = "attachment";
+    } else if (rxn.reactants == rxn.products) {
+        reactionKind = "effective";
+    } else {
+        reactionKind = "excitation";
+    }
+
+    bool compatibleKind = reactionKind == m_kind;
+
+    // Elastic and effective cross sections both correspond to an unchanged
+    // electron-target reaction.
+    if (reactionKind == "effective" &&
+        (m_kind == "effective" || m_kind == "elastic")) {
+        compatibleKind = true;
+    }
+
+    // Allow an unresolved inelastic channel whose product is not represented
+    // as a phase species. The reaction is compositionally unchanged, while the
+    // collision remains inelastic in the Boltzmann equation.
+    if (reactionKind == "effective" && m_kind == "excitation") {
+        compatibleKind = true;
+    }
+
+    if (!compatibleKind) {
+        throw InputFileError("ElectronCollisionPlasmaRate::setContext", rxn.input,
+            "Electron collision '{}' has kind '{}', but reaction '{}' implies "
+            "kind '{}'.",
+            m_collisionName, m_kind, rxn.equation(), reactionKind);
     }
 
     if (!rxn.reversible) {
-        return; // end checking of forward reaction
+        return;
     }
 
-    // For super-elastic collisions
     if (rxn.products.size() != 2) {
         throw InputFileError("ElectronCollisionPlasmaRate::setContext", rxn.input,
-            "ElectronCollisionPlasmaRate requires exactly two products"
-            " if the reaction is reversible (super-elastic collisions)");
+            "ElectronCollisionPlasmaRate requires exactly two products for "
+            "a reversible excitation reaction.");
     }
 
-    // Must have only one electron
-    if (rxn.products.at(electronName) != 1) {
+    if (electronProduct == rxn.products.end() ||
+        electronProduct->second != 1.0) {
         throw InputFileError("ElectronCollisionPlasmaRate::setContext", rxn.input,
-            "ElectronCollisionPlasmaRate requires one and only one electron in products"
-            " if the reaction is reversible (super-elastic collisions)");
+            "A reversible electron-collision reaction requires exactly one "
+            "electron product.");
     }
 }
 
