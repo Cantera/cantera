@@ -153,8 +153,10 @@ public:
     }
 
     //! The kind of the process which will be one of the following:
-    //! - `"effective"`: A generic effective collision
-    //! - `"excitation"`: Electronic or vibrational excitation
+    //! - `"effective"`: Effective momentum-transfer cross section containing
+    //!   elastic and inelastic contributions
+    //! - `"elastic"`: Elastic momentum-transfer collision
+    //! - `"excitation"`: Electronic, vibrational or rotational excitation
     //! - `"ionization"`: Electron-impact ionization
     //! - `"attachment"`: Electron attachment
     //! @since New in Cantera 3.2.
