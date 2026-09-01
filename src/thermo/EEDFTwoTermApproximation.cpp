@@ -737,34 +737,104 @@ void EEDFTwoTermApproximation::calculateTotalCrossSection()
 {
     m_totalCrossSectionCenter.assign(m_points, 0.0);
     m_totalCrossSectionEdge.assign(m_points + 1, 0.0);
+
+    vector<bool> hasEffectiveCrossSection(
+        m_phase->nSpecies(), false);
+
+    for (size_t k : m_phase->kElastic()) {
+        if (m_phase->collisionRate(k)->kind() == "effective") {
+            hasEffectiveCrossSection[m_phase->targetIndex(k)] = true;
+        }
+    }
+
     for (size_t k = 0; k < m_phase->nCollisions(); k++) {
-        auto x = m_phase->collisionRate(k)->energyLevels();
-        auto y = m_phase->collisionRate(k)->crossSections();
+        const size_t target = m_phase->targetIndex(k);
+        const string& kind = m_phase->collisionRate(k)->kind();
+
+        // An effective cross section already contains the elastic and
+        // inelastic contributions for its target. Adding the individual
+        // inelastic channels would count them twice.
+        if (hasEffectiveCrossSection[target] && kind != "effective") {
+            continue;
+        }
+
+        auto levels = m_phase->collisionRate(k)->energyLevels();
+        auto sections = m_phase->collisionRate(k)->crossSections();
+        const double moleFraction =
+            m_X_targets[m_klocTargets[k]];
 
         for (size_t i = 0; i < m_points; i++) {
-            m_totalCrossSectionCenter[i] += m_X_targets[m_klocTargets[k]] *
-                                            linearInterp(m_gridCenter[i], x, y);
+            m_totalCrossSectionCenter[i] += moleFraction *
+                linearInterp(m_gridCenter[i], levels, sections);
         }
+
         for (size_t i = 0; i < m_points + 1; i++) {
-            m_totalCrossSectionEdge[i] += m_X_targets[m_klocTargets[k]] *
-                                          linearInterp(m_gridEdge[i], x, y);
+            m_totalCrossSectionEdge[i] += moleFraction *
+                linearInterp(m_gridEdge[i], levels, sections);
         }
     }
 }
 
 void EEDFTwoTermApproximation::calculateTotalElasticCrossSection()
 {
-    m_sigmaElastic.clear();
-    m_sigmaElastic.resize(m_points, 0.0);
+    m_sigmaElastic.assign(m_points, 0.0);
+
     for (size_t k : m_phase->kElastic()) {
-        auto x = m_phase->collisionRate(k)->energyLevels();
-        auto y = m_phase->collisionRate(k)->crossSections();
-        // Note:
-        // moleFraction(m_kTargets[k]) <=> m_X_targets[m_klocTargets[k]]
-        double mass_ratio = ElectronMass / (m_phase->molecularWeight(m_kTargets[k]) / Avogadro);
+        auto rate = m_phase->collisionRate(k);
+        auto levels = rate->energyLevels();
+        auto sections = rate->crossSections();
+
+        const size_t target = m_phase->targetIndex(k);
+        const double massRatio =
+            ElectronMass /
+            (m_phase->molecularWeight(target) / Avogadro);
+
+        const double moleFraction =
+            m_X_targets[m_klocTargets[k]];
+
         for (size_t i = 0; i < m_points; i++) {
-            m_sigmaElastic[i] += 2.0 * mass_ratio * m_X_targets[m_klocTargets[k]] *
-                                 linearInterp(m_gridEdge[i], x, y);
+            const double energy = m_gridEdge[i];
+
+            double elasticCrossSection =
+                linearInterp(energy, levels, sections);
+
+            if (rate->kind() == "effective") {
+                // By definition:
+                //
+                // effective = elastic momentum transfer
+                //           + sum(forward inelastic cross sections)
+                //
+                // Reconstruct the elastic contribution directly on the EEDF
+                // grid to avoid interpolation through an intermediate grid.
+                for (size_t kInelastic : m_phase->kInelastic()) {
+                    if (m_phase->targetIndex(kInelastic) != target) {
+                        continue;
+                    }
+
+                    auto inelasticRate =
+                        m_phase->collisionRate(kInelastic);
+
+                    elasticCrossSection -= linearInterp(
+                        energy,
+                        inelasticRate->energyLevels(),
+                        inelasticRate->crossSections());
+                }
+
+                if (elasticCrossSection < 0.0) {
+                    throw CanteraError(
+                        "EEDFTwoTermApproximation::"
+                        "calculateTotalElasticCrossSection",
+                        "Reconstructed elastic cross section for target '{}' "
+                        "is negative at {} eV: {} m^2. The effective and "
+                        "inelastic cross-section data are inconsistent.",
+                        m_phase->speciesName(target),
+                        energy, elasticCrossSection);
+                }
+            }
+
+            m_sigmaElastic[i] +=
+                2.0 * massRatio * moleFraction *
+                elasticCrossSection;
         }
     }
 }
