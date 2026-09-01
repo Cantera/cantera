@@ -643,25 +643,40 @@ TEST(Reaction, TwoTempPlasmaExtendedListFromYaml)
 
 TEST(Reaction, ElectronCollisionPlasmaFromYaml)
 {
-    auto sol = newSolution("oxygen-plasma.yaml", "discretized-electron-energy-plasma", "none");
+    auto sol = newSolution(
+        "oxygen-plasma.yaml",
+        "discretized-electron-energy-plasma",
+        "none"
+    );
     AnyMap rxn = AnyMap::fromYamlString(
         "{equation: O2 + E => E + O2,"
         " type: electron-collision-plasma,"
-        " energy-levels: [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0],"
-        " cross-sections: [0.0, 5.97e-20, 6.45e-20, 6.74e-20, 6.93e-20, 7.2e-20, "
-        " 7.52e-20, 7.86e-20, 8.21e-20, 8.49e-20, 8.8e-20]}");
-
-    auto R = newReaction(rxn, *(sol->kinetics()));
+        " collision: O2-effective}"
+    );
+    auto R = newReaction(rxn, *sol->kinetics());
     EXPECT_EQ(R->reactants.at("O2"), 1);
     EXPECT_EQ(R->reactants.at("E"), 1);
     EXPECT_EQ(R->products.at("O2"), 1);
     EXPECT_EQ(R->products.at("E"), 1);
-
     const auto rate = std::dynamic_pointer_cast<ElectronCollisionPlasmaRate>(R->rate());
-
-    for (size_t k = 0; k < rate->energyLevels().size(); k++) {
-        EXPECT_DOUBLE_EQ(rate->energyLevels()[k], rxn["energy-levels"].asVector<double>()[k]);
-        EXPECT_DOUBLE_EQ(rate->crossSections()[k], rxn["cross-sections"].asVector<double>()[k]);
+    ASSERT_NE(rate, nullptr);
+    EXPECT_EQ(rate->collisionName(), "O2-effective");
+    EXPECT_EQ(rate->kind(), "effective");
+    const vector<double> expectedLevels = {
+        0.0, 1.0, 2.0, 3.0, 4.0, 5.0,
+        6.0, 7.0, 8.0, 9.0, 10.0
+    };
+    const vector<double> expectedCrossSections = {
+        0.0, 5.97e-20, 6.45e-20, 6.74e-20, 6.93e-20, 7.2e-20,
+        7.52e-20, 7.86e-20, 8.21e-20, 8.49e-20, 8.8e-20
+    };
+    const auto energyLevels = rate->energyLevels();
+    const auto crossSections = rate->crossSections();
+    ASSERT_EQ(energyLevels.size(), expectedLevels.size());
+    ASSERT_EQ(crossSections.size(), expectedCrossSections.size());
+    for (size_t k = 0; k < expectedLevels.size(); k++) {
+        EXPECT_DOUBLE_EQ(energyLevels[k], expectedLevels[k]);
+        EXPECT_DOUBLE_EQ(crossSections[k], expectedCrossSections[k]);
     }
 }
 
