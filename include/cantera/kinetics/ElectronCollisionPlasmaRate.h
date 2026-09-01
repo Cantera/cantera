@@ -213,6 +213,19 @@ public:
     //! Update the value of #m_crossSectionsInterpolated [m2]
     void updateInterpolatedCrossSection(span<const double>);
 
+    //! Name of the electron-collision definition referenced by this rate.
+    const string& collisionName() const {
+        return m_collisionName;
+    }
+
+    //! Return whether tabulated cross-section data have been assigned.
+    bool hasCrossSectionData() const {
+        return m_hasCrossSectionData;
+    }
+
+    //! Assign data from a named entry in the root `electron-collisions` section.
+    void applyCollisionData(const AnyMap& node);
+
 private:
     //! The name of the kind of electron collision
     string m_kind;
@@ -224,7 +237,7 @@ private:
     string m_product;
 
     //! The energy threshold of electron collision
-    double m_threshold;
+    double m_threshold = 0.0;
 
     //! electron energy levels [eV]
     vector<double> m_energyLevels;
@@ -247,6 +260,18 @@ private:
     //! This is used for the calculation of the super-elastic collision reaction
     //! rate coefficient.
     Eigen::ArrayXd m_crossSectionsOffset;
+
+    //! Name used to reference the collision data from a reaction.
+    string m_collisionName;
+
+    //! Whether this rate contains validated tabulated cross-section data.
+    bool m_hasCrossSectionData = false;
+
+    //! Validate the contents of a named electron-collision definition.
+    void validateCollisionData(const AnyMap& node) const;
+
+    //! Infer the collision threshold when it is not specified explicitly.
+    void setDefaultThreshold();
 };
 
 }
