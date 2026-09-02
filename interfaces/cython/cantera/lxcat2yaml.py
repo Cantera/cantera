@@ -117,9 +117,26 @@ emitter: yaml.YAML = yaml.YAML()
 emitter.register_class(ElectronCollision)
 emitter.register_class(Process)
 
+def normalized_tag(tag: str) -> str:
+    """Return a normalized XML tag name without namespace or separators."""
+    if "}" in tag:
+        tag = tag.rsplit("}", 1)[1]
+
+    return tag.replace("_", "").lower()
+
 # Return indices of a child name
-def get_children(parent: etree.Element[str], child_name: str) -> list[etree.Element[str]]:
-    return [child for child in parent if child.tag.find(child_name) != -1]
+def get_children(
+    parent: etree.Element[str],
+    child_name: str,
+) -> list[etree.Element[str]]:
+    """Return direct children matching either legacy or LXCat 1.1 tags."""
+    expected = normalized_tag(child_name)
+
+    return [
+        child
+        for child in parent
+        if normalized_tag(child.tag) == expected
+    ]
 
 _VT = TypeVar("_VT")  # Value type.
 
@@ -130,24 +147,32 @@ def Flowlist(*args: Iterable[_VT], **kwargs: _VT) -> list[_VT]:
     return cast(list[_VT], lst)
 
 def get_process_kind(process: etree.Element[str]) -> str:
-    """Return the Cantera collision kind corresponding to an LXCat process."""
-    collision_type = process.attrib.get("collisionType", "").lower()
+    """Return the Cantera collision kind for legacy and LXCat 1.1 XML."""
+    process_type = (
+        process.attrib.get("type")
+        or process.attrib.get("collisionType")
+        or ""
+    ).strip().lower()
 
-    if collision_type in {"elastic", "effective"}:
-        return collision_type
+    inelastic_type = process.attrib.get(
+        "inelasticType", ""
+    ).strip().lower()
 
-    inelastic_type = process.attrib.get("inelasticType", "").lower()
+    if process_type == "effective":
+        return "effective"
 
-    if "ionization" in inelastic_type:
+    if process_type == "elastic":
+        return "elastic"
+
+    if "ionization" in process_type or "ionization" in inelastic_type:
         return "ionization"
 
-    if "attachment" in inelastic_type:
+    if "attachment" in process_type or "attachment" in inelastic_type:
         return "attachment"
 
-    # Rotational, vibrational, electronic, and dissociative energy-loss
-    # processes are all inelastic channels for the EEDF solver.
+    # Excitation, vibrational, rotational, dissociation, and other
+    # inelastic energy-loss processes belong to the "excitation" EEDF group.
     return "excitation"
-
 
 def make_collision_name(
     database: str,
@@ -295,7 +320,15 @@ def convert(
             if isinstance(item, dict) and "name" in item:
                 used_names.add(str(item["name"]))
 
-    for database_node in xml_tree:
+    database_nodes = get_children(xml_tree, "database")
+
+    if not database_nodes:
+        raise IncorrectXMLNode(
+            "The LXCat file does not contain a database node.",
+            xml_tree,
+        )
+
+    for database_node in database_nodes:
         database_id = database_node.attrib.get("id", "lxcat")
 
         if database is not None and database_id != database:
@@ -307,12 +340,12 @@ def convert(
                 "The database requires a 'groups' node.", database_node
             )
 
-        for group in groups[0]:
+        for group in get_children(groups[0], "group"):
             processes = get_children(group, "processes")
             if not processes:
                 continue
 
-            for process in processes[0]:
+            for process in get_children(processes[0], "process"):
                 registerProcess(
                     process,
                     collision_list,
@@ -378,6 +411,122 @@ def convert(
     with outfile.open("w") as output_file:
         emitter.dump(output_data, output_file)
 
+def normalize_lxcat_species(
+    name: str,
+    electron_name: str,
+) -> tuple[str, bool]:
+    """Normalize an LXCat species name and identify electrons."""
+    name = name.strip()
+
+    if name.lower() in {"e", "electron"}:
+        return electron_name, True
+
+    # Remove whitespace internal to species labels and convert the LXCat
+    # charge notation Ar^+ / O^- to the usual Cantera notation Ar+ / O-.
+    name = re.sub(r"\s+", "", name)
+    name = name.replace("^+", "+")
+    name = name.replace("^-", "-")
+
+    return name, False
+
+
+def get_process_species(
+    process: etree.Element[str],
+    role: str,
+    electron_name: str,
+) -> list[tuple[str, bool]]:
+    """
+    Read reactants or products from legacy and LXCat 1.1 process nodes.
+
+    The returned boolean indicates whether the species is an electron.
+    """
+    legacy_containers = get_children(process, f"{role}s")
+
+    if legacy_containers:
+        species_nodes = list(legacy_containers[0])
+    else:
+        species_containers = get_children(process, "species")
+        if not species_containers:
+            return []
+
+        species_nodes = get_children(species_containers[0], role)
+
+    species: list[tuple[str, bool]] = []
+
+    for node in species_nodes:
+        tag = normalized_tag(node.tag)
+
+        # Legacy format: <electron/>
+        if tag == "electron":
+            species.append((electron_name, True))
+            continue
+
+        if node.text is None:
+            raise IncorrectXMLNode(
+                f"An LXCat {role} requires a species name.",
+                node,
+            )
+
+        name, is_electron = normalize_lxcat_species(
+            node.text,
+            electron_name,
+        )
+
+        # Legacy format represents states and charges using attributes on
+        # the <molecule> node.
+        if tag == "molecule":
+            if "state" in node.attrib:
+                state = node.attrib["state"].replace(" ", "-")
+                name += f"({state})"
+
+            if "charge" in node.attrib:
+                charge = int(node.attrib["charge"])
+
+                if charge > 0:
+                    name += charge * "+"
+                elif charge < 0:
+                    name += -charge * "-"
+
+        species.append((name, is_electron))
+
+    return species
+
+def get_process_threshold(process: etree.Element[str]) -> float:
+    """Read the threshold energy from legacy or LXCat 1.1 XML."""
+    parameter_nodes = get_children(process, "parameters")
+
+    if not parameter_nodes:
+        return 0.0
+
+    for parameter in parameter_nodes[0]:
+        tag = normalized_tag(parameter.tag)
+
+        is_legacy_threshold = (
+            tag == "parameter"
+            and parameter.attrib.get("name", "").lower() == "e"
+        )
+        is_lxcat_threshold = tag == "e"
+
+        if not is_legacy_threshold and not is_lxcat_threshold:
+            continue
+
+        if parameter.text is None:
+            raise IncorrectXMLNode(
+                "The threshold-energy node requires a value.",
+                parameter,
+            )
+
+        units = parameter.attrib.get("units", "eV")
+        if units.lower() != "ev":
+            raise IncorrectXMLNode(
+                "LXCat threshold energies must be expressed in eV.",
+                parameter,
+            )
+
+        return float(parameter.text)
+
+    return 0.0
+
 def registerProcess(
     process: etree.Element[str],
     collision_list: list[ElectronCollision],
@@ -394,87 +543,54 @@ def registerProcess(
 
     # Read the threshold energy. Other parameters, such as the electron-to-
     # target mass ratio, are intentionally ignored here.
-    threshold = 0.0
-    parameter_nodes = get_children(process, "parameters")
+    electron_name = gas.electron_species_name if gas is not None else "e"
+    threshold = get_process_threshold(process)
+    kind = get_process_kind(process)
 
-    if parameter_nodes:
-        for parameter in get_children(parameter_nodes[0], "parameter"):
-            if parameter.attrib.get("name") == "E":
-                if parameter.text is None:
-                    raise IncorrectXMLNode(
-                        "The threshold parameter requires a value.", parameter
-                    )
-                threshold = float(parameter.text)
-                break
+    reactant_species = get_process_species(
+        process,
+        "reactant",
+        electron_name,
+    )
 
-    # Read the target species.
-    reactant_nodes = get_children(process, "reactants")
-    if not reactant_nodes:
+    targets = [
+        name
+        for name, is_electron in reactant_species
+        if not is_electron
+    ]
+
+    if len(targets) != 1:
         raise IncorrectXMLNode(
-            "The 'process' node requires a 'reactants' node.", process
-        )
-
-    target: str | None = None
-    for reactant_node in reactant_nodes[0]:
-        if reactant_node.tag.find("molecule") != -1:
-            if reactant_node.text is None:
-                raise IncorrectXMLNode(
-                    "A molecular reactant requires a species name.",
-                    reactant_node,
-                )
-            target = reactant_node.text
-            break
-
-    if target is None:
-        raise IncorrectXMLNode(
-            "The electron-collision process requires a target molecule.",
+            "An electron-collision process requires exactly one "
+            "non-electron target species.",
             process,
         )
 
-    # A collision whose target is absent from the selected phase cannot be
-    # used by that phase.
+    target = targets[0]
+
     if gas is not None and target not in gas.species_names:
         return
 
-    # Read the products and build the chemical equation.
+    product_species = get_process_species(
+        process,
+        "product",
+        electron_name,
+    )
+
     product_array: list[str] = []
     molecule_products: list[str] = []
     products_available = True
 
-    product_nodes = get_children(process, "products")
-    if product_nodes:
-        for product_node in product_nodes[0]:
-            if product_node.tag.find("electron") != -1:
-                product_array.append(electron_name)
-                continue
+    for product_name, is_electron in product_species:
+        product_array.append(product_name)
 
-            if product_node.tag.find("molecule") == -1:
-                continue
+        if is_electron:
+            continue
 
-            if product_node.text is None:
-                raise IncorrectXMLNode(
-                    "A molecular product requires a species name.",
-                    product_node,
-                )
+        molecule_products.append(product_name)
 
-            product_name = product_node.text
-
-            if "state" in product_node.attrib:
-                state = product_node.attrib["state"].replace(" ", "-")
-                product_name += f"({state})"
-
-            if "charge" in product_node.attrib:
-                charge = int(product_node.attrib["charge"])
-                if charge > 0:
-                    product_name += charge * "+"
-                elif charge < 0:
-                    product_name += -charge * "-"
-
-            molecule_products.append(product_name)
-            product_array.append(product_name)
-
-            if gas is not None and product_name not in gas.species_names:
-                products_available = False
+        if gas is not None and product_name not in gas.species_names:
+            products_available = False
 
     if product_array:
         products_string = " + ".join(product_array)
@@ -514,13 +630,14 @@ def registerProcess(
             process,
         )
 
-    # Ensure that the tabulation starts at the threshold with zero cross
-    # section, preserving the behavior of the original converter.
-    if energy_levels[0] > threshold:
-        energy_levels = Flowlist([threshold, *energy_levels])
-        cross_sections = Flowlist([0.0, *cross_sections])
-    else:
-        cross_sections[0] = 0.0
+    # Effective and elastic cross sections may be non-zero at zero energy.
+    # Their original tabulated values must therefore be preserved.
+    if kind not in {"effective", "elastic"}:
+        if energy_levels[0] > threshold:
+            energy_levels = Flowlist([threshold, *energy_levels])
+            cross_sections = Flowlist([0.0, *cross_sections])
+        elif energy_levels[0] == threshold:
+            cross_sections[0] = 0.0
 
     if len(energy_levels) < 2:
         raise IncorrectXMLNode(
