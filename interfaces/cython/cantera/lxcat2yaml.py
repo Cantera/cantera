@@ -24,6 +24,7 @@ Example:
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 import textwrap
 import xml.etree.ElementTree as etree
@@ -47,24 +48,73 @@ except ImportError:
 
 BlockMap: type[CommentedMap] = CommentedMap
 
-class Process:
-    """A class of YAML data for collision of a target species"""
-    def __init__(self, equation: str, energy_levels: list[float], cross_sections: list[float]) -> None:
-        self.equation = equation
+class ElectronCollision:
+    """YAML representation of an electron-collision cross section."""
+
+    def __init__(
+        self,
+        name: str,
+        target: str,
+        product: str | None,
+        kind: str,
+        threshold: float,
+        energy_levels: list[float],
+        cross_sections: list[float],
+    ) -> None:
+        self.name = name
+        self.target = target
+        self.product = product
+        self.kind = kind
+        self.threshold = threshold
         self.energy_levels = energy_levels
         self.cross_sections = cross_sections
 
     @classmethod
+    def to_yaml(
+        cls,
+        representer: SafeRepresenter,
+        node: ElectronCollision,
+    ) -> MappingNode:
+        out = BlockMap([
+            ("name", node.name),
+            ("target", node.target),
+        ])
+
+        if node.product is not None:
+            out["product"] = node.product
+
+        out["kind"] = node.kind
+        out["threshold"] = node.threshold
+        out["energy-levels"] = node.energy_levels
+        out["cross-sections"] = node.cross_sections
+
+        return representer.represent_dict(out)
+
+
+class Process:
+    """YAML representation of a reaction referencing collision data."""
+
+    def __init__(self, equation: str, collision: str) -> None:
+        self.equation = equation
+        self.collision = collision
+        self.duplicate = False
+
+    @classmethod
     def to_yaml(cls, representer: SafeRepresenter, node: Process) -> MappingNode:
-        out = BlockMap([('equation', node.equation),
-                        ('type', 'electron-collision-plasma'),
-                        ('energy-levels', node.energy_levels),
-                        ('cross-sections', node.cross_sections),
-                        ])
+        out = BlockMap([
+            ("equation", node.equation),
+            ("type", "electron-collision-plasma"),
+            ("collision", node.collision),
+        ])
+
+        if node.duplicate:
+            out["duplicate"] = True
+
         return representer.represent_dict(out)
 
 # Define YAML emitter
 emitter: yaml.YAML = yaml.YAML()
+emitter.register_class(ElectronCollision)
 emitter.register_class(Process)
 
 # Return indices of a child name
@@ -78,6 +128,93 @@ def Flowlist(*args: Iterable[_VT], **kwargs: _VT) -> list[_VT]:
     lst: CommentedSeq = CommentedSeq(*args, **kwargs)
     lst.fa.set_flow_style()
     return cast(list[_VT], lst)
+
+def get_process_kind(process: etree.Element[str]) -> str:
+    """Return the Cantera collision kind corresponding to an LXCat process."""
+    collision_type = process.attrib.get("collisionType", "").lower()
+
+    if collision_type in {"elastic", "effective"}:
+        return collision_type
+
+    inelastic_type = process.attrib.get("inelasticType", "").lower()
+
+    if "ionization" in inelastic_type:
+        return "ionization"
+
+    if "attachment" in inelastic_type:
+        return "attachment"
+
+    # Rotational, vibrational, electronic, and dissociative energy-loss
+    # processes are all inelastic channels for the EEDF solver.
+    return "excitation"
+
+
+def make_collision_name(
+    database: str,
+    target: str,
+    kind: str,
+    product: str | None,
+    threshold: float,
+    used_names: set[str],
+) -> str:
+    """Create a deterministic and unique electron-collision name."""
+    parts = [database, target, kind]
+
+    if product is not None:
+        parts.append(product)
+
+    if threshold:
+        parts.append(f"{threshold:g}-eV")
+
+    normalized = []
+    for part in parts:
+        value = re.sub(r"[^A-Za-z0-9]+", "-", part).strip("-")
+        if value:
+            normalized.append(value)
+
+    base_name = "-".join(normalized) or "lxcat-collision"
+    name = base_name
+    suffix = 2
+
+    while name in used_names:
+        name = f"{base_name}-{suffix}"
+        suffix += 1
+
+    used_names.add(name)
+    return name
+
+
+def reaction_equation(reaction: Process | dict) -> str | None:
+    """Return the equation stored in a generated or existing reaction."""
+    if isinstance(reaction, Process):
+        return reaction.equation
+
+    if isinstance(reaction, dict):
+        equation = reaction.get("equation")
+        if equation is not None:
+            return str(equation)
+
+    return None
+
+
+def mark_duplicate_reactions(reactions: list) -> None:
+    """Mark reactions having identical equation strings as duplicates."""
+    counts: dict[str, int] = {}
+
+    for reaction in reactions:
+        equation = reaction_equation(reaction)
+        if equation is not None:
+            counts[equation] = counts.get(equation, 0) + 1
+
+    for reaction in reactions:
+        equation = reaction_equation(reaction)
+        if equation is None or counts[equation] <= 1:
+            continue
+
+        if isinstance(reaction, Process):
+            reaction.duplicate = True
+        else:
+            reaction["duplicate"] = True
 
 class IncorrectXMLNode(LookupError):
     def __init__(self, message: str = "", node: etree.Element | None = None) -> None:
@@ -103,199 +240,343 @@ class IncorrectXMLNode(LookupError):
 def convert(
     inpfile: str | Path | None = None,
     database: str | None = None,
-    mechfile: str | None = None,
+    mechfile: str | Path | None = None,
     phase: str | None = None,
     insert: bool | None = True,
     outfile: str | Path | None = None,
 ) -> None:
-    """Convert an LXCat XML file to a YAML file.
-
-    :param inpfile:
-        The input LXCat file name.
-    :param database:
-        The name of the database. For example, "itikawa".
-    :param mechfile:
-        The reaction mechanism file. This option requires using the Cantera library.
-    :param phase:
-        The phase name of the mechanism file. This option requires a ``mechfile`` to
-        also be specified.
-    :param insert:
-        The flag of whether to insert the collision reactions or not.
-    :param outfile:
-        The output YAML file name.
-
-    All files are assumed to be relative to the current working directory of the Python
-    process running this script.
-    """
-    if inpfile is not None:
-        inpfile = Path(inpfile)
-        lxcat_text = inpfile.read_text().lstrip()
-        if outfile is None:
-            outfile = inpfile.with_suffix(".yaml")
-    else:
+    """Convert an LXCat XML file to Cantera YAML collision data."""
+    if inpfile is None:
         raise ValueError("'inpfile' must be specified")
+
+    inpfile = Path(inpfile)
+    lxcat_text = inpfile.read_text().lstrip()
+
+    if outfile is None:
+        outfile = inpfile.with_suffix(".yaml")
+
+    outfile = Path(outfile)
 
     if insert and mechfile is None:
         raise ValueError("'mech' must be specified if 'insert' is used")
 
+    if phase is not None and mechfile is None:
+        raise ValueError("'mech' must be specified if 'phase' is used.")
+
     gas: OptionalSolutionType = None
+    source_data = None
+
     if mechfile is not None:
         if Solution is None:
-            print("Cantera is not used, so the mechanism file cannot be used.")
-            sys.exit(1)
-        elif phase is not None:
+            raise RuntimeError(
+                "The Cantera Python module is required when 'mech' is used."
+            )
+
+        mechfile = Path(mechfile)
+
+        if phase is not None:
             gas = Solution(mechfile, phase, transport_model=None)
         else:
             gas = Solution(mechfile, transport_model=None)
 
-    elif phase  is not None:
-        raise ValueError("'mech' must be specified if 'phase' is used.")
+        loader = yaml.YAML(typ="rt")
+        with mechfile.open("r") as mechanism:
+            source_data = loader.load(mechanism)
 
     xml_tree = etree.fromstring(lxcat_text)
 
-    # If insert key word is used, create a process list,
-    # and append all processes together
-    process_list: list[Process] | None = None
-    if not insert:
-        process_list = []
+    collision_list: list[ElectronCollision] = []
+    process_list: list[Process] = []
+    used_names: set[str] = set()
+
+    # Prevent conflicts with collision names already present in a mechanism.
+    if source_data is not None:
+        for item in source_data.get("electron-collisions", []):
+            if isinstance(item, dict) and "name" in item:
+                used_names.add(str(item["name"]))
 
     for database_node in xml_tree:
-        if database is not None:
-            if database_node.attrib["id"] != database:
+        database_id = database_node.attrib.get("id", "lxcat")
+
+        if database is not None and database_id != database:
+            continue
+
+        groups = get_children(database_node, "groups")
+        if not groups:
+            raise IncorrectXMLNode(
+                "The database requires a 'groups' node.", database_node
+            )
+
+        for group in groups[0]:
+            processes = get_children(group, "processes")
+            if not processes:
                 continue
 
-        # Get groups node
-        groups_node = get_children(database_node, "groups")[0]
+            for process in processes[0]:
+                registerProcess(
+                    process,
+                    collision_list,
+                    process_list,
+                    gas,
+                    database_id,
+                    used_names,
+                )
 
-        for group in groups_node:
-            for process in get_children(group, "processes")[0]:
-                registerProcess(process, process_list, gas)
+    mark_duplicate_reactions(process_list)
 
     if not insert:
-        # Put process list in collision node
-        collision_node = {"collisions": process_list}
-        with Path(outfile).open("w") as output_file:
-            emitter.dump(collision_node, output_file)
-    else:
-        # Get mechanism file unit system
-        units = None
-        assert mechfile is not None
-        with open(mechfile, "r") as mech:
-            data = yaml.YAML(typ="rt").load(mech)
-            if "units" in data:
-                units = data["units"]
-        assert gas is not None
-        gas.write_yaml(outfile, units=units)
+        output = BlockMap([
+            ("electron-collisions", collision_list),
+            ("reactions", process_list),
+        ])
 
-def registerProcess(process: etree.Element,
-                    process_list: list[Process] | None,
-                    gas: OptionalSolutionType) -> None:
-    """
-    Add a collision process (electron collision reaction) to process_list
-    and gas object if it exists.
+        with outfile.open("w") as output_file:
+            emitter.dump(output, output_file)
 
-    :param process:
-        The collision process (electron collision reaction)
-    :param process_list:
-        The list of collision processes
-    :param gas:
-        The Cantera Solution object
+        return
+
+    assert gas is not None
+    assert source_data is not None
+    assert mechfile is not None
+
+    # Preserve the official converter's behavior of writing a self-contained
+    # mechanism before adding the newly converted entries.
+    units = source_data.get("units")
+    gas.write_yaml(outfile, units=units)
+
+    loader = yaml.YAML(typ="rt")
+    with outfile.open("r") as mechanism:
+        output_data = loader.load(mechanism)
+
+    if output_data is None:
+        output_data = BlockMap()
+
+    if "reactions" not in output_data:
+        output_data["reactions"] = CommentedSeq()
+
+    if not isinstance(output_data["reactions"], list):
+        raise ValueError("The top-level 'reactions' entry must be a sequence.")
+
+    output_data["reactions"].extend(process_list)
+    mark_duplicate_reactions(output_data["reactions"])
+
+    if "electron-collisions" not in output_data:
+        output_data["electron-collisions"] = CommentedSeq()
+
+    if not isinstance(output_data["electron-collisions"], list):
+        raise ValueError(
+            "The top-level 'electron-collisions' entry must be a sequence."
+        )
+
+    output_data["electron-collisions"].extend(collision_list)
+
+    # Keep collision definitions after reactions, following the usual
+    # mechanism-file organization.
+    collisions = output_data.pop("electron-collisions")
+    output_data["electron-collisions"] = collisions
+
+    with outfile.open("w") as output_file:
+        emitter.dump(output_data, output_file)
+
+def registerProcess(
+    process: etree.Element[str],
+    collision_list: list[ElectronCollision],
+    process_list: list[Process],
+    gas: OptionalSolutionType,
+    database: str,
+    used_names: set[str],
+) -> None:
     """
-    # Get electron specie name
+    Convert one LXCat process to an electron-collision definition and,
+    when appropriate, to a chemical reaction referencing that definition.
+    """
     electron_name = gas.electron_species_name if gas is not None else "e"
 
-    # Parse the threshold
+    # Read the threshold energy. Other parameters, such as the electron-to-
+    # target mass ratio, are intentionally ignored here.
     threshold = 0.0
-    parameters_node = get_children(process, "parameters")[0]
-    if len(get_children(parameters_node, "parameter")) == 1:
-        parameter = get_children(parameters_node, "parameter")[0]
-        if parameter.attrib["name"] == 'E':
-            assert parameter.text is not None
-            threshold = float(parameter.text)
+    parameter_nodes = get_children(process, "parameters")
 
-    # Parse the equation
+    if parameter_nodes:
+        for parameter in get_children(parameter_nodes[0], "parameter"):
+            if parameter.attrib.get("name") == "E":
+                if parameter.text is None:
+                    raise IncorrectXMLNode(
+                        "The threshold parameter requires a value.", parameter
+                    )
+                threshold = float(parameter.text)
+                break
+
+    # Read the target species.
+    reactant_nodes = get_children(process, "reactants")
+    if not reactant_nodes:
+        raise IncorrectXMLNode(
+            "The 'process' node requires a 'reactants' node.", process
+        )
+
+    target: str | None = None
+    for reactant_node in reactant_nodes[0]:
+        if reactant_node.tag.find("molecule") != -1:
+            if reactant_node.text is None:
+                raise IncorrectXMLNode(
+                    "A molecular reactant requires a species name.",
+                    reactant_node,
+                )
+            target = reactant_node.text
+            break
+
+    if target is None:
+        raise IncorrectXMLNode(
+            "The electron-collision process requires a target molecule.",
+            process,
+        )
+
+    # A collision whose target is absent from the selected phase cannot be
+    # used by that phase.
+    if gas is not None and target not in gas.species_names:
+        return
+
+    # Read the products and build the chemical equation.
     product_array: list[str] = []
+    molecule_products: list[str] = []
+    products_available = True
 
-    products: list[etree.Element[str]] = get_children(process, "products")
-    if products:
-        for product_node in products[0]:
+    product_nodes = get_children(process, "products")
+    if product_nodes:
+        for product_node in product_nodes[0]:
             if product_node.tag.find("electron") != -1:
                 product_array.append(electron_name)
+                continue
 
-            if product_node.tag.find("molecule") != -1:
-                assert product_node.text is not None
-                product_name = product_node.text
-                if "state" in product_node.attrib:
-                    state = product_node.attrib["state"].replace(" ","-")
-                    # State is appended in a parenthesis
-                    product_name += f"({state})"
-                if "charge" in product_node.attrib:
-                    charge = int(product_node.attrib["charge"])
-                    if charge > 0:
-                        product_name += charge*"+"
-                    else:
-                        product_name += -charge*"-"
+            if product_node.tag.find("molecule") == -1:
+                continue
 
-                # Filter the collision based on the existed species in the mechanism file
-                if gas is not None and not product_name in gas.species_names:
-                    return
+            if product_node.text is None:
+                raise IncorrectXMLNode(
+                    "A molecular product requires a species name.",
+                    product_node,
+                )
 
-                product_array.append(product_name)
+            product_name = product_node.text
 
-    for reactant_node in get_children(process, "reactants")[0]:
-        if reactant_node.tag.find("molecule") != -1:
-            reactant = reactant_node.text
-            # Filter the collision based on the existed species in the mechanism file
-            if gas is not None and not reactant in gas.species_names:
-                return
+            if "state" in product_node.attrib:
+                state = product_node.attrib["state"].replace(" ", "-")
+                product_name += f"({state})"
 
-    if product_array: # not empty
+            if "charge" in product_node.attrib:
+                charge = int(product_node.attrib["charge"])
+                if charge > 0:
+                    product_name += charge * "+"
+                elif charge < 0:
+                    product_name += -charge * "-"
+
+            molecule_products.append(product_name)
+            product_array.append(product_name)
+
+            if gas is not None and product_name not in gas.species_names:
+                products_available = False
+
+    if product_array:
         products_string = " + ".join(product_array)
     else:
-        # No product is identified. Use the reactant as the product.
-        products_string = f"{reactant} + {electron_name}"
+        products_string = f"{target} + {electron_name}"
 
-    equation = f"{reactant} + {electron_name} => {products_string}"
+    equation = f"{target} + {electron_name} => {products_string}"
 
-    # Parse the cross-section data
-    data_x_node = get_children(process, "data_x")[0]
-    if data_x_node is None:
-        raise IncorrectXMLNode("The 'process' node requires the 'data_x' node.", process)
+    # Read the tabulated cross-section data.
+    data_x_nodes = get_children(process, "data_x")
+    if not data_x_nodes:
+        raise IncorrectXMLNode(
+            "The 'process' node requires the 'data_x' node.", process
+        )
 
-    data_y_node = get_children(process, "data_y")[0]
-    if data_y_node is None:
-        raise IncorrectXMLNode("The 'process' node requires the 'data_y' node.", process)
+    data_y_nodes = get_children(process, "data_y")
+    if not data_y_nodes:
+        raise IncorrectXMLNode(
+            "The 'process' node requires the 'data_y' node.", process
+        )
 
-    assert data_x_node.text is not None
-    assert data_y_node.text is not None
+    data_x_node = data_x_nodes[0]
+    data_y_node = data_y_nodes[0]
+
+    if data_x_node.text is None or data_y_node.text is None:
+        raise IncorrectXMLNode(
+            "Cross-section data nodes cannot be empty.", process
+        )
+
     energy_levels = Flowlist(map(float, data_x_node.text.split()))
     cross_sections = Flowlist(map(float, data_y_node.text.split()))
 
-    # Edit energy levels and cross section
     if len(energy_levels) != len(cross_sections):
-        raise IncorrectXMLNode("Energy levels (data_x) and cross section "
-                                "(data_y) must have the same length.", process)
+        raise IncorrectXMLNode(
+            "Energy levels (data_x) and cross section data (data_y) "
+            "must have the same length.",
+            process,
+        )
 
+    # Ensure that the tabulation starts at the threshold with zero cross
+    # section, preserving the behavior of the original converter.
     if energy_levels[0] > threshold:
-        # Use Flowlist again to ensure correct YAML format
         energy_levels = Flowlist([threshold, *energy_levels])
         cross_sections = Flowlist([0.0, *cross_sections])
     else:
         cross_sections[0] = 0.0
 
-    # If insert mode is on, add the process as a reaction to the gas object.
-    if gas is not None:
-        R = ct.Reaction(
-            equation=equation,
-            rate=ct.ElectronCollisionPlasmaRate(energy_levels=energy_levels,
-                                                cross_sections=cross_sections))
-        gas.add_reaction(R)
+    if len(energy_levels) < 2:
+        raise IncorrectXMLNode(
+            "An electron collision requires at least two energy levels.",
+            process,
+        )
 
-    # If insert mode is off, process_list is used to store the data.
-    if process_list is not None:
-        process_list.append(Process(equation=equation,
-                                    energy_levels=energy_levels,
-                                    cross_sections=cross_sections))
+    kind = get_process_kind(process)
+
+    # The collision format has a single optional product field. Keep it only
+    # when the LXCat process has one molecular product.
+    product = molecule_products[0] if len(molecule_products) == 1 else None
+
+    # When writing a complete mechanism, an unavailable product must not be
+    # used to construct a synthetic standalone collision reaction.
+    collision_product = product
+    if gas is not None and not products_available:
+        collision_product = None
+
+    collision_name = make_collision_name(
+        database,
+        target,
+        kind,
+        product,
+        threshold,
+        used_names,
+    )
+
+    collision_list.append(
+        ElectronCollision(
+            name=collision_name,
+            target=target,
+            product=collision_product,
+            kind=kind,
+            threshold=threshold,
+            energy_levels=energy_levels,
+            cross_sections=cross_sections,
+        )
+    )
+
+    # Elastic and effective collisions affect the EEDF but do not represent
+    # chemical source terms.
+    if kind in {"elastic", "effective"}:
+        return
+
+    # Keep the collision data when a product species is unavailable, but do
+    # not create an invalid chemical reaction.
+    if not products_available:
+        return
+
+    process_list.append(
+        Process(
+            equation=equation,
+            collision=collision_name,
+        )
+    )
 
 def create_argparser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -342,9 +623,9 @@ def create_argparser() -> argparse.ArgumentParser:
         help=("This specifies the name of the phase in the mechanism file. Optional."))
     parser.add_argument(
         "--insert", action="store_true", default=False,
-        help=("Enable inserting the electron-collision reactions into the mechanism file."
-              "Need to use with the argument --mech to provide the mechanism file"
-              "Optional."))
+        help=("Insert the generated electron-collision definitions and their "
+              "associated chemical reactions into the specified mechanism. "
+              "This option requires --mech."))
     parser.add_argument(
         "--output", default=None,
         help=("Specifies the OUTPUT file name. By default, the output file name is the "
