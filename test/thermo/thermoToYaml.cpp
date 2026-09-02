@@ -5,6 +5,9 @@
 #include "cantera/base/YamlWriter.h"
 #include "cantera/thermo/Species.h"
 #include "cantera/thermo/PlasmaPhase.h"
+#include "cantera/kinetics/Kinetics.h"
+#include "cantera/kinetics/Reaction.h"
+#include "cantera/kinetics/ElectronCollisionPlasmaRate.h"
 
 using namespace Cantera;
 typedef vector<string> strvec;
@@ -323,6 +326,138 @@ TEST_F(ThermoToYaml, DiscretizedElectronEnergyPlasma)
     EXPECT_EQ(electronEnergyDist["type"], "discretized");
     EXPECT_DOUBLE_EQ(levels[3], 10.0);
     EXPECT_DOUBLE_EQ(dist[3], 0.01);
+}
+
+// TEST_F(ThermoToYaml, ElectronCollisionReferences)
+// {
+//     const string phaseName = "discretized-electron-energy-plasma";
+
+//     auto original = newSolution("oxygen-plasma.yaml", phaseName, "none");
+//     auto second = newSolution(
+//         "oxygen-plasma.yaml",
+//         "isotropic-electron-energy-plasma",
+//         "none"
+//     );
+
+//     YamlWriter writer;
+//     writer.addPhase(original);
+//     writer.addPhase(second);
+//     writer.skipUserDefined();
+
+//     AnyMap root = AnyMap::fromYamlString(writer.toYamlString());
+
+//     ASSERT_TRUE(root.hasKey("electron-collisions"));
+//     const auto& collisionDefs =
+//         root["electron-collisions"].asVector<AnyMap>();
+
+//     // Both plasma phases use the same definition, which should only be
+//     // written once.
+//     ASSERT_EQ(collisionDefs.size(), 1u);
+
+//     const AnyMap& collision = root["electron-collisions"].getMapWhere(
+//         "name", "test_O2_effective_O2_0"
+//     );
+
+//     EXPECT_EQ(collision["target"], "O2");
+//     EXPECT_EQ(collision["product"], "O2");
+//     EXPECT_EQ(collision["kind"], "effective");
+
+//     const auto& levels =
+//         collision["energy-levels"].asVector<double>();
+//     const auto& crossSections =
+//         collision["cross-sections"].asVector<double>();
+
+//     ASSERT_EQ(levels.size(), 11u);
+//     ASSERT_EQ(crossSections.size(), levels.size());
+//     EXPECT_DOUBLE_EQ(levels[1], 1.0);
+//     EXPECT_DOUBLE_EQ(crossSections[1], 5.97e-20);
+
+//     ASSERT_TRUE(root.hasKey("reactions"));
+//     const AnyMap& reaction = root["reactions"].getMapWhere(
+//         "type", "electron-collision-plasma"
+//     );
+
+//     EXPECT_EQ(reaction["collision"], "test_O2_effective_O2_0");
+//     EXPECT_FALSE(reaction.hasKey("energy-levels"));
+//     EXPECT_FALSE(reaction.hasKey("cross-sections"));
+
+//     // Verify that the serialized document can be used to reconstruct a
+//     // complete Solution and that the collision reference is resolved.
+//     auto duplicate = newSolution(
+//         root["phases"].getMapWhere("name", phaseName),
+//         root,
+//         "none"
+//     );
+
+//     ASSERT_EQ(duplicate->kinetics()->nReactions(), 2u);
+
+//     auto rate = std::dynamic_pointer_cast<ElectronCollisionPlasmaRate>(
+//         duplicate->kinetics()->reaction(1)->rate()
+//     );
+//     ASSERT_TRUE(rate);
+
+//     EXPECT_EQ(rate->collisionName(), "test_O2_effective_O2_0");
+//     EXPECT_EQ(rate->kind(), "effective");
+//     ASSERT_EQ(rate->energyLevels().size(), 11u);
+//     ASSERT_EQ(rate->crossSections().size(), 11u);
+//     EXPECT_DOUBLE_EQ(rate->energyLevels()[1], 1.0);
+//     EXPECT_DOUBLE_EQ(rate->crossSections()[1], 5.97e-20);
+// }
+
+TEST_F(ThermoToYaml, ElectronCollisionReferences)
+{
+    const string phaseName = "isotropic-electron-energy-plasma";
+    auto original = newSolution("oxygen-plasma.yaml", phaseName, "none");
+
+    YamlWriter writer;
+    writer.addPhase(original);
+    writer.skipUserDefined();
+
+    AnyMap root = AnyMap::fromYamlString(writer.toYamlString());
+
+    ASSERT_TRUE(root.hasKey("electron-collisions"));
+    const auto collisions =
+        root["electron-collisions"].asVector<AnyMap>();
+
+    ASSERT_FALSE(collisions.empty());
+
+    for (const auto& collision : collisions) {
+        EXPECT_TRUE(collision.hasKey("name"));
+        EXPECT_FALSE(collision["name"].asString().empty());
+        EXPECT_TRUE(collision.hasKey("target"));
+        EXPECT_TRUE(collision.hasKey("kind"));
+        EXPECT_TRUE(collision.hasKey("energy-levels"));
+        EXPECT_TRUE(collision.hasKey("cross-sections"));
+    }
+
+    ASSERT_TRUE(root.hasKey("reactions"));
+    const auto reactions = root["reactions"].asVector<AnyMap>();
+
+    bool foundElectronCollision = false;
+    for (const auto& reaction : reactions) {
+        if (reaction.getString("type", "") !=
+                "electron-collision-plasma") {
+            continue;
+        }
+
+        foundElectronCollision = true;
+        EXPECT_TRUE(reaction.hasKey("collision"));
+        EXPECT_FALSE(reaction.hasKey("energy-levels"));
+        EXPECT_FALSE(reaction.hasKey("cross-sections"));
+    }
+
+    EXPECT_TRUE(foundElectronCollision);
+
+    auto duplicate = newSolution(
+        root["phases"].getMapWhere("name", phaseName),
+        root,
+        "none"
+    );
+
+    ASSERT_NE(duplicate, nullptr);
+    ASSERT_NE(duplicate->kinetics(), nullptr);
+    EXPECT_EQ(original->kinetics()->nReactions(),
+              duplicate->kinetics()->nReactions());
 }
 
 

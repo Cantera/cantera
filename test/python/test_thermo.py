@@ -1378,17 +1378,6 @@ class TestPlasmaPhase:
         phase.isotropic_shape_factor = 1.0
         return phase
 
-    @property
-    def collision_data(self):
-        return {
-            "equation": "O2 + E => E + O2",
-            "type": "electron-collision-plasma",
-            "energy-levels": [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
-            "cross-sections": [0.0, 3.83e-20, 4.47e-20, 4.79e-20, 5.07e-20, 5.31e-20,
-                               5.49e-20, 5.64e-20, 5.77e-20, 5.87e-20, 5.97e-20],
-            "duplicate": True,
-        }
-
     def test_converting_electron_energy_to_temperature(self, phase):
         phase.mean_electron_energy = 1.0
         Te = 2.0 / 3.0 * ct.electron_charge / ct.boltzmann
@@ -1456,28 +1445,35 @@ class TestPlasmaPhase:
         corr_factor = (phase.mean_temperature / phase.T )**2
         assert phase.elastic_power_loss * corr_factor == approx(2865540)
 
-    def test_elastic_power_loss_replace_rate(self, phase):
-        phase.TPX = 1000, ct.one_atm, "O2:1, E:1e-5"
-        rate = ct.ReactionRate.from_dict(self.collision_data)
-        phase.reaction(1).rate = rate
-        # Since `elasticPowerLoss` involves two multiplications with the concentration
-        # of species, and since now it is computed as C=P/(R * <T>), we need to apply a
-        # correction factor to get back the value that was obtained with C=P/(R * T),
-        # i.e. C_old = C_new * (<T>/T), and q_ela_old = q_ela_new * (C_old/C_new)^2.
-        corr_factor = (phase.mean_temperature / phase.T )**2
-        assert phase.elastic_power_loss * corr_factor == approx(11765800095)
+    @staticmethod
+    def electron_collision_reaction(phase):
+        for index in range(phase.n_reactions):
+            reaction = phase.reaction(index)
+            if reaction.rate.type == "electron-collision-plasma":
+                return index, reaction
+        raise AssertionError("No electron-collision-plasma reaction found")
 
-    def test_elastic_power_loss_add_reaction(self, phase):
-        phase2 = ct.Solution(thermo="plasma", kinetics="bulk",
-                             species=phase.species(), reactions=[])
-        phase.TPX = 1000, ct.one_atm, "O2:1, E:1e-5"
-        phase.add_reaction(ct.Reaction.from_dict(self.collision_data, phase))
-        # Since `elasticPowerLoss` involves two multiplications with the concentration
-        # of species, and since now it is computed as C=P/(R * <T>), we need to apply a
-        # correction factor to get back the value that was obtained with C=P/(R * T),
-        # i.e. C_old = C_new * (<T>/T), and q_ela_old = q_ela_new * (C_old/C_new)^2.
-        corr_factor = (phase.mean_temperature / phase.T )**2
-        assert phase.elastic_power_loss * corr_factor == approx(18612132428)
+    def test_electron_collision_reference(self, phase):
+        _, reaction = self.electron_collision_reaction(phase)
+        rate_data = reaction.rate.input_data
+
+        assert rate_data["type"] == "electron-collision-plasma"
+        assert isinstance(rate_data["collision"], str)
+        assert rate_data["collision"]
+        assert "energy-levels" not in rate_data
+        assert "cross-sections" not in rate_data
+
+    def test_adding_collision_reference_does_not_duplicate_collision(self, phase):
+        phase.TPX = 1000.0, ct.one_atm, "O2:1, E:1e-5"
+        expected = phase.elastic_power_loss
+
+        _, reaction = self.electron_collision_reaction(phase)
+        reaction_data = reaction.input_data
+        reaction_data["duplicate"] = True
+
+        phase.add_reaction(ct.Reaction.from_dict(reaction_data, phase))
+
+        assert phase.elastic_power_loss == approx(expected)
 
     def test_elastic_power_loss_change_levels(self, phase):
         phase.electron_energy_levels = np.linspace(0,10,101)
@@ -1698,6 +1694,129 @@ class TestPlasmaPhase:
     def test_vibrational_reservoir_invalid_mapping(self, phase_name, message):
         with pytest.raises(ct.CanteraError, match=message):
             ct.Solution("vibrational-relaxation.yaml", phase_name)
+
+    @staticmethod
+    def collision_test_yaml(momentum_kind):
+        levels = ", ".join(str(value) for value in range(21))
+        elastic = ", ".join(["2.0e-20"] * 21)
+        inelastic = ", ".join(["0.0", "0.0"] + ["1.0e-20"] * 19)
+
+        if momentum_kind == "effective":
+            momentum = ", ".join(["2.0e-20", "2.0e-20"] + ["3.0e-20"] * 19)
+        elif momentum_kind == "elastic":
+            momentum = elastic
+        else:
+            raise ValueError(f"Unexpected collision kind: {momentum_kind}")
+
+        return f"""
+        phases:
+        - name: plasma
+          thermo: plasma
+          kinetics: bulk
+          elements: [O, E]
+          species: [E, O2, O2_excited]
+          reactions: all
+          electron-energy-distribution:
+            type: Boltzmann-two-term
+            energy-levels: [{levels}]
+
+        species:
+        - name: E
+          composition: {{E: 1}}
+          thermo:
+            model: constant-cp
+            h0: 0.0 J/kmol
+            s0: 0.0 J/kmol/K
+            cp0: 20786.0 J/kmol/K
+
+        - name: O2
+          composition: {{O: 2}}
+          thermo:
+            model: constant-cp
+            h0: 0.0 J/kmol
+            s0: 0.0 J/kmol/K
+            cp0: 30000.0 J/kmol/K
+
+        - name: O2_excited
+          composition: {{O: 2}}
+          thermo:
+            model: constant-cp
+            h0: 0.0 J/kmol
+            s0: 0.0 J/kmol/K
+            cp0: 30000.0 J/kmol/K
+
+        reactions:
+        - equation: O2 + E => O2_excited + E
+          type: electron-collision-plasma
+          collision: O2-excitation
+
+        electron-collisions:
+        - name: O2-momentum-transfer
+          target: O2
+          kind: {momentum_kind}
+          energy-levels: [{levels}]
+          cross-sections: [{momentum}]
+
+        - name: O2-excitation
+          target: O2
+          product: O2_excited
+          kind: excitation
+          threshold: 2.0
+          energy-levels: [{levels}]
+          cross-sections: [{inelastic}]
+        """
+
+    @staticmethod
+    def solve_collision_test(yaml):
+        phase = ct.Solution(yaml=yaml, transport_model=None)
+        phase.TPX = (
+            300.0,
+            ct.one_atm,
+            "O2:1, O2_excited:0, E:1e-10",
+        )
+        phase.reduced_electric_field = 200.0e-21
+        phase.update_electron_energy_distribution()
+
+        return (np.array(phase.electron_energy_levels),
+            np.array(phase.electron_energy_distribution),
+            phase.elastic_power_loss)
+
+    def test_effective_cross_section_equivalent_to_decomposition(self):
+        effective = self.solve_collision_test(self.collision_test_yaml("effective"))
+        decomposed = self.solve_collision_test(self.collision_test_yaml("elastic"))
+
+        effective_grid, effective_eedf, effective_loss = effective
+        elastic_grid, elastic_eedf, elastic_loss = decomposed
+        assert effective_grid == approx(elastic_grid)
+        assert effective_eedf == approx(elastic_eedf, rel=1e-8, abs=1e-12)
+        assert effective_loss == approx(elastic_loss, rel=1e-8)
+
+    def test_unknown_electron_collision_reference(self):
+        yaml = self.collision_test_yaml("effective").replace(
+            "collision: O2-excitation",
+            "collision: undefined-collision")
+        with pytest.raises(ct.CanteraError, match="undefined-collision"):
+            ct.Solution(yaml=yaml, transport_model=None)
+
+    def test_duplicate_electron_collision_name(self):
+        yaml = self.collision_test_yaml("effective") + """
+        - name: O2-momentum-transfer
+          target: O2
+          kind: elastic
+          energy-levels: [0.0, 1.0]
+          cross-sections: [1.0e-20, 1.0e-20]
+        """
+        with pytest.raises(ct.CanteraError, match="Duplicate electron-collision definition"):
+            ct.Solution(yaml=yaml, transport_model=None)
+
+    def test_missing_electron_collision_name(self):
+        yaml = self.collision_test_yaml("effective").replace(
+            "- name: O2-momentum-transfer\n"
+            "          target: O2",
+            "- target: O2",
+        )
+        with pytest.raises(ct.CanteraError, match="name"):
+            ct.Solution(yaml=yaml, transport_model=None)
 
 class TestImport:
     """
