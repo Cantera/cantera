@@ -426,6 +426,12 @@ protected:
                                span<const double> fpts, double below_value,
                                double above_value);
 
+    //! Linearly interpolate a cross section, returning zero outside its
+    //! tabulated energy range.
+    double interpolateCrossSection(double energy,
+                                span<const double> energyLevels,
+                                span<const double> crossSections);
+
     //! The threshold in reduced electric field [townsend, Td] below which no EEDF will
     //! be computed, but a Maxwellian at the gas temperature will be imposed instead.
     double m_thresholdToMaxwellian = 1;

@@ -243,6 +243,14 @@ double EEDFTwoTermApproximation::linearInterpBounded(
     return linearInterp(x, xpts, fpts);
 }
 
+double EEDFTwoTermApproximation::interpolateCrossSection(
+    double energy, span<const double> energyLevels,
+    span<const double> crossSections)
+{
+    return linearInterpBounded(
+        energy, energyLevels, crossSections, 0.0, 0.0);
+}
+
 void EEDFTwoTermApproximation::projectPreviousEEDFOnCurrentGrid(
     const Eigen::VectorXd& oldGridCenter, const Eigen::VectorXd& oldF0)
 {
@@ -773,12 +781,12 @@ void EEDFTwoTermApproximation::calculateTotalCrossSection()
 
         for (size_t i = 0; i < m_points; i++) {
             m_totalCrossSectionCenter[i] += moleFraction *
-                linearInterp(m_gridCenter[i], levels, sections);
+                interpolateCrossSection(m_gridCenter[i], levels, sections);
         }
 
         for (size_t i = 0; i < m_points + 1; i++) {
             m_totalCrossSectionEdge[i] += moleFraction *
-                linearInterp(m_gridEdge[i], levels, sections);
+                interpolateCrossSection(m_gridEdge[i], levels, sections);
         }
     }
 }
@@ -813,8 +821,7 @@ void EEDFTwoTermApproximation::calculateTotalElasticCrossSection()
         for (size_t i = 0; i < m_points; i++) {
             const double energy = m_gridEdge[i];
 
-            double elasticCrossSection =
-                linearInterp(energy, levels, sections);
+            double elasticCrossSection = interpolateCrossSection(energy, levels, sections);
 
             if (rate->kind() == "effective") {
                 // By definition:
@@ -832,7 +839,7 @@ void EEDFTwoTermApproximation::calculateTotalElasticCrossSection()
                     auto inelasticRate =
                         m_phase->collisionRate(kInelastic);
 
-                    elasticCrossSection -= linearInterp(
+                    elasticCrossSection -= interpolateCrossSection(
                         energy,
                         inelasticRate->energyLevels(),
                         inelasticRate->crossSections());
@@ -976,7 +983,7 @@ void EEDFTwoTermApproximation::setGridCache()
         nodes.resize(std::distance(nodes.begin(), last));
         vector<double> sigma0(nodes.size());
         for (size_t i = 0; i < nodes.size(); i++) {
-            sigma0[i] = linearInterp(nodes[i], x, y);
+            sigma0[i] = interpolateCrossSection(nodes[i], x, y);
         }
 
         // search position of cell j

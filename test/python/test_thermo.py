@@ -1717,8 +1717,8 @@ class TestPlasmaPhase:
                 "            energy-levels-spacing: linear\n"
                 "            energy-grid-adaptation:\n"
                 "              enabled: true\n"
-                "              min-decay-decades: 1000.0\n"
-                "              max-decay-decades: 1001.0\n"
+                "              min-decay-decades: 1e-12\n"
+                "              max-decay-decades: 2e-12\n"
                 "              update-factor: 0.25\n"
                 "              max-iterations: 3"
             )
@@ -1826,9 +1826,9 @@ class TestPlasmaPhase:
         assert len(matching) == 1
         assert "interval [" in str(matching[0].message)
 
-        # The deliberately unreachable decay target forces all three internal
+        # The deliberately tiny decay window forces all three internal
         # grid-adaptation iterations during the first user-requested solve.
-        assert phase.electron_energy_levels[-1] == approx(39.0625)
+        assert phase.electron_energy_levels[-1] == approx(10.24)
         first_max_energy = phase.electron_energy_levels[-1]
 
         # Change the field to ensure that this is a real second EEDF solve. The
@@ -1837,7 +1837,7 @@ class TestPlasmaPhase:
         phase.reduced_electric_field = 300.0e-21
         phase.update_electron_energy_distribution()
 
-        assert phase.electron_energy_levels[-1] > first_max_energy
+        assert phase.electron_energy_levels[-1] < first_max_energy
         assert not any(
             warning_text in str(item.message) for item in recwarn
         )
