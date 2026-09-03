@@ -414,6 +414,10 @@ void PlasmaPhase::updateElectronEnergyDistribution()
             m_electronEnergyDist = asVectorXd(m_eedfSolver->getEEDFEdge());
             m_nPoints = m_electronEnergyLevels.size();
             electronEnergyLevelChanged();
+
+            // Keep the electron temperature consistent with the EEDF returned by
+            // the Boltzmann solver.
+            updateElectronTemperatureFromEnergyDist();
         } else {
             throw CanteraError("PlasmaPhase::updateElectronEnergyDistribution",
                 "Call to calculateDistributionFunction failed.");
