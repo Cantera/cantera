@@ -89,3 +89,68 @@ jobs:
             echo ":exclamation: Merge https://github.com/Cantera/cantera-example-data/pull/${DATA_PR} and update the submodule commit before merging this PR" >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
+  submodule-versions:
+    name: Check for submodule downgrades
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v7
+        name: Checkout the repository
+        with:
+          fetch-depth: 0
+          submodules: false
+          persist-credentials: false
+
+      # Submodules are occasionally downgraded by accident, usually by contributors who
+      # ran `git add .` / `git add -A` without first updating their submodules. GitHub's
+      # PR diff view doesn't clearly call this out, so check explicitly whether the new
+      # submodule commit is actually an ancestor of the old one.
+      - name: Check that submodules are not downgraded
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          ZERO_SHA="0000000000000000000000000000000000000000"
+          RETCODE=0
+
+          while IFS= read -r -d '' meta && IFS= read -r -d '' path; do
+            new_mode=$(echo "$meta" | cut -d' ' -f2)
+            old_sha=$(echo "$meta" | cut -d' ' -f3)
+            new_sha=$(echo "$meta" | cut -d' ' -f4)
+
+            # Only interested in gitlink (submodule) entries that changed commit
+            [ "$new_mode" = "160000" ] || continue
+            [ "$old_sha" = "$new_sha" ] && continue
+            [ "$old_sha" = "$ZERO_SHA" ] && continue  # submodule added
+            [ "$new_sha" = "$ZERO_SHA" ] && continue  # submodule removed
+
+            name=$(git config -f .gitmodules --get-regexp '^submodule\..*\.path$' \
+                     | awk -v p="$path" '$2 == p {print $1}' \
+                     | sed -E 's/^submodule\.(.*)\.path$/\1/')
+            url=$(git config -f .gitmodules --get "submodule.${name}.url")
+
+            echo "Checking submodule '${path}': ${old_sha} -> ${new_sha}"
+
+            tmp=$(mktemp -d)
+            git init -q --bare "${tmp}/repo.git"
+            if ! git -C "${tmp}/repo.git" fetch -q "$url" "$old_sha" "$new_sha" 2>/dev/null; then
+              # Some hosts (e.g. GitLab) don't allow fetching arbitrary commits by
+              # SHA, so fall back to fetching all branches/tags instead.
+              git -C "${tmp}/repo.git" fetch -q "$url" \
+                '+refs/heads/*:refs/remotes/origin/*' '+refs/tags/*:refs/tags/*' || true
+            fi
+
+            if git -C "${tmp}/repo.git" cat-file -e "$old_sha" 2>/dev/null && \
+               git -C "${tmp}/repo.git" cat-file -e "$new_sha" 2>/dev/null; then
+              if git -C "${tmp}/repo.git" merge-base --is-ancestor "$new_sha" "$old_sha" && \
+                 ! git -C "${tmp}/repo.git" merge-base --is-ancestor "$old_sha" "$new_sha"; then
+                echo "::error::Submodule '${path}' is being downgraded from ${old_sha} to ${new_sha}"
+                RETCODE=1
+              fi
+            else
+              echo "::warning::Could not fetch commit history for submodule '${path}' from ${url}; skipping downgrade check"
+            fi
+            rm -rf "${tmp}"
+          done < <(git diff --raw -z --diff-filter=AMD "$BASE_SHA" "$HEAD_SHA")
+
+          exit $RETCODE
