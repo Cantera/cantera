@@ -1696,17 +1696,34 @@ class TestPlasmaPhase:
             ct.Solution("vibrational-relaxation.yaml", phase_name)
 
     @staticmethod
-    def collision_test_yaml(momentum_kind):
+    def collision_test_yaml(momentum_kind, *, negative_elastic=False, adapt_grid=False):
         levels = ", ".join(str(value) for value in range(21))
         elastic = ", ".join(["2.0e-20"] * 21)
         inelastic = ", ".join(["0.0", "0.0"] + ["1.0e-20"] * 19)
 
         if momentum_kind == "effective":
-            momentum = ", ".join(["2.0e-20", "2.0e-20"] + ["3.0e-20"] * 19)
+            high_energy_value = "9.9e-21" if negative_elastic else "3.0e-20"
+            momentum = ", ".join(
+                ["2.0e-20", "2.0e-20"] + [high_energy_value] * 19)
         elif momentum_kind == "elastic":
             momentum = elastic
         else:
             raise ValueError(f"Unexpected collision kind: {momentum_kind}")
+
+        if adapt_grid:
+            grid_definition = (
+                "            initial-max-energy-level: 20.0\n"
+                "            grid-cell-count: 20\n"
+                "            energy-levels-spacing: linear\n"
+                "            energy-grid-adaptation:\n"
+                "              enabled: true\n"
+                "              min-decay-decades: 1000.0\n"
+                "              max-decay-decades: 1001.0\n"
+                "              update-factor: 0.25\n"
+                "              max-iterations: 3"
+            )
+        else:
+            grid_definition = f"            energy-levels: [{levels}]"
 
         return f"""
         phases:
@@ -1718,7 +1735,7 @@ class TestPlasmaPhase:
           reactions: all
           electron-energy-distribution:
             type: Boltzmann-two-term
-            energy-levels: [{levels}]
+{grid_definition}
 
         species:
         - name: E
@@ -1791,6 +1808,40 @@ class TestPlasmaPhase:
         assert effective_eedf == approx(elastic_eedf, rel=1e-8, abs=1e-12)
         assert effective_loss == approx(elastic_loss, rel=1e-8)
 
+    def test_negative_elastic_warning_only_on_first_solve(self, recwarn):
+        yaml = self.collision_test_yaml(
+            "effective", negative_elastic=True, adapt_grid=True)
+        phase = ct.Solution(yaml=yaml, transport_model=None)
+        phase.TPX = 300.0, ct.one_atm, "O2:1, O2_excited:0, E:1e-10"
+        phase.reduced_electric_field = 200.0e-21
+
+        warning_text = "Reconstructed elastic cross section for target 'O2'"
+        with pytest.warns(UserWarning, match=warning_text) as caught:
+            phase.update_electron_energy_distribution()
+
+        matching = [
+            item for item in caught
+            if warning_text in str(item.message)
+        ]
+        assert len(matching) == 1
+        assert "interval [" in str(matching[0].message)
+
+        # The deliberately unreachable decay target forces all three internal
+        # grid-adaptation iterations during the first user-requested solve.
+        assert phase.electron_energy_levels[-1] == approx(39.0625)
+        first_max_energy = phase.electron_energy_levels[-1]
+
+        # Change the field to ensure that this is a real second EEDF solve. The
+        # negative reconstructed cross section must no longer issue a warning.
+        recwarn.clear()
+        phase.reduced_electric_field = 300.0e-21
+        phase.update_electron_energy_distribution()
+
+        assert phase.electron_energy_levels[-1] > first_max_energy
+        assert not any(
+            warning_text in str(item.message) for item in recwarn
+        )
+
     def test_unknown_electron_collision_reference(self):
         yaml = self.collision_test_yaml("effective").replace(
             "collision: O2-excitation",
@@ -1817,6 +1868,8 @@ class TestPlasmaPhase:
         )
         with pytest.raises(ct.CanteraError, match="name"):
             ct.Solution(yaml=yaml, transport_model=None)
+
+    
 
 class TestImport:
     """

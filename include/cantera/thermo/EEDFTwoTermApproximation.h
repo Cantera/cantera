@@ -369,6 +369,14 @@ protected:
     //! First call to calculateDistributionFunction
     bool m_first_call;
 
+    //! Flags indicating whether a negative reconstructed elastic cross-section warning
+    //! has been emitted for each species during the first EEDF calculation.
+    vector<bool> m_negativeElasticCrossSectionWarningsIssued;
+
+    //! Enable negative reconstructed elastic cross-section warnings during the first
+    //! EEDF calculation only.
+    bool m_negativeElasticCrossSectionWarningsEnabled = true;
+
     //! Energy grid spacing type. Can be linear, quadratic or geometric.
     string m_gridType = "linear";
 
