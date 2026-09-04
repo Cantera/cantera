@@ -1869,7 +1869,6 @@ class TestPlasmaPhase:
         with pytest.raises(ct.CanteraError, match="name"):
             ct.Solution(yaml=yaml, transport_model=None)
 
-    
 
 class TestImport:
     """

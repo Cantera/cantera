@@ -48,7 +48,7 @@ bool ElectronCollisionPlasmaData::update(const ThermoPhase& phase, const Kinetic
 void ElectronCollisionPlasmaRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
 {
     ReactionRate::setParameters(node, rate_units);
-    
+
     if (!node.hasKey("collision")) {
         throw InputFileError("ElectronCollisionPlasmaRate::setParameters", node,
             "Electron-collision reactions require a named 'collision' reference. "

@@ -155,7 +155,7 @@ public:
     void getParameters(AnyMap& phaseNode) const override;
     void setParameters(const AnyMap& phaseNode,
                        const AnyMap& rootNode=AnyMap()) override;
-    
+
     //! Return the named electron-collision definitions used by this phase.
     /*!
      * The returned map associates each collision name with its root-level
