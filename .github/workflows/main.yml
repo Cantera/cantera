@@ -312,9 +312,9 @@ jobs:
         LIB_STDCXX=$(ldconfig -p | grep libstdc++.so.6 | awk '{print $4}' | head -n 1)
         echo "LD_PRELOAD=$LIB_STDCXX" >> $GITHUB_ENV
     - name: Set up MATLAB
-      uses: matlab-actions/setup-matlab@a0180c939fb1a28de13f44f7b778b912384ced1f # v3.0.1
+      uses: matlab-actions/setup-matlab@f9e43010f1ae678f7cfa0542fe2a4f60f7d1ad8d # v3.1.0
     - name: Build MATLAB C++ Interface
-      uses: matlab-actions/run-command@bcd446a219949c24051c1d04a4b4e0274c42f23b # v3.2.0
+      uses: matlab-actions/run-command@bfa857648f4895aa98a446fe41c85e0788421ed5 # v3.3.0
       env:
         CANTERA_ROOT: ${{ github.workspace }}
         CANTERA_DATA: ${{ github.workspace }}/data
@@ -327,7 +327,7 @@ jobs:
           addpath(genpath(ctToolboxDir));
           ct.buildInterface(ctToolboxDir, ctIncludeDir, ctLibDir);
     - name: Test the MATLAB interface and generate coverage report
-      uses: matlab-actions/run-command@bcd446a219949c24051c1d04a4b4e0274c42f23b # v3.2.0
+      uses: matlab-actions/run-command@bfa857648f4895aa98a446fe41c85e0788421ed5 # v3.3.0
       env:
         CANTERA_ROOT: ${{ github.workspace }}
         CANTERA_DATA: ${{ github.workspace }}/data
@@ -496,7 +496,7 @@ jobs:
             gh pr checkout --repo Cantera/cantera-example-data $DATA_PR
           fi
       - name: Set up micromamba
-        uses: mamba-org/setup-micromamba@ce51e99f4bb8a82ab7158c4dc59ef4634c59c4f9 # v3.1.0
+        uses: mamba-org/setup-micromamba@f457c30a868e4760d3a6fcea5f25dc655b8edf39 # v3.2.1
         with:
           environment-name: test-env
           create-args: >-
@@ -521,7 +521,7 @@ jobs:
       - name: Build Cantera
         run: scons build -j4 debug=n optimize=y use_pch=n
       - name: Set up Julia
-        uses: julia-actions/setup-julia@4c0cb0fce8556fdb04a90347310e5db8b1f98fb9 # v2.7.0
+        uses: julia-actions/setup-julia@fa02766e078afaaf09b14210362cee14137e6a32 # v3.0.2
         with:
           version: '1'
       - name: Build documentation
@@ -631,7 +631,7 @@ jobs:
           submodules: recursive
           persist-credentials: false
       - name: Set up Pixi
-        uses: prefix-dev/setup-pixi@a09b6247153796b190642a2b53fac4241043cf6f # v0.10.0
+        uses: prefix-dev/setup-pixi@d3f436a425481402e6a95a1d1fc10331c708cd9e # v0.10.2
       - name: Build Pyodide wheel
         run: |
           pixi run -e pyodide scons pyodide-wheel
@@ -836,7 +836,7 @@ jobs:
           submodules: recursive
           persist-credentials: false
       - name: Set up micromamba
-        uses: mamba-org/setup-micromamba@ce51e99f4bb8a82ab7158c4dc59ef4634c59c4f9 # v3.1.0
+        uses: mamba-org/setup-micromamba@f457c30a868e4760d3a6fcea5f25dc655b8edf39 # v3.2.1
         with:
           environment-name: test-env
           # See https://github.com/conda-forge/boost-cpp-feedstock/issues/41 for why we
@@ -900,7 +900,7 @@ jobs:
         submodules: recursive
         persist-credentials: false
     - name: Set up micromamba
-      uses: mamba-org/setup-micromamba@ce51e99f4bb8a82ab7158c4dc59ef4634c59c4f9 # v3.1.0
+      uses: mamba-org/setup-micromamba@f457c30a868e4760d3a6fcea5f25dc655b8edf39 # v3.2.1
       with:
         environment-name: test-env
         # See https://github.com/conda-forge/boost-cpp-feedstock/issues/41 for why we
@@ -1176,7 +1176,7 @@ jobs:
       with:
         python-version: "3.12"
     - name: Install library dependencies with micromamba (Windows)
-      uses: mamba-org/setup-micromamba@ce51e99f4bb8a82ab7158c4dc59ef4634c59c4f9 # v3.1.0
+      uses: mamba-org/setup-micromamba@f457c30a868e4760d3a6fcea5f25dc655b8edf39 # v3.2.1
       with:
         environment-name: test-env
         # fmt needs to match the version of the windows-2022 runner selected to upload
@@ -1297,7 +1297,7 @@ jobs:
       with:
         python-version: "3.12"
     - name: Install library dependencies with micromamba (Windows)
-      uses: mamba-org/setup-micromamba@ce51e99f4bb8a82ab7158c4dc59ef4634c59c4f9 # v3.1.0
+      uses: mamba-org/setup-micromamba@f457c30a868e4760d3a6fcea5f25dc655b8edf39 # v3.2.1
       with:
         environment-name: test-env
         create-args: >-
@@ -1384,11 +1384,11 @@ jobs:
         echo "C:\Users\runneradmin\micromamba\envs\test-env\Library\bin" >> $env:GITHUB_PATH
       if: matrix.os == 'windows-2022'
     - name: Set up MATLAB
-      uses: matlab-actions/setup-matlab@a0180c939fb1a28de13f44f7b778b912384ced1f # v3.0.1
+      uses: matlab-actions/setup-matlab@f9e43010f1ae678f7cfa0542fe2a4f60f7d1ad8d # v3.1.0
       with:
         release: ${{ matrix.release }}
     - name: Build MATLAB C++ Interface
-      uses: matlab-actions/run-command@bcd446a219949c24051c1d04a4b4e0274c42f23b # v3.2.0
+      uses: matlab-actions/run-command@bfa857648f4895aa98a446fe41c85e0788421ed5 # v3.3.0
       with:
         command: |
           disp("MATLAB version: " + version);
@@ -1399,6 +1399,6 @@ jobs:
           addpath(genpath(ctToolboxDir));
           ct.buildInterface(ctToolboxDir, ctIncludeDir, ctLibDir);
     - name: Run tests
-      uses: matlab-actions/run-tests@ae0e80cb44fdec28d35d0831d8acf38ee4fdf91a # v3.2.0
+      uses: matlab-actions/run-tests@83e368e0b18d9c0c7d510fd911d546e16b73bbdb # v3.2.1
       with:
         select-by-folder: test/matlab
