@@ -1686,76 +1686,153 @@ class Testlxcat2yaml:
             mechFile = self.test_data_path / mechFile
         if output is None:
             output = Path(inputFile).stem  # strip '.xml'
-        # output to work dir
-        output = self.test_work_path / output
 
+        output = self.test_work_path / output
         lxcat2yaml.convert(inputFile, database, mechFile, phase, insert, output)
         return output
 
+    @staticmethod
+    def get_collision(data, target, kind):
+        """Return the unique collision matching a target and collision kind."""
+        matches = [
+            collision
+            for collision in data["electron-collisions"]
+            if collision["target"] == target
+            and collision["kind"] == kind
+        ]
+        assert len(matches) == 1
+        return matches[0]
+
     def test_mechanism_with_lxcat(self):
-        # get Solution from the mechanism file
         phase = "isotropic-electron-energy-plasma"
-        mechFile = "lxcat-test-convert.yaml"
-        gas1 = ct.Solution(self.test_data_path / mechFile,
-                           phase=phase, transport_model=None)
+        mech_file = "lxcat-test-convert.yaml"
 
-        # get a stand-alone collisions
-        standAloneFile = "stand-alone-lxcat.yaml"
-        self.convert(inputFile='lxcat-test-convert.xml', database="test",
-                     mechFile=mechFile, insert=False,
-                     output=standAloneFile)
+        # Verify that the initial mechanism already uses the named-collision
+        # format and can be loaded by Cantera.
+        gas1 = ct.Solution(self.test_data_path / mech_file, phase=phase, transport_model=None)
+        assert gas1.n_reactions == 2
 
-        # add collisions to the reaction list
-        rxn_list = ct.Reaction.list_from_file(self.test_work_path / standAloneFile,
-                                       gas1, section="collisions")
-        for R in rxn_list:
-            gas1.add_reaction(R)
+        # Convert the LXCat data while using the mechanism only as a species
+        # filter. CO2 collisions must be excluded because CO2 is not present
+        # in the selected phase.
+        stand_alone_file = self.convert(
+            inputFile="lxcat-test-convert.xml",
+            database="test",
+            mechFile=mech_file,
+            phase=phase,
+            insert=False,
+            output="stand-alone-lxcat.yaml",
+        )
+        stand_alone = load_yaml(stand_alone_file)
+        assert len(stand_alone["electron-collisions"]) == 2
+        assert len(stand_alone["reactions"]) == 2
+        assert {collision["target"] for collision in stand_alone["electron-collisions"]} == {"O2"}
+        assert {collision["kind"] for collision in stand_alone["electron-collisions"]} == {"ionization", "attachment"}
+        collision_names = {collision["name"] for collision in stand_alone["electron-collisions"]}
 
-        # get Solution from the output file
-        output = "output-lxcat.yaml"
-        self.convert(inputFile="lxcat-test-convert.xml", database="test",
-                     mechFile=mechFile, insert=True,
-                     output=output)
-        gas2 = ct.Solution(self.test_work_path / output,
-                           phase=phase, transport_model=None)
+        for reaction in stand_alone["reactions"]:
+            assert reaction["type"] == "electron-collision-plasma"
+            assert reaction["collision"] in collision_names
 
-        # check number of reactions
-        assert gas1.n_reactions == gas2.n_reactions == 4
-        for i in range(1, gas1.n_reactions):
-            assert (gas1.reaction(i).rate.energy_levels
-                    == approx(gas2.reaction(i).rate.energy_levels))
-            assert (gas1.reaction(i).rate.cross_sections
-                    == approx(gas2.reaction(i).rate.cross_sections))
+        # Insert the same converted data into the complete mechanism.
+        output = self.convert(
+            inputFile="lxcat-test-convert.xml",
+            database="test",
+            mechFile=mech_file,
+            phase=phase,
+            insert=True,
+            output="output-lxcat.yaml",
+        )
+        output_data = load_yaml(output)
+        # One effective collision was already present, and the converter adds
+        # ionization and attachment.
+        assert len(output_data["electron-collisions"]) == 3
+        names = [collision["name"] for collision in output_data["electron-collisions"]]
+        assert len(names) == len(set(names))
+
+        electron_reactions = [reaction for reaction in output_data["reactions"]
+            if reaction.get("type") == "electron-collision-plasma"]
+        assert len(electron_reactions) == 3
+        for reaction in electron_reactions:
+            assert "collision" in reaction
+            assert reaction["collision"] in names
+
+        # Loading the generated mechanism verifies that all references can be
+        # resolved and that the collision data reach the reaction rates.
+        gas2 = ct.Solution(output, phase=phase, transport_model=None)
+        assert gas2.n_reactions == gas1.n_reactions + 2
+        assert gas2.n_reactions == 4
+        plasma_reactions = [gas2.reaction(i) for i in range(gas2.n_reactions)
+            if gas2.reaction(i).reaction_type == "electron-collision-plasma"]
+        assert len(plasma_reactions) == 3
+        ionization = next(reaction for reaction in plasma_reactions
+            if "O2(Total-Ionization)+" in reaction.products)
+        attachment = next(reaction for reaction in plasma_reactions
+            if "O2-" in reaction.products)
+        assert ionization.rate.energy_levels == approx([15.0, 20.0])
+        assert ionization.rate.cross_sections == approx([0.0, 5.5e-22])
+        assert attachment.rate.energy_levels == approx([0.0, 1.0])
+        assert attachment.rate.cross_sections == approx([0.0, 1.0e-22])
 
     def test_stand_alone_lxcat(self):
-        outfile = "stand-alone-lxcat-without-mech.yaml"
-        self.convert(inputFile='lxcat-test-convert.xml',
-                     database="test", insert=False,
-                     output=outfile)
+        outfile = self.convert(
+            inputFile="lxcat-test-convert.xml",
+            database="test",
+            insert=False,
+            output="stand-alone-lxcat-without-mech.yaml",
+        )
+        data = load_yaml(outfile)
+        assert "electron-collisions" in data
+        assert "reactions" in data
+        collisions = data["electron-collisions"]
+        reactions = data["reactions"]
 
-        # get Solution from the input file
-        phase = "isotropic-electron-energy-plasma"
-        inputFile = "lxcat-test-convert-species.yaml"
-        gas = ct.Solution(self.test_data_path / inputFile,
-                           phase=phase, transport_model=None)
+        # The XML contains four collision data sets:
+        # - CO2 elastic
+        # - CO2 ionization
+        # - O2 ionization
+        # - O2 attachment
+        assert len(collisions) == 4
 
-        # add collisions to the reaction list
-        rxn_list = ct.Reaction.list_from_file(self.test_work_path / outfile,
-                                              gas, section="collisions")
+        # Only inelastic chemical processes generate reactions.
+        assert len(reactions) == 3
 
-        # verify the data
-        assert len(rxn_list) == 3
-        assert rxn_list[0].equation == "CO2 + e => CO2 + e"
-        assert rxn_list[0].reaction_type == "electron-collision-plasma"
-        assert rxn_list[0].rate.energy_levels == approx([0.0, 1.0])
-        assert rxn_list[0].rate.cross_sections == approx([0.0, 1.0e-22])
+        names = [collision["name"] for collision in collisions]
+        assert len(names) == len(set(names))
 
-        assert rxn_list[1].equation == "O2 + e => O2(Total-Ionization)+ + 2 e"
-        assert rxn_list[1].reaction_type == "electron-collision-plasma"
-        assert rxn_list[1].rate.energy_levels == approx([15., 20.])
-        assert rxn_list[1].rate.cross_sections == approx([0.0, 5.5e-22])
+        referenced_names = {reaction["collision"] for reaction in reactions}
+        inelastic_names = {collision["name"] for collision in collisions
+            if collision["kind"] not in {"elastic", "effective"}}
 
-        assert rxn_list[2].equation == "O2 + e => O2-"
-        assert rxn_list[2].reaction_type == "electron-collision-plasma"
-        assert rxn_list[2].rate.energy_levels == approx([0.0, 1.0])
-        assert rxn_list[2].rate.cross_sections == approx([0.0, 1.0e-22])
+        # Every generated reaction references exactly one named inelastic
+        # collision. Elastic/effective collisions remain EEDF-only data.
+        assert referenced_names == inelastic_names
+
+        for reaction in reactions:
+            assert reaction["type"] == "electron-collision-plasma"
+            assert "energy-levels" not in reaction
+            assert "cross-sections" not in reaction
+
+        co2_elastic = self.get_collision(data, "CO2", "elastic")
+        assert co2_elastic["threshold"] == approx(0.0)
+        assert co2_elastic["energy-levels"] == approx([0.0, 1.0])
+        assert co2_elastic["cross-sections"] == approx([0.0, 1.0e-22])
+        assert co2_elastic["name"] not in referenced_names
+
+        co2_ionization = self.get_collision(data, "CO2", "ionization")
+        assert co2_ionization["product"] == "CO2(Total-Ionization)+"
+        assert co2_ionization["threshold"] == approx(15.0)
+        assert co2_ionization["energy-levels"] == approx([15.0, 20.0])
+        assert co2_ionization["cross-sections"] == approx([0.0, 5.5e-22])
+
+        o2_ionization = self.get_collision(data, "O2", "ionization")
+        assert o2_ionization["product"] == "O2(Total-Ionization)+"
+        assert o2_ionization["threshold"] == approx(15.0)
+        assert o2_ionization["energy-levels"] == approx([15.0, 20.0])
+        assert o2_ionization["cross-sections"] == approx([0.0, 5.5e-22])
+
+        o2_attachment = self.get_collision(data, "O2", "attachment")
+        assert o2_attachment["product"] == "O2-"
+        assert o2_attachment["threshold"] == approx(0.0)
+        assert o2_attachment["energy-levels"] == approx([0.0, 1.0])
+        assert o2_attachment["cross-sections"] == approx([0.0, 1.0e-22])

@@ -2500,27 +2500,22 @@ def electron_reaction_data(request, setup_electron_reaction_tests):
 
 @pytest.mark.usefixtures("electron_reaction_data")
 class TestElectronCollisionPlasmaReaction(ReactionTests):
-    # This test only test the data input and output but not evaluating the reaction
-    # rate. The rate evaluation is tested in kineticsFromYaml.cpp because plasma
-    # reaction rate is much complicated and depends on electron energy distribution
-    # function.
+    # Electron-collision rates reference cross-section data stored in the
+    # root-level electron-collisions section. The tests below verify rate
+    # construction, serialization, and evaluation in a plasma phase that
+    # provides the referenced collision definition.
     _rate_cls = ct.ElectronCollisionPlasmaRate
     _equation = "O2 + E <=> E + O2"
     _rate = {
-        "equation": "O2 + E <=> E + O2",
         "type": "electron-collision-plasma",
-        "energy-levels": [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0],
-        "cross-sections": [0.0, 5.97e-20, 6.45e-20, 6.74e-20, 6.93e-20, 7.2e-20,
-                          7.52e-20, 7.86e-20, 8.21e-20, 8.49e-20, 8.8e-20]
-        }
+        "collision": "O2-effective",
+    }
     _index = 1
     _rate_type = "electron-collision-plasma"
     _yaml = """
         equation: O2 + E <=> E + O2
         type: electron-collision-plasma
-        energy-levels: [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
-        cross-sections: [0.0, 5.97e-20, 6.45e-20, 6.74e-20, 6.93e-20, 7.2e-20,
-                        7.52e-20, 7.86e-20, 8.21e-20, 8.49e-20, 8.8e-20]
+        collision: O2-effective
         """
     _phase_def = """
     phases:
@@ -2535,23 +2530,73 @@ class TestElectronCollisionPlasmaReaction(ReactionTests):
         energy-levels: [0.0, 0.1, 1.0, 10.0]
         distribution: [0.0, 0.2, 0.7, 0.01]
         normalize: False
+
+    electron-collisions:
+    - name: O2-effective
+      target: O2
+      kind: effective
+      energy-levels: [0.0, 1.0, 2.0, 3.0, 4.0, 5.0,
+                      6.0, 7.0, 8.0, 9.0, 10.0]
+      cross-sections: [0.0, 5.97e-20, 6.45e-20, 6.74e-20,
+                       6.93e-20, 7.2e-20, 7.52e-20, 7.86e-20,
+                       8.21e-20, 8.49e-20, 8.8e-20]
     """
     _rc_units = ct.Units("m^3 / kmol / s")
 
-    def eval_rate(self, rate):
+    def _solution_with_reaction(self, reaction):
+        # A collision reference can only be resolved by a phase containing
+        # the corresponding root-level electron-collision definition.
         gas = ct.Solution(yaml=self._phase_def)
         gas.TDY = self.soln.TDY
-        gas.add_reaction(ct.Reaction(equation=self._equation, rate=rate))
+        gas.add_reaction(reaction)
+        return gas
+
+    def eval_rate(self, rate):
+        reaction = ct.Reaction(equation=self._equation, rate=rate)
+        gas = self._solution_with_reaction(reaction)
         return gas.forward_rate_constants[0]
+
+    def check_rxn(self, rxn):
+        # Override the generic implementation, which constructs a phase from
+        # species and reactions only and therefore cannot provide root-level
+        # electron-collision definitions.
+        original = self.soln.reaction(self._index)
+        assert rxn.reactants == original.reactants
+        assert rxn.products == original.products
+
+        gas = self._solution_with_reaction(rxn)
+        self.check_solution(gas)
+
+    def test_add_rxn(self):
+        # The generic test creates a phase without an electron-collisions
+        # section. Use the complete plasma definition required to resolve
+        # the collision reference.
+        rxn = self.from_yaml()
+        gas = self._solution_with_reaction(rxn)
+        self.check_solution(gas)
 
     @pytest.mark.skip("No rate is not supported")
     def test_no_rate(self):
         pass
 
+    def test_replace_rate(self):
+        # An electron-collision rate cannot be constructed without a named
+        # collision reference. Test replacement using two valid rate objects.
+        rxn = self.from_yaml()
+        rxn.rate = ct.ReactionRate.from_dict(self._rate)
+        self.check_rxn(rxn)
+
     def test_roundtrip(self):
-        # check round-trip instantiation via input_data
+        # Check that serialization retains the reference and does not restore
+        # the deprecated inline cross-section representation.
         rxn = self.from_rate(self._rate_obj)
         rate_input_data = dict(rxn.rate.input_data)
+
+        assert rate_input_data["type"] == "electron-collision-plasma"
+        assert rate_input_data["collision"] == "O2-effective"
+        assert "energy-levels" not in rate_input_data
+        assert "cross-sections" not in rate_input_data
+
         rate_obj = rxn.rate.__class__(input_data=rate_input_data)
         rxn2 = self.from_rate(rate_obj)
         self.check_rxn(rxn2)
