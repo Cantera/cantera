@@ -30,6 +30,9 @@
 {% endfor %}
 
 using namespace Cantera;
+{% if uses_one_d %}
+using namespace Cantera::OneD;
+{% endif %}
 
 //! @cond
 //! Cabinet type definitions will be ignored by Doxygen
