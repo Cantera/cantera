@@ -423,4 +423,3 @@ class TestFunc1UseAfterFree:
         for net in nets:
             net.advance(0)
             net.advance(1e-4)  # previously crashed with SIGSEGV here
-
