@@ -120,6 +120,7 @@ class Func1:
     def __cinit__(self, *args, **kwargs):
         self.exception = None
         self.callable = None
+        self._deps = []
 
     def __init__(self, c: _Func1Like, *args: _Any, init: bool = True) -> None:
         if init is False:
@@ -135,6 +136,9 @@ class Func1:
             cxx_func = Func1._make_cxx_func1(stringify(c), args)
             self._func = cxx_func
             self.func = cxx_func.get()
+            # Retain Python references to any Func1 args so that Python-callable
+            # based functors are not garbage-collected while this object is alive.
+            self._deps = [a for a in args if isinstance(a, Func1)]
             return
 
         try:
@@ -235,60 +239,77 @@ class Func1:
 
     @cython.cfunc
     @staticmethod
-    def _make_func1(func: shared_ptr[CxxFunc1]) -> Func1:
-        """Create Python Func1 from C++ functor."""
+    def _make_func1(func: shared_ptr[CxxFunc1], deps: list = None) -> Func1:
+        """Create Python Func1 from C++ functor.
+
+        The optional *deps* argument should be a list of any Python `Func1`
+        objects whose lifetimes must be at least as long as this object. They
+        are retained as Python references so the garbage collector does not
+        free them while the underlying C++ functor still holds raw pointers
+        into their memory (use-after-free prevention).
+        """
         out: Func1 = Func1(None, init=False)
         out._func = func
         out.func = out._func.get()
+        if deps is not None:
+            out._deps = deps
         return out
 
     def __add__(self, other: _Func1Like, /) -> Func1:
         if not isinstance(other, Func1):
             other = Func1(other)
         f1: Func1 = other
-        return Func1._make_func1(CxxNewSumFunction(self._func, f1._func))
+        return Func1._make_func1(CxxNewSumFunction(self._func, f1._func),
+                                 [self, f1])
 
     def __radd__(self, other: _Func1Like, /) -> Func1:
         if not isinstance(other, Func1):
             other = Func1(other)
         f1: Func1 = other
-        return Func1._make_func1(CxxNewSumFunction(f1._func, self._func))
+        return Func1._make_func1(CxxNewSumFunction(f1._func, self._func),
+                                 [f1, self])
 
     def __sub__(self, other: _Func1Like, /) -> Func1:
         if not isinstance(other, Func1):
             other = Func1(other)
         f1: Func1 = other
-        return Func1._make_func1(CxxNewDiffFunction(self._func, f1._func))
+        return Func1._make_func1(CxxNewDiffFunction(self._func, f1._func),
+                                 [self, f1])
 
     def __rsub__(self, other: _Func1Like, /) -> Func1:
         if not isinstance(other, Func1):
             other = Func1(other)
         f1: Func1 = other
-        return Func1._make_func1(CxxNewDiffFunction(f1._func, self._func))
+        return Func1._make_func1(CxxNewDiffFunction(f1._func, self._func),
+                                 [f1, self])
 
     def __mul__(self, other: _Func1Like, /) -> Func1:
         if not isinstance(other, Func1):
             other = Func1(other)
         f1: Func1 = other
-        return Func1._make_func1(CxxNewProdFunction(self._func, f1._func))
+        return Func1._make_func1(CxxNewProdFunction(self._func, f1._func),
+                                 [self, f1])
 
     def __rmul__(self, other: _Func1Like, /) -> Func1:
         if not isinstance(other, Func1):
             other = Func1(other)
         f1: Func1 = other
-        return Func1._make_func1(CxxNewProdFunction(f1._func, self._func))
+        return Func1._make_func1(CxxNewProdFunction(f1._func, self._func),
+                                 [f1, self])
 
     def __truediv__(self, other: _Func1Like, /) -> Func1:
         if not isinstance(other, Func1):
             other = Func1(other)
         f1: Func1 = other
-        return Func1._make_func1(CxxNewRatioFunction(self._func, f1._func))
+        return Func1._make_func1(CxxNewRatioFunction(self._func, f1._func),
+                                 [self, f1])
 
     def __rtruediv__(self, other: _Func1Like, /) -> Func1:
         if not isinstance(other, Func1):
             other = Func1(other)
         f1: Func1 = other
-        return Func1._make_func1(CxxNewRatioFunction(f1._func, self._func))
+        return Func1._make_func1(CxxNewRatioFunction(f1._func, self._func),
+                                 [f1, self])
 
     @property
     def cxx_type(self) -> str:
