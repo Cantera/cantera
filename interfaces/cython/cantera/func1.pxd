@@ -54,8 +54,9 @@ cdef class Func1:
     cdef CxxFunc1* func
     cdef object callable
     cdef object exception
+    cdef list _deps  # Python references to Func1 objects this functor depends on
     cpdef void _set_callback(self, object) except *
     @staticmethod
     cdef shared_ptr[CxxFunc1] _make_cxx_func1(string, tuple) except *
     @staticmethod
-    cdef Func1 _make_func1(shared_ptr[CxxFunc1])
+    cdef Func1 _make_func1(shared_ptr[CxxFunc1], list deps=*)
