@@ -62,7 +62,7 @@ def equilibrium_sound_speeds(gas, rtol=1.0e-6, max_iter=5000):
 if __name__ == "__main__":
     gas = ctu.Solution('gri30.yaml')
     gas.X = 'CH4:1.00, O2:2.0, N2:7.52'
-    T_range = np.linspace(80, 4880, 25) * ctu.units.degF
+    T_range = ctu.units.Quantity(np.linspace(80, 4880, 25), ctu.units.degF)
     print("Temperature      Equilibrium Sound Speed     Frozen Sound Speed      Frozen Sound Speed Check")
     for T in T_range:
         gas.TP = T, 1.0 * ctu.units.atm
