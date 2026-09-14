@@ -9,7 +9,7 @@
 #include "cantera/oneD/Domain1D.h"
 #include "cantera/base/FactoryBase.h"
 
-namespace Cantera
+namespace Cantera::OneD
 {
 
 class Flow1D;

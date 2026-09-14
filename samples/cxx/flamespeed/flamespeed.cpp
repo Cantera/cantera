@@ -56,7 +56,7 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
 
         //-------- step 1: create the flow -------------
 
-        auto flow = newDomain<Flow1D>("gas-flow", sol, "flow");
+        auto flow = OneD::newFlow1D("gas-flow", sol, "flow");
         flow->setFreeFlow();
 
         // create an initial grid
@@ -73,7 +73,7 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
 
         //------- step 2: create the inlet  -----------------------
 
-        auto inlet = newDomain<Inlet1D>("inlet", sol);
+        auto inlet = OneD::newDomain<OneD::Inlet1D>("inlet", sol);
 
         inlet->setMoleFractions(x);
         double mdot = uin * rho_in;
@@ -82,12 +82,12 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
 
         //------- step 3: create the outlet  ---------------------
 
-        auto outlet = newDomain<Outlet1D>("outlet", sol);
+        auto outlet = OneD::newDomain<OneD::Outlet1D>("outlet", sol);
 
         //=================== create the container and insert the domains =====
 
-        vector<shared_ptr<Domain1D>> domains { inlet, flow, outlet };
-        Sim1D flame(domains);
+        vector<shared_ptr<OneD::Domain1D>> domains { inlet, flow, outlet };
+        OneD::Sim1D flame(domains);
 
         //----------- Supply initial guess----------------------
 

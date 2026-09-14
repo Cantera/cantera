@@ -6,9 +6,9 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/oneD/Sim1D.h"
-#include "cantera/oneD/MultiJac.h"
+#include "cantera/numerics/MultiJac.h"
 #include "cantera/oneD/Flow1D.h"
-#include "cantera/oneD/MultiNewton.h"
+#include "cantera/numerics/MultiNewton.h"
 #include "cantera/oneD/refine.h"
 #include "cantera/numerics/funcs.h"
 #include "cantera/base/stringUtils.h"
@@ -19,7 +19,7 @@
 
 using namespace std;
 
-namespace Cantera
+namespace Cantera::OneD
 {
 
 Sim1D::Sim1D(span<const shared_ptr<Domain1D>> domains) :

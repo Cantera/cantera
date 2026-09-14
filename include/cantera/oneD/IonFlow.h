@@ -8,7 +8,7 @@
 
 #include "cantera/oneD/Flow1D.h"
 
-namespace Cantera
+namespace Cantera::OneD
 {
 /**
  * This class models the ion transportation in a flame. There are three

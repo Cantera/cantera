@@ -15,7 +15,7 @@
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "Flow1D.h"
 
-namespace Cantera
+namespace Cantera::OneD
 {
 
 //! Unique identifier for the left inlet.

@@ -12,13 +12,13 @@ from .thermo cimport *
 from .jacobians cimport *
 
 
-cdef extern from "cantera/oneD/DomainFactory.h" namespace "Cantera":
-    cdef shared_ptr[CxxDomain1D] CxxNewDomain1D "newDomain" (
+cdef extern from "cantera/oneD/DomainFactory.h":
+    cdef shared_ptr[CxxDomain1D] CxxNewDomain1D "Cantera::OneD::newDomain" (
         string, shared_ptr[CxxSolution], string) except +translate_exception
 
 
 cdef extern from "cantera/oneD/Domain1D.h":
-    cdef cppclass CxxDomain1D "Cantera::Domain1D":
+    cdef cppclass CxxDomain1D "Cantera::OneD::Domain1D":
         size_t domainIndex()
         size_t nComponents()
         size_t nPoints()
@@ -60,7 +60,7 @@ cdef extern from "cantera/oneD/Domain1D.h":
 
 
 cdef extern from "cantera/oneD/Boundary1D.h":
-    cdef cppclass CxxBoundary1D "Cantera::Boundary1D" (CxxDomain1D):
+    cdef cppclass CxxBoundary1D "Cantera::OneD::Boundary1D" (CxxDomain1D):
         double temperature()
         void setTemperature(double)
         double mdot()
@@ -72,14 +72,14 @@ cdef extern from "cantera/oneD/Boundary1D.h":
         double spreadRate()
         void setSpreadRate(double)
 
-    cdef cppclass CxxReactingSurf1D "Cantera::ReactingSurf1D" (CxxBoundary1D):
+    cdef cppclass CxxReactingSurf1D "Cantera::OneD::ReactingSurf1D" (CxxBoundary1D):
         CxxReactingSurf1D()
         void enableCoverageEquations(cbool) except +translate_exception
         cbool coverageEnabled()
 
 
 cdef extern from "cantera/oneD/Flow1D.h":
-    cdef cppclass CxxFlow1D "Cantera::Flow1D" (CxxDomain1D):
+    cdef cppclass CxxFlow1D "Cantera::OneD::Flow1D" (CxxDomain1D):
         void setTransportModel(const string&) except +translate_exception
         string transportModel()
         void setPressure(double)
@@ -117,7 +117,7 @@ cdef extern from "cantera/oneD/Sim1D.h":
     cdef shared_ptr[CxxSim1D] CxxNewSim1D "newSim1D" (
         vector[shared_ptr[CxxDomain1D]]&) except +translate_exception
 
-    cdef cppclass CxxSim1D "Cantera::Sim1D":
+    cdef cppclass CxxSim1D "Cantera::OneD::Sim1D":
         CxxSim1D(vector[shared_ptr[CxxDomain1D]]&) except +translate_exception
         void setProfile(size_t, size_t, vector[double]&, vector[double]&) except +translate_exception
         void show() except +translate_exception
