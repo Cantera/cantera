@@ -124,6 +124,7 @@ _SpeciesThermoInput = TypedDict(
         "model": Required[str],
         "temperature-ranges": list[float],
         "data": _ThermoPolyType,
+        "reference-pressure": float,
     },
     total=False,
 )
