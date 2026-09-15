@@ -155,6 +155,16 @@ public:
     void getParameters(AnyMap& phaseNode) const override;
     void setParameters(const AnyMap& phaseNode,
                        const AnyMap& rootNode=AnyMap()) override;
+
+    //! Return the named electron-collision definitions used by this phase.
+    /*!
+     * The returned map associates each collision name with its root-level
+     * YAML definition.
+     */
+    const map<string, AnyMap>& electronCollisionDefinitions() const {
+        return m_electronCollisionDefinitions;
+    }
+
     //! @}
     //! @name Electron Species Information
     //! @{
@@ -281,6 +291,14 @@ public:
     const shared_ptr<ElectronCollisionPlasmaRate> collisionRate(size_t i) const {
         return m_collisionRates[i];
     }
+
+    //! Return whether a named electron-collision definition exists.
+    bool hasElectronCollisionDefinition(const string& name) const {
+        return m_electronCollisionDefinitions.count(name);
+    }
+
+    //! Return a named electron-collision definition.
+    const AnyMap& electronCollisionDefinition(const string& name) const;
 
     //! Update the electron energy distribution.
     void updateElectronEnergyDistribution();
@@ -1063,6 +1081,12 @@ private:
     //! A function to check that vibrational reservoir species
     //! are not at risk to hinder phase chemistry.
     void checkVibrationalReservoirMoleFractions();
+
+    //! Root-level named electron-collision definitions.
+    map<string, AnyMap> m_electronCollisionDefinitions;
+
+    //! Names of collision definitions already registered with the EEDF solver.
+    set<string> m_registeredElectronCollisionNames;
 };
 
 }

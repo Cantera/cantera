@@ -13,7 +13,9 @@
 #include "cantera/numerics/funcs.h"
 #include "cantera/thermo/PlasmaPhase.h"
 #include "cantera/kinetics/ElectronCollisionPlasmaRate.h"
+#include <iomanip>
 #include <numbers>
+#include <sstream>
 
 namespace Cantera
 {
@@ -177,6 +179,7 @@ int EEDFTwoTermApproximation::calculateDistributionFunction()
 {
     if (m_first_call) {
         initSpeciesIndexCrossSections();
+        m_negativeElasticCrossSectionWarningsIssued.assign(m_phase->nSpecies(), false);
         m_first_call = false;
     }
 
@@ -212,6 +215,11 @@ int EEDFTwoTermApproximation::calculateDistributionFunction()
 
     // update electron mobility
     m_electronMobility = electronMobility(m_f0);
+
+    // Warnings are diagnostic information for the initial calculation only. Keep them
+    // disabled for every subsequent user-requested EEDF update.
+    m_negativeElasticCrossSectionWarningsEnabled = false;
+
     return 0;
 }
 
@@ -233,6 +241,14 @@ double EEDFTwoTermApproximation::linearInterpBounded(
     }
 
     return linearInterp(x, xpts, fpts);
+}
+
+double EEDFTwoTermApproximation::interpolateCrossSection(
+    double energy, span<const double> energyLevels,
+    span<const double> crossSections)
+{
+    return linearInterpBounded(
+        energy, energyLevels, crossSections, 0.0, 0.0);
 }
 
 void EEDFTwoTermApproximation::projectPreviousEEDFOnCurrentGrid(
@@ -737,35 +753,195 @@ void EEDFTwoTermApproximation::calculateTotalCrossSection()
 {
     m_totalCrossSectionCenter.assign(m_points, 0.0);
     m_totalCrossSectionEdge.assign(m_points + 1, 0.0);
+
+    vector<bool> hasEffectiveCrossSection(
+        m_phase->nSpecies(), false);
+
+    for (size_t k : m_phase->kElastic()) {
+        if (m_phase->collisionRate(k)->kind() == "effective") {
+            hasEffectiveCrossSection[m_phase->targetIndex(k)] = true;
+        }
+    }
+
     for (size_t k = 0; k < m_phase->nCollisions(); k++) {
-        auto x = m_phase->collisionRate(k)->energyLevels();
-        auto y = m_phase->collisionRate(k)->crossSections();
+        const size_t target = m_phase->targetIndex(k);
+        const string& kind = m_phase->collisionRate(k)->kind();
+
+        // An effective cross section already contains the elastic and
+        // inelastic contributions for its target. Adding the individual
+        // inelastic channels would count them twice.
+        if (hasEffectiveCrossSection[target] && kind != "effective") {
+            continue;
+        }
+
+        auto levels = m_phase->collisionRate(k)->energyLevels();
+        auto sections = m_phase->collisionRate(k)->crossSections();
+        const double moleFraction =
+            m_X_targets[m_klocTargets[k]];
 
         for (size_t i = 0; i < m_points; i++) {
-            m_totalCrossSectionCenter[i] += m_X_targets[m_klocTargets[k]] *
-                                            linearInterp(m_gridCenter[i], x, y);
+            m_totalCrossSectionCenter[i] += moleFraction *
+                interpolateCrossSection(m_gridCenter[i], levels, sections);
         }
+
         for (size_t i = 0; i < m_points + 1; i++) {
-            m_totalCrossSectionEdge[i] += m_X_targets[m_klocTargets[k]] *
-                                          linearInterp(m_gridEdge[i], x, y);
+            m_totalCrossSectionEdge[i] += moleFraction *
+                interpolateCrossSection(m_gridEdge[i], levels, sections);
         }
     }
 }
 
 void EEDFTwoTermApproximation::calculateTotalElasticCrossSection()
 {
-    m_sigmaElastic.clear();
-    m_sigmaElastic.resize(m_points, 0.0);
+    m_sigmaElastic.assign(m_points, 0.0);
+
+    struct NegativeCrossSectionSample {
+        size_t gridIndex;
+        double value;
+    };
+
+    // Negative reconstructed values are collected first so that diagnostics can be
+    // emitted once per target instead to avoid the spam once per energy-grid point.
+    vector<vector<NegativeCrossSectionSample>> negativeSamples(
+        m_phase->nSpecies());
+
     for (size_t k : m_phase->kElastic()) {
-        auto x = m_phase->collisionRate(k)->energyLevels();
-        auto y = m_phase->collisionRate(k)->crossSections();
-        // Note:
-        // moleFraction(m_kTargets[k]) <=> m_X_targets[m_klocTargets[k]]
-        double mass_ratio = ElectronMass / (m_phase->molecularWeight(m_kTargets[k]) / Avogadro);
+        auto rate = m_phase->collisionRate(k);
+        auto levels = rate->energyLevels();
+        auto sections = rate->crossSections();
+
+        const size_t target = m_phase->targetIndex(k);
+        const double massRatio =
+            ElectronMass /
+            (m_phase->molecularWeight(target) / Avogadro);
+
+        const double moleFraction =
+            m_X_targets[m_klocTargets[k]];
+
         for (size_t i = 0; i < m_points; i++) {
-            m_sigmaElastic[i] += 2.0 * mass_ratio * m_X_targets[m_klocTargets[k]] *
-                                 linearInterp(m_gridEdge[i], x, y);
+            const double energy = m_gridEdge[i];
+
+            double elasticCrossSection = interpolateCrossSection(energy, levels, sections);
+
+            if (rate->kind() == "effective") {
+                // By definition:
+                //
+                // effective = elastic momentum transfer
+                //           + sum(forward inelastic cross sections)
+                //
+                // Reconstruct the elastic contribution directly on the EEDF
+                // grid to avoid interpolation through an intermediate grid.
+                for (size_t kInelastic : m_phase->kInelastic()) {
+                    if (m_phase->targetIndex(kInelastic) != target) {
+                        continue;
+                    }
+
+                    auto inelasticRate =
+                        m_phase->collisionRate(kInelastic);
+
+                    elasticCrossSection -= interpolateCrossSection(
+                        energy,
+                        inelasticRate->energyLevels(),
+                        inelasticRate->crossSections());
+                }
+
+                if (elasticCrossSection < 0.0) {
+                    negativeSamples[target].push_back({i, elasticCrossSection});
+                }
+            }
+
+            m_sigmaElastic[i] +=
+                2.0 * massRatio * moleFraction *
+                elasticCrossSection;
         }
+    }
+    // the function already performed its main job, the following is to emit
+    // readable diagnostics to the user instead of spamming the log
+    // with one warning per negqtive grid point.
+    for (size_t target = 0; target < negativeSamples.size(); target++) {
+        auto& samples = negativeSamples[target];
+        if (samples.empty() || !m_negativeElasticCrossSectionWarningsEnabled
+            || m_negativeElasticCrossSectionWarningsIssued[target]) {
+            continue;
+        }
+
+        // More than one effective data set for the same target is normally rejected
+        // by PlasmaPhase. Sort and merge duplicate grid indices defensively, retaining
+        // the most negative reconstructed value at each point.
+        std::sort(samples.begin(), samples.end(),
+            [](const auto& left, const auto& right) {
+                return left.gridIndex < right.gridIndex;
+            });
+
+        vector<NegativeCrossSectionSample> uniqueSamples;
+        uniqueSamples.reserve(samples.size());
+
+        for (const auto& sample : samples) {
+            if (!uniqueSamples.empty()
+                && uniqueSamples.back().gridIndex == sample.gridIndex) {
+                uniqueSamples.back().value = std::min(
+                    uniqueSamples.back().value, sample.value);
+            } else {
+                uniqueSamples.push_back(sample);
+            }
+        }
+
+        std::ostringstream details;
+        details << std::setprecision(8);
+
+        size_t first = 0;
+        size_t regionCount = 0;
+
+        while (first < uniqueSamples.size()) {
+            size_t last = first;
+            size_t minimum = first;
+
+            // Consecutive negative grid points form one negative interval.
+            while (last + 1 < uniqueSamples.size()
+                && uniqueSamples[last + 1].gridIndex
+                    == uniqueSamples[last].gridIndex + 1) {
+                last++;
+
+                if (uniqueSamples[last].value < uniqueSamples[minimum].value) {
+                    minimum = last;
+                }
+            }
+
+            if (regionCount > 0) {
+                details << "; ";
+            }
+
+            const size_t firstIndex = uniqueSamples[first].gridIndex;
+            const size_t lastIndex = uniqueSamples[last].gridIndex;
+            const size_t minimumIndex = uniqueSamples[minimum].gridIndex;
+
+            if (first == last) {
+                // A single isolated negative grid point.
+                details << "point " << m_gridEdge[firstIndex] << " eV"
+                        << " (sigma_el = " << uniqueSamples[first].value
+                        << " m^2)";
+            } else {
+                // Two or more consecutive negative points.
+                details << "interval [" << m_gridEdge[firstIndex] << ", "
+                        << m_gridEdge[lastIndex] << "] eV"
+                        << " (" << last - first + 1
+                        << " grid points; minimum sigma_el = "
+                        << uniqueSamples[minimum].value
+                        << " m^2 at " << m_gridEdge[minimumIndex] << " eV)";
+            }
+
+            regionCount++;
+            first = last + 1;
+        }
+
+        warn_user("EEDFTwoTermApproximation::"
+            "calculateTotalElasticCrossSection",
+            "Reconstructed elastic cross section for target '{}' is negative at {}. "
+            "The effective cross section is smaller than the sum of the inelastic "
+            "cross sections over these energies; the input data are inconsistent "
+            "with the LXCat definition of an effective cross section.",
+            m_phase->speciesName(target), details.str());
+        m_negativeElasticCrossSectionWarningsIssued[target] = true;
     }
 }
 
@@ -807,7 +983,7 @@ void EEDFTwoTermApproximation::setGridCache()
         nodes.resize(std::distance(nodes.begin(), last));
         vector<double> sigma0(nodes.size());
         for (size_t i = 0; i < nodes.size(); i++) {
-            sigma0[i] = linearInterp(nodes[i], x, y);
+            sigma0[i] = interpolateCrossSection(nodes[i], x, y);
         }
 
         // search position of cell j

@@ -304,6 +304,19 @@ void PlasmaPhase::setElectronEnergyDistributionParameters(const AnyMap& eedf)
     }
 }
 
+const AnyMap& PlasmaPhase::electronCollisionDefinition(
+    const string& name) const
+{
+    auto iter = m_electronCollisionDefinitions.find(name);
+
+    if (iter == m_electronCollisionDefinitions.end()) {
+        throw CanteraError("PlasmaPhase::electronCollisionDefinition",
+            "Unknown electron-collision definition '{}'.", name);
+    }
+
+    return iter->second;
+}
+
 void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
 {
     IdealGasPhase::setParameters(phaseNode, rootNode);
@@ -318,25 +331,67 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
             phaseNode["vibrational-reservoir-species-mapping"].asMap<string>();
     }
 
+    m_electronCollisionDefinitions.clear();
+
     if (rootNode.hasKey("electron-collisions")) {
-        for (const auto& item : rootNode["electron-collisions"].asVector<AnyMap>()) {
-            auto rate = make_shared<ElectronCollisionPlasmaRate>(item);
-            Composition reactants, products;
-            reactants[item["target"].asString()] = 1;
-            reactants[electronSpeciesName()] = 1;
-            if (item.hasKey("product")) {
-                products[item["product"].asString()] = 1;
+        const auto definitions =
+            rootNode["electron-collisions"].asVector<AnyMap>();
+
+        // Store all definitions before constructing standalone EEDF
+        // collisions, so reaction references can be resolved independently
+        // of declaration order.
+        for (const auto& item : definitions) {
+            if (!item.hasKey("name")) {
+                throw InputFileError("PlasmaPhase::setParameters", item,
+                    "Every entry in 'electron-collisions' requires a unique "
+                    "'name'.");
+            }
+
+            const string name = item["name"].asString();
+
+            if (name.empty()) {
+                throw InputFileError("PlasmaPhase::setParameters", item,
+                    "Electron-collision definition names cannot be empty.");
+            }
+
+            if (m_electronCollisionDefinitions.count(name)) {
+                throw InputFileError("PlasmaPhase::setParameters", item,
+                    "Duplicate electron-collision definition '{}'.", name);
+            }
+
+            m_electronCollisionDefinitions.emplace(name, item);
+        }
+
+        // Every definition contributes to the EEDF, even if no chemical
+        // reaction references it.
+        for (const auto& item : definitions) {
+            auto rate = make_shared<ElectronCollisionPlasmaRate>();
+            rate->applyCollisionData(item);
+
+            Composition reactants;
+            Composition products;
+
+            reactants[rate->target()] = 1.0;
+            reactants[electronSpeciesName()] = 1.0;
+
+            if (!rate->product().empty()) {
+                products[rate->product()] = 1.0;
             } else {
-                products[item["target"].asString()] = 1;
+                products[rate->target()] = 1.0;
             }
-            products[electronSpeciesName()] = 1;
+
+            products[electronSpeciesName()] = 1.0;
+
             if (rate->kind() == "ionization") {
-                products[electronSpeciesName()] += 1;
+                products[electronSpeciesName()] += 1.0;
             } else if (rate->kind() == "attachment") {
-                products[electronSpeciesName()] -= 1;
+                products.erase(electronSpeciesName());
             }
-            auto R = make_shared<Reaction>(reactants, products, rate);
-            addCollision(R);
+
+            auto collision =
+                make_shared<Reaction>(reactants, products, rate);
+
+            addCollision(collision);
         }
     }
 }
@@ -359,6 +414,10 @@ void PlasmaPhase::updateElectronEnergyDistribution()
             m_electronEnergyDist = asVectorXd(m_eedfSolver->getEEDFEdge());
             m_nPoints = m_electronEnergyLevels.size();
             electronEnergyLevelChanged();
+
+            // Keep the electron temperature consistent with the EEDF returned by
+            // the Boltzmann solver.
+            updateElectronTemperatureFromEnergyDist();
         } else {
             throw CanteraError("PlasmaPhase::updateElectronEnergyDistribution",
                 "Call to calculateDistributionFunction failed.");
@@ -580,6 +639,29 @@ void PlasmaPhase::setCollisions()
 
 void PlasmaPhase::addCollision(shared_ptr<Reaction> collision)
 {
+    // avoid duplications
+    auto rate = std::dynamic_pointer_cast<ElectronCollisionPlasmaRate>(
+        collision->rate());
+
+    if (!rate) {
+        throw CanteraError("PlasmaPhase::addCollision",
+            "Reaction '{}' does not contain an ElectronCollisionPlasmaRate.",
+            collision->equation());
+    }
+
+    if (!rate->hasCrossSectionData()) {
+        throw CanteraError("PlasmaPhase::addCollision",
+            "Electron collision '{}' has no tabulated cross-section data.",
+            rate->collisionName());
+    }
+
+    // Root definitions are registered first. A chemical reaction referencing
+    // the same definition must not add a duplicate EEDF collision.
+    if (m_registeredElectronCollisionNames.count(rate->collisionName())) {
+        return;
+    }
+
+    // Count the number of collisions
     size_t i = nCollisions();
 
     // setup callback to signal updating the cross-section-related
@@ -605,9 +687,16 @@ void PlasmaPhase::addCollision(shared_ptr<Reaction> collision)
             " collision with equation '{}'", collision->equation());
     }
 
+    // Check that the target species in the "synthetic" reaction matches the target species
+    if (target != rate->target()) {
+        throw CanteraError("PlasmaPhase::addCollision",
+            "Electron collision '{}' targets '{}', but reaction '{}' uses '{}'.",
+            rate->collisionName(), rate->target(),
+            collision->equation(), target);
+    }
+
     m_collisions.emplace_back(collision);
-    m_collisionRates.emplace_back(
-        std::dynamic_pointer_cast<ElectronCollisionPlasmaRate>(collision->rate()));
+    m_collisionRates.emplace_back(rate);
     m_interp_cs_ready.emplace_back(false);
 
     // resize parameters
@@ -615,8 +704,7 @@ void PlasmaPhase::addCollision(shared_ptr<Reaction> collision)
     updateInterpolatedCrossSection(i);
 
     // Set up data used by Boltzmann solver
-    auto& rate = *m_collisionRates.back();
-    string kind = m_collisionRates.back()->kind();
+    string kind = rate->kind();
 
     if ((kind == "effective" || kind == "elastic")) {
         for (size_t k = 0; k < m_collisions.size() - 1; k++) {
@@ -633,9 +721,14 @@ void PlasmaPhase::addCollision(shared_ptr<Reaction> collision)
         m_kInelastic.push_back(i);
     }
 
-    auto levels = rate.energyLevels();
+    auto levels = rate->energyLevels();
     m_energyLevels.emplace_back(levels.begin(), levels.end());
-    auto sections = rate.crossSections();
+    auto sections = rate->crossSections();
+    m_crossSections.emplace_back(sections.begin(), sections.end());
+
+    m_registeredElectronCollisionNames.insert(rate->collisionName());
+    m_eedfSolver->setGridCache();
+
     m_crossSections.emplace_back(sections.begin(), sections.end());
     m_eedfSolver->setGridCache();
 }
@@ -743,10 +836,28 @@ double PlasmaPhase::elasticPowerLoss()
     updateElasticElectronEnergyLossCoefficients();
     // The elastic power loss includes the contributions from inelastic
     // collisions (inelastic recoil effects).
+
+    vector<bool> hasEffectiveCrossSection(nSpecies(), false);
+
+    for (size_t k : m_kElastic) {
+        if (m_collisionRates[k]->kind() == "effective") {
+            hasEffectiveCrossSection[m_targetSpeciesIndices[k]] = true;
+        }
+    }
+
     double rate = 0.0;
     for (size_t i = 0; i < nCollisions(); i++) {
-        rate += concentration(m_targetSpeciesIndices[i]) *
-                m_elasticElectronEnergyLossCoefficients[i];
+        const size_t target = m_targetSpeciesIndices[i];
+        const string& kind = m_collisionRates[i]->kind();
+
+        // The effective cross section already contains all momentum-transfer
+        // contributions for this target.
+        if (hasEffectiveCrossSection[target] && kind != "effective") {
+            continue;
+        }
+
+        rate += concentration(target) *
+            m_elasticElectronEnergyLossCoefficients[i];
     }
     const double q_elastic = Avogadro * Avogadro * ElectronCharge *
                 concentration(m_electronSpeciesIndex) * rate;

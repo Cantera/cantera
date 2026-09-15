@@ -687,12 +687,12 @@ different representations are the responsibility of the mechanism author.
 ## Electron Collision Plasma Reactions
 
 The electron collision plasma reaction rate uses the electron collision data and the
-electron energy distribution to calculate the reaction rate. Hagelaar and Pitchford
+electron energy distribution to calculate the reaction rate.
 {cite:t}`hagelaar2005` define the reaction rate coefficient (Eqn. 63) as,
 
 $$  k =  \gamma \int_0^{\infty} \epsilon \sigma F_0 d\epsilon  $$
 
-where $\gamma = \sqrt{2/m_e}$ (Eqn.4 in Hagelaar {cite:t}`hagelaar2015`), $m_e$ [kg] is
+where $\gamma = \sqrt{2/m_e}$ (Eqn.4 in {cite:t}`hagelaar2015`), $m_e$ [kg] is
 the electron mass, $\epsilon$ [J] is the electron energy, $\sigma(\epsilon)$ [m²] is the
 reaction collision cross section, $F_0(\epsilon)$ [$\t{J^{-3/2}}$] is the normalized
 electron energy distribution function, and $k$ has units of [m³/s].
@@ -707,13 +707,59 @@ $$
 where $e$ is the elementary charge [C] and $N_A$ is the Avogadro constant
 [$\t{kmol^{-1}}$].
 
+### Effective and elastic cross sections
+
+For a given target species, the momentum-transfer cross section may be provided
+either as an `elastic` cross section or as an `effective` cross section. As detailed in
+{cite:t}`pancheshnyi2012`, an effective cross section already
+includes the contribution of the inelastic collision processes for the same target:
+
+$$
+\sigma_\mathrm{eff}(\epsilon)
+=
+\sigma_\mathrm{el}(\epsilon)
++
+\sum_j \sigma_{\mathrm{inel},j}(\epsilon).
+$$
+
+When an effective cross section is provided, Cantera uses it directly in the total
+momentum-transfer cross section and reconstructs the elastic contribution as
+
+$$
+\sigma_\mathrm{el}(\epsilon)
+=
+\sigma_\mathrm{eff}(\epsilon)
+-
+\sum_j \sigma_{\mathrm{inel},j}(\epsilon).
+$$
+
+When an effective cross section is available, the individual inelastic cross sections
+are therefore not added again to the total momentum-transfer cross section. This avoids
+counting their contribution twice in the electron energy distribution calculation.
+
+Cross sections are linearly interpolated over their tabulated energy range and are
+taken to be zero outside this range. If the reconstructed elastic cross section is
+negative, its value is retained and a warning identifies the affected target species
+and energy intervals during the first calculation of the electron energy distribution.
+Negative reconstructed values may indicate that the effective and inelastic
+cross-section data are not mutually consistent.
+
 ```{versionadded} 3.1
 ```
+
+:::{versionchanged} 4.0
+Cross-section data are now stored in the top-level `electron-collisions` section.
+An `electron-collision-plasma` reaction references one of these definitions using
+the `collision` field. Cross-section data can no longer be specified directly in
+the reaction entry.
+:::
 
 :::{admonition} YAML Usage
 :class: tip
 
-Electron collision reactions can be defined in the YAML format by specifying
-[`electron-collision-plasma`](sec-yaml-electron-collision-plasma) as the reaction `type`
-and providing lists with the `cross-sections` and corresponding `energy-levels`.
+Electron collision reactions are defined by specifying
+[`electron-collision-plasma`](sec-yaml-electron-collision-plasma) as the reaction
+`type`. The reaction references a named cross-section dataset from the top-level
+[`electron-collisions`](sec-yaml-electron-collisions) section using the `collision`
+field.
 :::

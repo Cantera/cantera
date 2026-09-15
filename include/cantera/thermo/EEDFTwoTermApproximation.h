@@ -369,6 +369,14 @@ protected:
     //! First call to calculateDistributionFunction
     bool m_first_call;
 
+    //! Flags indicating whether a negative reconstructed elastic cross-section warning
+    //! has been emitted for each species during the first EEDF calculation.
+    vector<bool> m_negativeElasticCrossSectionWarningsIssued;
+
+    //! Enable negative reconstructed elastic cross-section warnings during the first
+    //! EEDF calculation only.
+    bool m_negativeElasticCrossSectionWarningsEnabled = true;
+
     //! Energy grid spacing type. Can be linear, quadratic or geometric.
     string m_gridType = "linear";
 
@@ -417,6 +425,12 @@ protected:
     double linearInterpBounded(double x, span<const double> xpts,
                                span<const double> fpts, double below_value,
                                double above_value);
+
+    //! Linearly interpolate a cross section, returning zero outside its
+    //! tabulated energy range.
+    double interpolateCrossSection(double energy,
+                                span<const double> energyLevels,
+                                span<const double> crossSections);
 
     //! The threshold in reduced electric field [townsend, Td] below which no EEDF will
     //! be computed, but a Maxwellian at the gas temperature will be imposed instead.
