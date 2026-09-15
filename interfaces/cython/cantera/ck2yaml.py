@@ -207,8 +207,9 @@ class Nasa9:
         [(T_low, T_high), [a_0, a_1, ..., a_8]]
         ```
     """
-    def __init__(self, *, parser, data, note=''):
+    def __init__(self, *, parser, data, note='', ref_pressure='1 bar'):
         self.note = note
+        self.ref_pressure = ref_pressure
         self.data = list(sorted(data))
         self.Tranges = [self.data[0][0][0]]
         for i in range(1, len(data)):
@@ -222,7 +223,8 @@ class Nasa9:
     def to_yaml(cls, representer, node):
         out = BlockMap([('model', 'NASA9')])
         out['temperature-ranges'] = FlowList(node.Tranges)
-        out['reference-pressure'] = '1 bar'
+        if node.ref_pressure:
+            out['reference-pressure'] = node.ref_pressure
         out['data'] = [FlowList(poly) for (trange, poly) in node.data]
         if node.note:
             out['note'] = node.note
@@ -1085,6 +1087,13 @@ class Parser:
 
         composition = self.parse_composition(entry[1][10:50], 5, 8)
 
+        # In NASA 9-coefficient polynomial format (NASA RP-1311 / TP-2002-211556),
+        # column 52 of Card 2 designates phase: 0 for gas, >0 for condensed.
+        # Gas species have standard pressure 1 bar; condensed species use 1 atm.
+        phase_flag = entry[1][51:52].strip() if len(entry[1]) > 51 else '0'
+        is_condensed = phase_flag not in ('', '0')
+        ref_pressure = None if is_condensed else '1 bar'
+
         polys = []
         try:
             for i in range(N):
@@ -1099,7 +1108,7 @@ class Parser:
         except (IndexError, ValueError) as err:
             logger.error(self.entry("thermo entry") + str(err))
 
-        thermo = Nasa9(data=polys, note=note, parser=self)
+        thermo = Nasa9(data=polys, note=note, parser=self, ref_pressure=ref_pressure)
 
         return species, thermo, composition
 
