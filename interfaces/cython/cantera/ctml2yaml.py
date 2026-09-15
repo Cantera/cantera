@@ -1659,8 +1659,6 @@ class SpeciesThermo:
             p0 = model_node.get("P0") or model_node.get("Pref")
             if p0 is not None:
                 thermo_attribs["reference-pressure"] = float(p0)
-            else:
-                thermo_attribs["reference-pressure"] = 1.0e5
         data, temperature_ranges = self.process_polynomial(thermo, "NASA9")
         thermo_attribs["temperature-ranges"] = temperature_ranges
         thermo_attribs["data"] = data
