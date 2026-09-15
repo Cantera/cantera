@@ -1,5 +1,5 @@
 [build-system]
-requires = ["scikit-build-core", "cython @cython_version_spec@", "numpy>=2.0"]
+requires = ["scikit-build-core>=1.0.3", "cython @cython_version_spec@", "numpy>=2.0"]
 build-backend = "scikit_build_core.build"
 
 [project]
@@ -64,9 +64,10 @@ lxcat2yaml = "cantera.lxcat2yaml:main"
 [tool.scikit-build]
 logging.level = "DEBUG"
 build.verbose = true
+minimum-version = "build-system.requires"
 
 [tool.scikit-build.cmake]
-version = ">=3.27,<4"
+version = "CMakeLists.txt"
 
 [tool.scikit-build.ninja]
 version = ">=1.13"
@@ -115,7 +116,7 @@ test-command = "pytest -vv --durations=100 ${CANTERA_TEST_DIR}/test/python"
 
 [tool.cibuildwheel.windows]
 before-build = "pip install delvewheel"
-repair-wheel-command = "delvewheel repair --add-path %HDF5_LIB_DIR%;%SUNDIALS_LIB_DIR% -w {dest_dir} {wheel}"
+repair-wheel-command = "delvewheel repair --add-path %HDF5_LIB_DIR%;%SUNDIALS_LIB_DIR%;%YAML_CPP_LIB_DIR% -w {dest_dir} {wheel}"
 test-command = "pytest -vv --durations=100 %CANTERA_TEST_DIR%\\test\\python"
 
 [tool.cibuildwheel.macos]

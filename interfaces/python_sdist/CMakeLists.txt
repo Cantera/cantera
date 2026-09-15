@@ -1,7 +1,7 @@
 # Set minimum version 3.27 so that CMP0144, search for packages by upper-cased
 # environment variables will use upper-cased variables. OLD behavior is to ignore
 # upper-cased variables
-cmake_minimum_required(VERSION 3.27...3.31)
+cmake_minimum_required(VERSION 3.27...4.4)
 project(${SKBUILD_PROJECT_NAME} LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)

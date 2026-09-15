@@ -19,10 +19,12 @@ boost-cpp = ">=1.85.0,<2"
 hdf5 = ">=1.14.6,<2"
 highfive = ">=3.2.0,<4"
 sundials = ">=7.6.0,<8"
+eigen = ">=3.4.0,<6"
 fmt = ">=12.1.0,<13"
 yaml-cpp = ">=0.8.0,<0.9"
 cython = ">=3.2.4,<4"
 numpy = ">=2.4.2,<3"
+python-build = ">=1.5.0,<2"
 pip = ">=26.0.1,<27"
 wheel = ">=0.46.3,<0.47"
 setuptools = ">=82.0.0,<83"
@@ -95,7 +97,7 @@ cython = ">=3.2.4,<4"
 numpy = ">=2.4.2,<3"
 "ruamel.yaml" = ">=0.19.1,<0.20"
 pip = ">=26.0.1,<27"
-cmake = ">=3.27,<4"
+cmake = ">=3.27,<5"
 ninja = ">=1.13.2,<2"
 nodejs = ">=25.2.1,<25.8"
 # pyodide-build shells out to `make` to read Makefile.envs when initializing the
@@ -104,9 +106,9 @@ nodejs = ">=25.2.1,<25.8"
 make = ">=4.3,<5"
 
 [feature.pyodide.pypi-dependencies]
-build = ">=1.2.2.post1, <2"
-scikit-build-core = ">=0.12.1, <0.13"
-pyodide-build = ">=0.33.0, <0.34"
+build = ">=1.5.0,<2"
+scikit-build-core = ">=1.0.3,<2"
+pyodide-build = ">=0.33.0,<0.39"
 
 # Native (non-Pyodide) build of the scikit-build-core/CMake sdist wheel. Layers the
 # CMake toolchain onto the `core` dependencies so the sdist build route can be exercised
@@ -114,12 +116,12 @@ pyodide-build = ">=0.33.0, <0.34"
 # run from a shell where the MSVC toolchain is activated (e.g. via vcvars64.bat), since
 # cmake's Ninja generator needs `cl`/`link` on PATH.
 [feature.wheel.dependencies]
-cmake = ">=3.27,<4"
+cmake = ">=3.27,<5"
 ninja = ">=1.13.2,<2"
+scikit-build-core = ">=1.0.3,<2"
 
 [feature.wheel.pypi-dependencies]
-build = ">=1.2.2.post1, <2"
-scikit-build-core = ">=0.12.1, <0.13"
+build = ">=1.5.0,<2"
 
 [environments]
 default = { features = ["core", "devtools", "docs", "samples"], no-default-feature = true }
@@ -131,3 +133,6 @@ wheel = { features = ["core", "wheel"], no-default-feature = true }
 
 [feature.docs.tasks]
 docs = "scons sphinx doxygen"
+
+[feature.wheel.tasks]
+sdist = "scons sdist"

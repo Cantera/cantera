@@ -10,14 +10,16 @@ else()
   set(CT_USE_SYSTEM_HIGHFIVE 1)
 endif()
 
-set(EIGEN_VERSION 3.4.0)
+set(EIGEN_VERSION 5.0.1)
 FetchContent_Declare(
   eigen
   URL https://gitlab.com/libeigen/eigen/-/archive/${EIGEN_VERSION}/eigen-${EIGEN_VERSION}.tar.bz2
-  URL_HASH SHA256=b4c198460eba6f28d34894e3a5710998818515104d6e74e5cc331ce31e46e626
+  URL_HASH SHA256=e4de6b08f33fd8b8985d2f204381408c660bffa6170ac65b68ae1bd3cd575c0a
   # FIND_PACKAGE_ARGS has to be the last thing in this call because it greedily takes
   # everything after it to pass to `find_package()`
-  FIND_PACKAGE_ARGS NAMES Eigen3
+  # GLOBAL sets up eigen to be a target in sibling directories. Without GLOBAL the target
+  # is scoped to this directory only.
+  FIND_PACKAGE_ARGS NAMES Eigen3 GLOBAL
 )
 
 set(YAML_CPP_VERSION 0.8.0)
@@ -30,11 +32,11 @@ FetchContent_Declare(
   FIND_PACKAGE_ARGS NAMES yaml-cpp
 )
 
-set(SUNDIALS_VERSION 7.4.0)
+set(SUNDIALS_VERSION 7.8.0)
 FetchContent_Declare(
   sundials
   URL https://github.com/LLNL/sundials/releases/download/v${SUNDIALS_VERSION}/sundials-${SUNDIALS_VERSION}.tar.gz
-  URL_HASH SHA256=679ddacdd77610110e613164e8297d6d0cd35bae8e9c3afc8e8ff6f99a1c2a7b
+  URL_HASH SHA256=69ec92653e998e4841b59d363b3abf21299251991390f52917402737164ca574
   # FIND_PACKAGE_ARGS has to be the last thing in this call because it greedily takes
   # everything after it to pass to `find_package()`
   FIND_PACKAGE_ARGS NAMES SUNDIALS
@@ -47,15 +49,17 @@ FetchContent_Declare(
   URL_HASH SHA256=203eb4e8aa0d746c62d8f903df58e0419e3751591bb53ff971096eaa0ebd4ec3
   # FIND_PACKAGE_ARGS has to be the last thing in this call because it greedily takes
   # everything after it to pass to `find_package()`
+  # GLOBAL sets up fmt to be a target in sibling directories. Without GLOBAL the target
+  # is scoped to this directory only.
   FIND_PACKAGE_ARGS NAMES fmt GLOBAL
 )
 
 if(CT_USE_HDF5)
-  set(HIGHFIVE_VERSION .3.1.1)
+  set(HIGHFIVE_VERSION 3.3.0)
   FetchContent_Declare(
     HighFive
     URL https://github.com/highfive-devs/HighFive/archive/refs/tags/v${HIGHFIVE_VERSION}.tar.gz
-    URL_HASH SHA256=c0bc76b01868a133bf4550a07321923c5582fe3967edc102864b082e40799914
+    URL_HASH SHA256=325cfbcf0c0296a6dd26f3b088801b7ebb8d6f109c0565c11d2d8c4af3253bff
     # FIND_PACKAGE_ARGS has to be the last thing in this call because it greedily takes
     # everything after it to pass to `find_package()`
     FIND_PACKAGE_ARGS NAMES HighFive
@@ -85,23 +89,23 @@ set(HIGHFIVE_BUILD_DOCS OFF)
 
 # SUNDIALS build options
 set(EXAMPLES_INSTALL OFF)
-set(EXAMPLES_ENABLE_C OFF)
-set(BUILD_ARKODE OFF)
-set(BUILD_CVODE OFF)
-set(BUILD_IDA OFF)
-set(BUILD_KINSOL OFF)
-set(BUILD_CPODES OFF)
-set(BUILD_FORTRAN_MODULE_INTERFACE OFF)
+set(SUNDIALS_ENABLE_C_EXAMPLES OFF)
+set(SUNDIALS_ENABLE_ARKODE OFF)
+set(SUNDIALS_ENABLE_CVODE OFF)
+set(SUNDIALS_ENABLE_IDA OFF)
+set(SUNDIALS_ENABLE_KINSOL OFF)
+set(SUNDIALS_ENABLE_CPODES OFF)
+set(SUNDIALS_ENABLE_FORTRAN OFF)
 if(CANTERA_ENABLE_LAPACK AND "${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
-    set(ENABLE_LAPACK ON)
+    set(SUNDIALS_ENABLE_LAPACK ON)
     set(BLA_VENDOR Apple)
     set(SUNDIALS_LAPACK_CASE "LOWER")
     set(SUNDIALS_LAPACK_UNDERSCORES "NONE")
 elseif(CANTERA_ENABLE_LAPACK AND "${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
-    set(ENABLE_LAPACK ON)
+    set(SUNDIALS_ENABLE_LAPACK ON)
     set(BLA_VENDOR OpenBLAS)
 else()
-    set(ENABLE_LAPACK OFF)
+    set(SUNDIALS_ENABLE_LAPACK OFF)
 endif()
 
 # fmt build options
