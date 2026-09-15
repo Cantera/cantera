@@ -1656,7 +1656,7 @@ class SpeciesThermo:
         thermo_attribs = cast(_SpeciesThermoInput, BlockMap({"model": "NASA9"}))
         model_node = thermo.find("NASA9")
         if model_node is not None:
-            p0 = model_node.get("P0") or model_node.get("Pref")
+            p0 = model_node.get("P0")
             if p0 is not None:
                 thermo_attribs["reference-pressure"] = float(p0)
         data, temperature_ranges = self.process_polynomial(thermo, "NASA9")
