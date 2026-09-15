@@ -2939,3 +2939,21 @@ class TestSolutionArray:
         states.TP = [100,300,900,323.23], ct.one_atm
         arr2 = states[slice(0)]
         assert len(arr2.T) == 0
+
+
+class TestNASA9ReferenceState:
+    """Regression tests for issue #2129 - NASA9 reference pressure."""
+
+    def test_airNASA9_reference_pressure(self):
+        """NASA9 species in airNASA9.yaml must use 1 bar reference pressure."""
+        gas = ct.Solution("airNASA9.yaml")
+        for sp in gas.species():
+            assert sp.thermo.reference_pressure == approx(1e5)
+
+    def test_airNASA9_N2_entropy(self):
+        """N2 standard entropy must match NIST value of 191.609 J/mol/K."""
+        gas = ct.Solution("airNASA9.yaml")
+        gas.TP = 298.15, 1e5
+        idx = gas.species_index("N2")
+        S298 = gas.standard_entropies_R[idx] * ct.gas_constant / 1000  # J/mol/K
+        assert S298 == approx(191.609, abs=0.01)

@@ -222,6 +222,7 @@ class Nasa9:
     def to_yaml(cls, representer, node):
         out = BlockMap([('model', 'NASA9')])
         out['temperature-ranges'] = FlowList(node.Tranges)
+        out['reference-pressure'] = '1 bar'
         out['data'] = [FlowList(poly) for (trange, poly) in node.data]
         if node.note:
             out['note'] = node.note
