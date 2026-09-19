@@ -95,7 +95,7 @@ class TagDetails(TagInfo):
 class TagFileParser:
     """Class handling contents of Doxygen tag file."""
 
-    _known: dict[str, list[ET.Element]]  #: Dictionary of known functions and corresponding XML elements
+    _known: dict[str, list[ET.Element]]  #: functions and corresponding XML elements
 
     def __init__(self, root: str, bases: dict[str, str]) -> None:
         if Path(root).is_dir():
@@ -163,7 +163,8 @@ class TagFileParser:
                         self._known[name].append(member)
                         signatures[name].add(sig)
 
-        def get_members(compound: ET.Element, prefix: str = "") -> dict[str, list[ET.Element]]:
+        def get_members(
+                compound: ET.Element, prefix: str = "") -> dict[str, list[ET.Element]]:
             members = {}
             for member in compound.findall("member"):
                 kind = member.attrib.get("kind")
