@@ -365,7 +365,8 @@ class CLibSourceGenerator(SourceGenerator):
             # override auto-generated code
             if "reserved" in recipe.what:
                 template = loader.from_string(c_func.wraps)
-                after = template.render(cabinets=[short_name(kk) for kk in self._clib_bases if kk])
+                after = template.render(
+                    cabinets=[short_name(kk) for kk in self._clib_bases if kk])
             else:
                 after = c_func.wraps
             template = loader.from_string(self._templates["clib-custom-code"])

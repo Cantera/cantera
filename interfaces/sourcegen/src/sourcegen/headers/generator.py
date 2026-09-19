@@ -72,7 +72,8 @@ class HeaderGenerator:
             obj_handle = []
             if "::" in wraps:
                 scope = wraps.rsplit("::", 1)[0]
-                if any(scope == base or short_name(scope) == short_name(base) for base in self._clib_classes):
+                if (any(scope == base or short_name(scope) == short_name(base)
+                        for base in self._clib_classes)):
                     what = short_name(scope)
                     obj_handle.append(
                         Param("int", "handle", f"Handle to queried {what} object."))
@@ -181,7 +182,8 @@ class HeaderGenerator:
             cxx_arglen = len(cxx_member.arglist)
             if not cxx_member.base or cxx_member.base not in recipe.bases:
                 if (cxx_member.name.startswith("new") and
-                    any(base in cxx_member.ret_type or short_name(base) in cxx_member.ret_type
+                    any(base in cxx_member.ret_type or
+                        short_name(base) in cxx_member.ret_type
                         for base in [recipe.base] + list(recipe.derived.keys()))):
                     recipe.what = "constructor"
                 else:
@@ -210,7 +212,8 @@ class HeaderGenerator:
             _LOGGER.debug(msg)
             brief = f"Instantiate {recipe.base} object using default constructor."
             ret_param = Param(
-                "int32_t", "", "Object handle if successful and -1 for exception handling.")
+                "int32_t", "",
+                "Object handle if successful and -1 for exception handling.")
 
         elif recipe.name == "del":
             # Default destructor
@@ -280,8 +283,8 @@ class HeaderGenerator:
             if ret_type.endswith("char*"):
                 # string expressions require special handling
                 returns = Param(
-                    "int32_t", "", "Actual length of string including string-terminating "
-                    "null byte, \\0, or -1 for exception handling.")
+                    "int32_t", "", "Actual length of string including "
+                    "string-terminating null byte, \\0, or -1 for exception handling.")
                 ret_type = ret_type.removeprefix("const ")
                 buffer = [
                     Param("int32_t", "bufLen", "Length of reserved array.", "in"),
@@ -361,8 +364,8 @@ class HeaderGenerator:
                     params.append(
                         Param(ret_type, par.name, description.strip(), par.direction))
             else:
-                msg = f"Failed crosswalk for argument type {par_key!r}."
-                msg += " Known types: " + ", ".join(self._config.par_type_crosswalk.keys())
+                msg = f"Failed crosswalk for argument type {par_key!r}. Known types: "
+                msg += ", ".join(self._config.par_type_crosswalk.keys())
                 _LOGGER.critical(msg)
                 sys.exit(1)
         return params
