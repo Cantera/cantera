@@ -77,11 +77,12 @@ end
 # Resolved at runtime in `__init__` (below), NOT baked into the precompile image
 # — otherwise the discovered path would be frozen at precompile time and later
 # changes to CANTERA_LIBRARY_PATH would be silently ignored.  Generated `ccall`
-# wrappers dereference this Ref as `libcantera[]`.
-const libcantera = Ref{String}("libcantera")
+# wrappers name this global directly: `ccall` takes a literal or a global as the
+# library name, not an expression such as `libcantera[]`.
+global libcantera::String = "libcantera"
 
 function __init__()
-    libcantera[] = find_library()
+    global libcantera = find_library()
     return nothing
 end
 

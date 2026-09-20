@@ -5,5 +5,5 @@
 
 julia-ccall-func: |-
   function {{ name }}({{ arg_names }})
-      ccall((:{{ name }}, libcantera[]), {{ ret_type }}, {{ arg_types }}{{ call_args }})
+      ccall((:{{ name }}, libcantera), {{ ret_type }}, {{ arg_types }}{{ call_args }})
   end
