@@ -15,8 +15,8 @@
 #include "cantera/zeroD/FlowReactor.h"
 #include "cantera/numerics/SystemJacobianFactory.h"
 #include "cantera/numerics/EigenSparseJacobian.h"
-#include "cantera/oneD/MultiJac.h"
-#include "cantera/oneD/MultiNewton.h"
+#include "cantera/numerics/MultiJac.h"
+#include "cantera/numerics/MultiNewton.h"
 #include "cantera/base/global.h"
 
 #include <cstdio>

@@ -26,3 +26,17 @@ def with_unpack_iter(cls: type) -> type:
 def escape_token(text: str, token: str) -> str:
     """Escape token to prevent linking in Doxygen."""
     return sub(rf"(?<!\w){token}(?!\w)", f"%{token}", text)
+
+
+def strip_cantera(name: str) -> str:
+    """Strip 'Cantera::' from a qualified name."""
+    if name:
+        return name.replace("Cantera::", "")
+    return ""
+
+
+def short_name(name: str) -> str:
+    """Return the final component of a C++ scope/type name (stripping namespaces)."""
+    if not name:
+        return ""
+    return name.split("::")[-1]
