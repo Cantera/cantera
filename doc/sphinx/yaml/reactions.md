@@ -454,72 +454,133 @@ Example:
 ```
 
 (sec-yaml-electron-collision-plasma)=
+
 ### `electron-collision-plasma`
 
-Electron collision plasma reactions involve an electron as one of the reactants, and are
-parameterized by the collision cross section as a function of the electron energy. The
-rate calculation is [described here](sec-electron-collision-plasma-rate). The rate
-parameters are specified using the following additional fields in the reaction entry:
+Electron collision plasma reactions involve an electron and a target species as
+reactants. Their rate coefficient is calculated from the electron energy distribution
+and a named collision cross-section dataset, as
+[described here](sec-electron-collision-plasma-rate).
 
-`energy-levels`
-: A list of electron energy levels [eV]
+The reaction entry uses the following additional field:
 
-`cross-sections`
-: A list of collision cross sections [m²] for the reaction at the specified energy
-  levels.
+`collision`
+: The name of an entry in the top-level
+  [`electron-collisions`](sec-yaml-electron-collisions) section. The referenced entry
+  provides the collision kind, target species, energy levels, and cross sections.
+
+The target specified by the collision definition must match the non-electron reactant
+of the reaction. The collision `kind` must also be consistent with the reaction
+stoichiometry.
 
 Example:
 
 ```yaml
-- equation: O2 + e => e + e + O2+
+- equation: O2 + E => E + E + O2+
   type: electron-collision-plasma
-  energy-levels: [13.0, 15.5, 18, 23]
-  cross-sections: [1.17e-22, 7.3e-22, 1.64e-21, 3.66e-21]
+  collision: O2-ionization
 ```
 
 :::{versionadded} 3.1
 :::
 
+:::{versionchanged} 4.0
+Cross-section data can no longer be specified directly in an
+`electron-collision-plasma` reaction entry. The reaction must instead reference a
+named entry in the top-level `electron-collisions` section using the `collision`
+field.
+:::
+
 (sec-yaml-electron-collisions)=
+
 ### `electron-collisions`
 
-The `electron-collisions` field defines a list of cross-section datasets for
-electron-impact processes that are used in plasma-phase simulations. These entries
-are not formal reactions (they are not added to `Kinetics` objects), but serve
-as data inputs for computing the electron energy distribution function.
+The top-level `electron-collisions` section contains named electron collision
+cross-section datasets used by plasma phases. Every entry is included when calculating
+the electron energy distribution, whether or not it is referenced by a chemical
+reaction.
 
-Each entry includes:
+Entries in this section are not added to the phase's `Kinetics` object. To make a
+collision process contribute to chemical source terms, define an
+[`electron-collision-plasma`](sec-yaml-electron-collision-plasma) reaction whose
+`collision` field references the corresponding dataset.
+
+Cross-section data in this format can be generated from XML files downloaded from the
+[LXCat website](https://nl.lxcat.net/home/news.php) using the
+[`lxcat2yaml`](sec-lxcat2yaml) conversion tool.
+
+Each entry uses the following fields:
+
+`name`
+: A unique, non-empty name identifying the collision dataset.
 
 `target`
-: The name of the species that is the target of the collision
-
-`energy-levels`
-: A list of electron energy values [eV] at which the cross-section is provided
-
-`cross-sections`
-: Corresponding cross-section values [m²] for each energy level
+: The name of the species targeted by the electron collision. The target species must
+  be present in the plasma phase.
 
 `kind`
-: A string indicating the process type. Options include:
-  - `"effective"` – lumped or total effect of several channels
-  - `"excitation"` – electronic excitation
-  - `"ionization"` – electron-impact ionization
-  - `"attachment"` – electron attachment processes
+: The type of electron collision process. Supported values are:
+
+  - `effective`: An effective momentum-transfer cross section containing the elastic
+    and inelastic contributions for the target.
+  - `elastic`: An elastic momentum-transfer cross section.
+  - `excitation`: An electronic, vibrational, or rotational excitation cross section.
+  - `ionization`: An electron-impact ionization cross section.
+  - `attachment`: An electron attachment cross section.
+
+  At most one `effective` or `elastic` cross-section dataset may be defined for each
+  target species.
+
+`energy-levels`
+: A list of at least two electron energy values [eV]. Values must be finite,
+  non-negative, and strictly increasing.
+
+`cross-sections`
+: A list of collision cross sections [m²] corresponding to `energy-levels`. The two
+  lists must have the same length. Cross-section values must be finite and
+  non-negative.
+
+`product`
+: An optional description of the product or excited state produced by the collision.
+  This value does not need to correspond to a distinct species in the phase and does
+  not define the products of a chemical reaction.
+
+`threshold`
+: An optional non-negative collision threshold [eV]. If omitted or set to zero for an
+  `excitation`, `ionization`, or `attachment` process, the threshold is inferred from
+  the first energy level whose cross section is greater than zero.
 
 Example:
 
 ```yaml
 electron-collisions:
-- target: N2
-  energy-levels: [0.0, 0.015, 0.03, 0.05, 0.1, 0.15, 0.2, 0.3, 0.4, 0.7, 1.2, 1.5, 1.9,
-    2.2, 2.8, 3.3, 4.0, 5.0, 7.0, 10.0, 15.0, 20.0, 30.0, 75.0, 150.0]
-  cross-sections: [1.1e-20, 2.55e-20, 3.4e-20, 4.33e-20, 5.95e-20, 7.1e-20, 7.9e-20,
-    9e-20, 9.7e-20, 1e-19, 1.04e-19, 1.2e-19, 1.96e-19, 2.85e-19, 2.8e-19, 1.72e-19,
-    1.26e-19, 1.09e-19, 1.01e-19, 1.04e-19, 1.1e-19, 1.02e-19, 9e-20, 6.6e-20, 4.9e-20]
+- name: O2-effective
+  target: O2
   kind: effective
+  energy-levels: [0.0, 1.0, 2.0, 3.0]
+  cross-sections: [3.5e-21, 7.9e-20, 6.5e-20, 5.5e-20]
+
+- name: O2-ionization
+  target: O2
+  product: O2+
+  kind: ionization
+  threshold: 12.06
+  energy-levels: [12.06, 13.0, 18.0, 28.0]
+  cross-sections: [0.0, 2.3e-22, 2.0e-21, 7.4e-21]
 ```
 
+The `O2-effective` entry is used by the electron energy distribution solver without
+requiring a corresponding chemical reaction. The `O2-ionization` entry is additionally
+connected to the chemical mechanism by the `electron-collision-plasma` reaction shown
+above.
+
 :::{versionadded} 3.2
+:::
+
+:::{versionchanged} 4.0
+Each electron collision definition now requires a unique `name`. Electron collision
+reactions reference these definitions using the `collision` field, and tabulated
+cross-section data are stored exclusively in this section.
 :::
 
 (sec-yaml-falloff)=
