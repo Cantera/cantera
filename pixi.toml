@@ -90,25 +90,26 @@ graphviz = ">=14.1.2,<15"
 sphinx-tags = { git = "https://github.com/Cantera/sphinx-tags.git", rev = "main" }
 
 [feature.pyodide.dependencies]
-python = "3.13.*"
+python = "3.14.*"
 scons = ">=4.10.1,<5"
 boost-cpp = ">=1.85.0,<2"
 cython = ">=3.2.4,<4"
 numpy = ">=2.4.2,<3"
 "ruamel.yaml" = ">=0.19.1,<0.20"
 pip = ">=26.0.1,<27"
-cmake = ">=3.27,<5"
+cmake = ">=3.27,<4"
 ninja = ">=1.13.2,<2"
 nodejs = ">=25.2.1,<25.8"
 # pyodide-build shells out to `make` to read Makefile.envs when initializing the
 # emscripten cross-build environment. CI runners have a system make; provide it here so
 # the environment is self-contained on machines that don't.
 make = ">=4.3,<5"
+uv = ">=0.12.13"
 
 [feature.pyodide.pypi-dependencies]
-build = ">=1.5.0,<2"
-scikit-build-core = ">=1.0.3,<2"
-pyodide-build = ">=0.33.0,<0.39"
+# build = ">=1.5.0,<2"
+# scikit-build-core = ">=1.0.3,<2"
+pyodide-build = ">=0.33.0,<0.40"
 
 # Native (non-Pyodide) build of the scikit-build-core/CMake sdist wheel. Layers the
 # CMake toolchain onto the `core` dependencies so the sdist build route can be exercised

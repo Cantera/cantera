@@ -22,11 +22,11 @@ FetchContent_Declare(
   FIND_PACKAGE_ARGS NAMES Eigen3 GLOBAL
 )
 
-set(YAML_CPP_VERSION 0.8.0)
+set(YAML_CPP_VERSION 0.9.0)
 FetchContent_Declare(
   yaml-cpp
-  URL https://github.com/jbeder/yaml-cpp/archive/refs/tags/${YAML_CPP_VERSION}.tar.gz
-  URL_HASH SHA256=fbe74bbdcee21d656715688706da3c8becfd946d92cd44705cc6098bb23b3a16
+  URL https://github.com/jbeder/yaml-cpp/releases/download/yaml-cpp-${YAML_CPP_VERSION}/yaml-cpp-yaml-cpp-${YAML_CPP_VERSION}.tar.gz
+  URL_HASH SHA256=298593d9c440fd9034b8b193d96318b76d49bc97c6ceadb7b0836edf0b6d7539
   # FIND_PACKAGE_ARGS has to be the last thing in this call because it greedily takes
   # everything after it to pass to `find_package()`
   FIND_PACKAGE_ARGS NAMES yaml-cpp
@@ -106,6 +106,13 @@ elseif(CANTERA_ENABLE_LAPACK AND "${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
     set(BLA_VENDOR OpenBLAS)
 else()
     set(SUNDIALS_ENABLE_LAPACK OFF)
+endif()
+
+if(CANTERA_PYODIDE)
+  set(SUNDIALS_INDEX_SIZE 32)
+  set(SUNDIALS_INDEX_TYPE int32_t)
+  set(HAVE_size_int32_t 1)
+  set(size_int32_t 4)
 endif()
 
 # fmt build options
