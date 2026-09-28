@@ -82,6 +82,10 @@ public:
             [this](size_t k) { return R::componentName(k); });
         install("componentIndex", m_componentIndex,
             [this](const string& nm) { return R::componentIndex(nm); });
+        install("upperBound", m_upperBound,
+            [this](size_t k) { return R::upperBound(k); });
+        install("lowerBound", m_lowerBound,
+            [this](size_t k) { return R::lowerBound(k); });
         install("getJacobianElements", m_getJacobianElements,
             [this](SparseTriplets& trips) { R::getJacobianElements(trips); });
     }
@@ -130,6 +134,14 @@ public:
 
     size_t componentIndex(const string& nm) const override {
         return m_componentIndex(nm);
+    }
+
+    double upperBound(size_t k) const override {
+        return m_upperBound(k);
+    }
+
+    double lowerBound(size_t k) const override {
+        return m_lowerBound(k);
     }
 
     void getJacobianElements(SparseTriplets& trips) override {
@@ -191,6 +203,8 @@ private:
     function<void(double)> m_evalWalls;
     function<string(size_t)> m_componentName;
     function<size_t(const string&)> m_componentIndex;
+    function<double(size_t)> m_upperBound;
+    function<double(size_t)> m_lowerBound;
     function<void(SparseTriplets&)> m_getJacobianElements;
 };
 

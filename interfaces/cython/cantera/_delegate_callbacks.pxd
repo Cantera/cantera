@@ -33,6 +33,7 @@ cdef void callback_v_vETr(PyFuncInfo& funcInfo,
                           vector[CxxEigenTriplet]& trips) noexcept
 cdef int callback_d_vp(PyFuncInfo& funcInfo, double& out, void* obj) noexcept
 cdef int callback_s_sz(PyFuncInfo& funcInfo, string& out, size_t arg) noexcept
+cdef int callback_d_sz(PyFuncInfo& funcInfo, double& out, size_t arg) noexcept
 cdef int callback_sz_csr(PyFuncInfo& funcInfo, size_t& out, const string& arg) noexcept
 cdef void callback_v_d_dp_dp(PyFuncInfo& funcInfo, double arg1,
                              span[double] arg2, span[double] arg3) noexcept

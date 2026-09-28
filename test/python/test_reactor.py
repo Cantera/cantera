@@ -3675,6 +3675,46 @@ class TestExtensibleReactor:
         assert r.component_name(self.gas.n_species + 3) == 'v_wall'
         assert r.component_name(2) == 'temperature'
 
+    def test_custom_bounds(self):
+        class ExtraVariableReactor(ct.ExtensibleIdealGasConstPressureReactor):
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                self.z = 0.0
+                self.n_vars += 1
+                self.i_z = self.n_vars - 1
+
+            def after_get_state(self, y):
+                y[self.i_z] = self.z
+
+            def after_update_state(self, y):
+                self.z = y[self.i_z]
+
+            def after_eval(self, t, LHS, RHS):
+                # Extra equation is dz/dt = 5 - z, with a steady state outside the
+                # default species bounds of [-Tiny, 1]
+                RHS[self.i_z] = 5.0 - self.z
+
+            def before_upper_bound(self, i):
+                if i == self.i_z:
+                    return 10.0
+
+        gas = ct.Solution("h2o2.yaml", transport_model=None)
+        gas.set_equivalence_ratio(1.2, "H2:1.0", "O2:1.0, N2:3.76")
+        gas.TP = 500, 20 * ct.one_atm
+
+        upstream = ct.Reservoir(gas)
+        gas.equilibrate("HP")
+        downstream = ct.Reservoir(gas)
+        r = ExtraVariableReactor(gas, volume=1e-3)
+        ct.MassFlowController(upstream, r, mdot=160)
+        ct.MassFlowController(r, downstream, mdot=160)
+        net = ct.ReactorNet([r])
+
+        net.solve_steady()
+
+        assert r.z == approx(5.0)
+        assert r.phase.T == approx(2407.35011)
+
     def test_replace_equations(self):
         nsp = self.gas.n_species
         tau = np.linspace(0.5, 2, nsp + 3)
