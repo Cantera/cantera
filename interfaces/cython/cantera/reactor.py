@@ -675,6 +675,14 @@ class ExtensibleReactor(Reactor):
     ``component_index(name: string) -> int``
         Returns the index of the state vector component named ``name``
 
+    ``upper_bound(i : int) -> double``
+        Returns the upper bound used by the steady-state solver for the state
+        vector component with index ``i``
+
+    ``lower_bound(i : int) -> double``
+        Returns the lower bound used by the steady-state solver for the state
+        vector component with index ``i``
+
     ``get_jacobian_elements(elements : list) -> None``
         Appends sparse Jacobian elements as ``(row, column, value)`` tuples. Row and
         column indices are global within the containing reactor network.
@@ -691,6 +699,8 @@ class ExtensibleReactor(Reactor):
         'eval_walls': ('evalWalls', 'void(double)'),
         'component_name': ('componentName', 'string(size_t)'),
         'component_index': ('componentIndex', 'size_t(string)'),
+        'upper_bound': ('upperBound', 'double(size_t)'),
+        'lower_bound': ('lowerBound', 'double(size_t)'),
         'get_jacobian_elements': ('getJacobianElements', 'void(SparseTriplets&)'),
     }
 
@@ -1076,6 +1086,8 @@ class ExtensibleReactorSurface(ReactorSurface):
     - ``eval(self, t : double, LHS : double[:], RHS : double[:]) -> None``
     - ``component_name(i : int) -> string``
     - ``component_index(name: string) -> int``
+    - ``upper_bound(i : int) -> double``
+    - ``lower_bound(i : int) -> double``
     """
 
     reactor_type: _ClassVar[str] = "ExtensibleReactorSurface"
@@ -1087,6 +1099,8 @@ class ExtensibleReactorSurface(ReactorSurface):
         'eval': ('eval', 'void(double, double*, double*)'),
         'component_name': ('componentName', 'string(size_t)'),
         'component_index': ('componentIndex', 'size_t(string)'),
+        'upper_bound': ('upperBound', 'double(size_t)'),
+        'lower_bound': ('lowerBound', 'double(size_t)'),
     }
 
     surface_production_rates: _Array

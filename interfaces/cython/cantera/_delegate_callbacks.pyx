@@ -236,6 +236,21 @@ cdef int callback_s_sz(PyFuncInfo& funcInfo, string& out, size_t arg) noexcept:
         funcInfo.setExceptionValue(<PyObject*>exc_value)
     return -1
 
+# Wrapper for functions of type double(size_t)
+cdef int callback_d_sz(PyFuncInfo& funcInfo, double& out, size_t arg) noexcept:
+    try:
+        ret = (<object>funcInfo.func())(arg)
+        if ret is None:
+            return 0
+        else:
+            (&out)[0] = ret
+            return 1
+    except BaseException as e:
+        exc_type, exc_value = _sys.exc_info()[:2]
+        funcInfo.setExceptionType(<PyObject*>exc_type)
+        funcInfo.setExceptionValue(<PyObject*>exc_value)
+    return -1
+
 # Wrapper for functions of type size_t(string&)
 cdef int callback_sz_csr(PyFuncInfo& funcInfo, size_t& out, const string& arg) noexcept:
     try:
