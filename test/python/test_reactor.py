@@ -429,6 +429,22 @@ class TestReactor:
 
         assert integrate() == integrate()
 
+    def test_advance_limit_no_spurious_stop(self):
+        """
+        With a limit that cannot be reached within a call, advance(t) must always
+        reach t. Before GH #2179 was fixed, the first root check of each call could
+        compare against uninitialized memory and stop integration early.
+        """
+        self.make_reactors(n_reactors=1, T1=1100, P1=10 * ct.one_atm,
+                           X1='H2:1.0, O2:0.5, AR:8.0')
+        net = ct.ReactorNet([self.r1])
+        self.r1.set_advance_limit('H2', 10.0)  # far above any possible change
+        t = 0.0
+        for _ in range(300):
+            t += 1e-4
+            assert net.advance(t, apply_limit=True) == t
+            assert net.time == t
+
     def test_advance_limit_never_overshoots(self):
         """
         advance(t) must not return a time later than t, even when a limit is hit
