@@ -427,6 +427,12 @@ void Reactor::setAdvanceLimits(span<const double> limits)
                      [](double val){return val>0;})) {
         m_advancelimits.resize(0);
     }
+    // The number of root functions used by the network may have changed; the
+    // integrator must be reinitialized so CVODES sets up its root-finding state
+    // before the next step.
+    if (m_net != nullptr) {
+        m_net->setNeedsReinit();
+    }
 }
 
 bool Reactor::getAdvanceLimits(span<double> limits) const
@@ -450,6 +456,9 @@ void Reactor::setAdvanceLimit(const string& nm, const double limit)
     if (std::none_of(m_advancelimits.begin(), m_advancelimits.end(),
                      [](double val){return val>0;})) {
         m_advancelimits.resize(0);
+    }
+    if (m_net != nullptr) {
+        m_net->setNeedsReinit();
     }
 }
 
