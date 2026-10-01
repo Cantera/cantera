@@ -1811,11 +1811,11 @@ class ReactorNet:
         of reactors included in the network.
 
         The integrator will take as many steps as necessary to reach ``t``. If
-        ``apply_limit`` is true and an advance limit is specified, the reactor state at
-        the end of the step is estimated prior to advancing. If the difference exceed
-        limits, the end value is reduced by half until the projected end state remains
-        within specified limits. Returns the time/distance reached at the end of
-        integration.
+        ``apply_limit`` is true and an advance limit is specified (see
+        `Reactor.set_advance_limit`), integration stops as soon as the change of any
+        limited component since the start of this call reaches its limit, which
+        may be before ``t``. Returns the time/distance reached at the end of
+        integration, which is never later than ``t``.
         """
         return self.net.advance(t, apply_limit)
 

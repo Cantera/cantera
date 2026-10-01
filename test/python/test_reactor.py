@@ -407,6 +407,79 @@ class TestReactor:
         out = capsys.readouterr().out
         assert "Advance limit triggered" not in out
 
+    def test_advance_limit_reproducible(self):
+        """
+        Repeating the same integration with an advance limit set must give
+        bit-identical results (GH issue #2179: re-registering the root function on
+        every advance() left CVODES root-finding arrays uninitialized).
+        """
+        def integrate():
+            self.make_reactors(n_reactors=1, T1=1100, P1=10 * ct.one_atm,
+                               X1='H2:1.0, O2:0.5, AR:8.0')
+            net = ct.ReactorNet([self.r1])
+            self.r1.set_advance_limit('H2', 1e-3)
+            trace = []
+            t = 0.0
+            for _ in range(200):
+                t += 2e-4
+                t_reached = net.advance(t, apply_limit=True)
+                trace.append((t_reached, self.r1.T, self.r1.phase.P))
+                t = t_reached
+            return trace
+
+        assert integrate() == integrate()
+
+    def test_advance_limit_no_spurious_stop(self):
+        """
+        With a limit that cannot be reached within a call, advance(t) must always
+        reach t. Before GH #2179 was fixed, the first root check of each call could
+        compare against uninitialized memory and stop integration early.
+        """
+        self.make_reactors(n_reactors=1, T1=1100, P1=10 * ct.one_atm,
+                           X1='H2:1.0, O2:0.5, AR:8.0')
+        net = ct.ReactorNet([self.r1])
+        self.r1.set_advance_limit('H2', 10.0)  # far above any possible change
+        t = 0.0
+        for _ in range(300):
+            t += 1e-4
+            assert net.advance(t, apply_limit=True) == t
+            assert net.time == t
+
+    def test_advance_limit_never_overshoots(self):
+        """
+        advance(t) must not return a time later than t, even when a limit is hit
+        within an internal integrator step that extends past t.
+        """
+        self.make_reactors(n_reactors=1, T1=1100, P1=10 * ct.one_atm,
+                           X1='H2:1.0, O2:0.5, AR:8.0')
+        net = ct.ReactorNet([self.r1])
+        self.r1.set_advance_limit('H2', 1e-3)
+        t = 0.0
+        while t < 5e-2:
+            target = t + 1e-4
+            t = net.advance(target, apply_limit=True)
+            assert t <= target
+            assert t == approx(net.time)
+
+    def test_advance_limit_set_after_first_advance(self):
+        """
+        Setting a limit after integration has started must take effect (the
+        integrator is reinitialized so the root function is registered).
+        """
+        self.make_reactors(n_reactors=1, T1=1100, P1=10 * ct.one_atm,
+                           X1='H2:1.0, O2:0.5, AR:8.0')
+        net = ct.ReactorNet([self.r1])
+        net.advance(1e-3)
+        ix = net.global_component_index('H2', 0)
+        baseline = np.copy(net.get_state())
+        limit = 1e-3
+        self.r1.set_advance_limit('H2', limit)
+        target = net.time + 5e-2
+        reached = net.advance(target, apply_limit=True)
+        assert reached < target
+        delta = abs(net.get_state()[ix] - baseline[ix])
+        assert delta == approx(limit, rel=0.1, abs=1e-10)
+
     def test_advance_limit_cleanup_after_failure(self):
         """Limit-check state resets even when integration raises an error"""
         P0 = 10 * ct.one_atm
