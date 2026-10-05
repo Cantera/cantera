@@ -8,6 +8,10 @@ classdef Func1 < handle
         type
     end
 
+    properties (SetAccess = immutable, Hidden)
+        session = -1  % Library session that issued the handle; see ct.impl.release.
+    end
+
     methods
         %% Func1 Class Constructor
 
@@ -72,6 +76,7 @@ classdef Func1 < handle
             %     Instance of class :mat:class:`ct.Func1`.
 
             ct.isLoaded(true);
+            obj.session = ct.impl.session();
 
             if isnumeric(typ)
                 % instantiate from handle
@@ -139,9 +144,7 @@ classdef Func1 < handle
 
         function delete(obj)
             % Delete the :mat:class:`ct.Func1` object.
-            if obj.id >= 0
-                ct.impl.call('mFunc1_del', obj.id);
-            end
+            ct.impl.release('mFunc1_del', obj.id, obj.session);
         end
 
         %% Func1 Class Utility Methods
