@@ -21,6 +21,10 @@ classdef Sim1D < handle
 
     end
 
+    properties (SetAccess = immutable, Hidden)
+        session = -1  % Library session that issued the handle; see ct.impl.release.
+    end
+
     methods
 
         %% Sim1D Class Constructor
@@ -41,6 +45,7 @@ classdef Sim1D < handle
                 ids(n) = domains{n}.domainID;
             end
 
+            obj.session = ct.impl.session();
             obj.stID = ct.impl.call('mSim1D_newSim1D', ids);
 
         end
@@ -49,9 +54,7 @@ classdef Sim1D < handle
 
         function delete(obj)
             % Delete the :mat:class:`ct.oneD.Sim1D` object.
-            if obj.stID >= 0
-                ct.impl.call('mSim1D_del', obj.stID);
-            end
+            ct.impl.release('mSim1D_del', obj.stID, obj.session);
         end
 
         %% Sim1D Utility Methods
