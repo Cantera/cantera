@@ -15,12 +15,12 @@ function output = getString(funcName, varargin)
             error('not implemented - argument list contains more than one char array.')
         end
     else
-        error('Cantera:ctError', ct.impl.getError());
+        error('Cantera:ctError', '%s', ct.impl.getError());
     end
 
     iok = double(iok);
     if ismember(iok, ct.impl.errorCode)
-        error('Cantera:ctError', ct.impl.getError());
+        error('Cantera:ctError', '%s', ct.impl.getError());
     end
 
     % Discard the last character
