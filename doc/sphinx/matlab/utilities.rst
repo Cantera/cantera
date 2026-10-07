@@ -23,6 +23,7 @@ Library Setup
 
 Global Settings
 ---------------
+.. autofunction:: addDataDirectories
 .. autofunction:: dataDirectories
 .. autofunction:: makeDeprecationWarningsFatal
 
