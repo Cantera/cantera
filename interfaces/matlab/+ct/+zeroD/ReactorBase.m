@@ -217,7 +217,7 @@ classdef (Abstract) ReactorBase < handle
         end
 
         function intEnergy_mass = get.U(obj)
-            intEnergy_mass = ct.impl.call('mReactor_intEnergy_mass', obj.id);
+            intEnergy_mass = ct.impl.call('mThermo_intEnergy_mass', obj.phase.tpID);
         end
 
         function a = get.area(obj)

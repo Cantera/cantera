@@ -322,7 +322,7 @@ classdef ctTestPureFluid < ctTestCase
                 p1 = self.fluid.satPressure;
             catch ME
                 self.verifySubstring(ME.identifier, 'Cantera:ctError');
-                self.verifySubstring(ME.message, 'Illegal temperature value');
+                self.verifySubstring(ME.message, 'Illegal temperature');
             end
 
             try
@@ -336,11 +336,11 @@ classdef ctTestPureFluid < ctTestCase
 
             % Below triple point
             try
-                self.fluid.TP = {0.999 * self.fluid.critTemperature, ct.OneAtm};
+                self.fluid.TP = {0.999 * self.fluid.minTemp, ct.OneAtm};
                 p1 = self.fluid.satPressure;
             catch ME
                 self.verifySubstring(ME.identifier, 'Cantera:ctError');
-                self.verifySubstring(ME.message, 'Illegal temperature value');
+                self.verifySubstring(ME.message, 'Illegal temperature');
             end
 
             try

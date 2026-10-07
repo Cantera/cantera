@@ -69,9 +69,21 @@ classdef ctTestFlowReactor2 < ctTestCase
 
             try
                 self.net = ct.zeroD.ReactorNet({r1, r2});
+                self.verifyFail('Expected an error for a FlowReactor in a network.');
             catch ME
                 self.verifySubstring(ME.identifier, 'Cantera:ctError');
                 self.verifySubstring(ME.message,  'FlowReactors must be used alone');
+            end
+
+            r1 = ct.zeroD.FlowReactor(self.gas);
+            r2 = ct.zeroD.IdealGasReactor(self.gas);
+
+            try
+                self.net = ct.zeroD.ReactorNet({r2, r1});
+                self.verifyFail('Expected an error for mixed reactor types.');
+            catch ME
+                self.verifySubstring(ME.identifier, 'Cantera:ctError');
+                self.verifySubstring(ME.message,  'Cannot mix Reactor types');
             end
         end
 
