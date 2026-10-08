@@ -17,7 +17,7 @@ function output = getArray(funcName, buflen, varargin)
 
     iok = double(iok);
     if ismember(iok, ct.impl.errorCode)
-        error('Cantera:ctError', ct.impl.getError());
+        error('Cantera:ctError', '%s', ct.impl.getError());
     end
 
     % Convert output to double for better data compatibility

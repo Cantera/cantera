@@ -21,7 +21,7 @@ classdef (Abstract) ThermoPhase < handle
         % Determines whether intensive thermodynamic properties are
         % treated on a mass (per kg) or molar (per kmol) basis. This
         % affects the values returned by the properties H, U, S, G, V,
-        % Density, Cv, and Cp, as well as the values used with the
+        % D, cv, and cp, as well as the values used with the
         % state-setting properties such as HPX and UV.
         %
         % :param b:
@@ -132,7 +132,7 @@ classdef (Abstract) ThermoPhase < handle
         % finite temperature range, which may be different for each species
         % in the phase.
         %
-        % See also: :mat:meth:`minTemp`
+        % See also: :mat:attr:`ct.ThermoPhase.minTemp`
         maxTemp
 
         % Minimum temperature for which thermodynamic parameter fits are valid
@@ -143,7 +143,7 @@ classdef (Abstract) ThermoPhase < handle
         % finite temperature range, which may be different for each species
         % in the phase.
         %
-        % See also: :mat:class:`maxTemp`
+        % See also: :mat:attr:`ct.ThermoPhase.maxTemp`
         minTemp
 
         refPressure % Reference pressure [Pa] for standard-state.
@@ -154,7 +154,7 @@ classdef (Abstract) ThermoPhase < handle
 
         % Speed of sound [m/s] ::
         %
-        %     >> c = tp.soundspeed
+        %     >> c = tp.soundSpeed
         %
         % If the phase is an ideal gas, the speed of sound is calculated by:
         %
@@ -341,7 +341,7 @@ classdef (Abstract) ThermoPhase < handle
         % Get/Set internal energy [J/kg or J/kmol], pressure [Pa], and mass fractions.
         UPY
 
-        % Get/Set volume [m³/kg or m³/kmol] and enthalpy [J/kg or J/kmol].
+        % Get/Set specific volume [m³/kg or m³/kmol] and enthalpy [J/kg or J/kmol].
         VH
 
         % Get/Set specific volume [m³/kg or m³/kmol], enthalpy [J/kg or J/kmol],
@@ -378,7 +378,7 @@ classdef (Abstract) ThermoPhase < handle
             %
             %     >> tp.equilibrate(xy, solver, rtol, maxsteps, maxiter, loglevel)
             %
-            % :param XY:
+            % :param xy:
             %     A two-letter string, which must be one of the set
             %     ``['TP','TV','HP','SP','SV','UV','UP']``,
             %     indicating which pair of properties should be held constant.
@@ -430,12 +430,12 @@ classdef (Abstract) ThermoPhase < handle
             % The index is an integer assigned to each element in sequence as it
             % is read in from the input file.
             %
-            % If ``name`` is a single string, the return value will be a integer
-            % containing the corresponding index. If it is an cell array of
+            % If ``name`` is a single string, the return value will be an integer
+            % containing the corresponding index. If it is a cell array of
             % strings, the output will be an array of the same shape
             % containing the indices.
             %
-            % NOTE: In keeping with the conventions used by Matlab, this method
+            % NOTE: In keeping with the conventions used by MATLAB, this method
             % returns 1 for the first element. In contrast, the corresponding
             % method elementIndex in the Cantera C++ and Python interfaces
             % returns 0 for the first element, 1 for the second one, etc. ::
@@ -532,7 +532,7 @@ classdef (Abstract) ThermoPhase < handle
         function n = nAtoms(obj, species, element)
             % Number of atoms of an element in a species ::
             %
-            %   >> n = tp.nAtoms(k,m)
+            %     >> n = tp.nAtoms(species, element)
             %
             % :param species:
             %     Species name or index
@@ -565,7 +565,7 @@ classdef (Abstract) ThermoPhase < handle
         function k = speciesIndex(obj, name)
             % Index of a species given the name ::
             %
-            %   >> k = tp.speciesIndex(name)
+            %     >> k = tp.speciesIndex(name)
             %
             % The index is an integer assigned to each species in sequence as it
             % is read in from the input file. ::
@@ -575,14 +575,14 @@ classdef (Abstract) ThermoPhase < handle
             %
             % .. note::
             %
-            %    In keeping with the conventions used by Matlab, this method returns 1
+            %    In keeping with the conventions used by MATLAB, this method returns 1
             %    for the first species, 2 for the second, etc. In contrast, the
             %    corresponding method in the Cantera C++ and Python interfaces returns 0
             %    for the first species, 1 for the second one, etc.
             %
             % :param name:
-            %     If name is a single string, the return value will be a integer
-            %     containing the corresponding index. If it is an cell array of
+            %     If name is a single string, the return value will be an integer
+            %     containing the corresponding index. If it is a cell array of
             %     strings, the output will be an array of the same shape
             %     containing the indices.
             % :return:
@@ -625,11 +625,11 @@ classdef (Abstract) ThermoPhase < handle
         function nm = speciesName(obj, k)
             % Name of one or multiple species given the index ::
             %
-            %     >> k = tp.speciesName(k)
+            %     >> nm = tp.speciesName(k)
             %
             % :param k:
-            %     Scalar of array of integers of
-            %     NOTE: In keeping with the conventions used by Matlab, the indices of
+            %     Scalar or array of integer species indices.
+            %     NOTE: In keeping with the conventions used by MATLAB, the indices of
             %     species start with 1 for the first, then 2 for the second, etc.
             % :return:
             %     Cell array of strings of species inquired.
@@ -926,12 +926,12 @@ classdef (Abstract) ThermoPhase < handle
 
         function mu = get.chemicalPotentials(obj)
             nsp = obj.nSpecies;
-            mu = ct.impl.getArray('mThermo_chemPotentials', nsp, obj.tpID);
+            mu = ct.impl.getArray('mThermo_getChemPotentials', nsp, obj.tpID);
         end
 
         function emu = get.electrochemicalPotentials(obj)
             nsp = obj.nSpecies;
-            emu = ct.impl.getArray('mThermo_electrochemPotentials', nsp, obj.tpID);
+            emu = ct.impl.getArray('mThermo_getElectrochemPotentials', nsp, obj.tpID);
         end
 
         function enthalpies = get.partialMolarEnthalpies(obj)
@@ -1531,7 +1531,21 @@ classdef (Abstract) ThermoPhase < handle
         end
 
         function setEquivalenceRatio(obj, phi, fuelComp, oxComp)
-            % Set the mixture composition according to the equivalence ratio.
+            % Set the mixture composition according to the equivalence ratio. ::
+            %
+            %     >> tp.setEquivalenceRatio(phi, fuelComp, oxComp)
+            %
+            % Temperature and pressure are kept constant.
+            %
+            % :param phi:
+            %     Equivalence ratio.
+            % :param fuelComp:
+            %     String specifying the fuel composition as mole fractions, for
+            %     example ``'CH4:1.0'``.
+            % :param oxComp:
+            %     String specifying the oxidizer composition as mole fractions, for
+            %     example ``'O2:1.0, N2:3.76'``.
+
             ct.impl.call('mThermo_setEquivalenceRatio', obj.tpID, phi, fuelComp, oxComp);
         end
     end

@@ -179,21 +179,23 @@ classdef Mixture < handle
             mu = ct.impl.getArray('mMix_getChemPotentials', nsp, obj.mixID);
         end
 
-        function n = nAtoms(obj, e)
-            % Number of atoms of an element in a mixture. ::
+        function n = nAtoms(obj, k, e)
+            % Number of atoms of an element in a species of a mixture. ::
             %
-            %     >> n = m.nAtoms(e)
+            %     >> n = m.nAtoms(k, e)
             %
+            % :param k:
+            %     Global index of the species.
             % :param e:
-            %     Index of element.
+            %     Global index of the element.
             % :return:
-            %     Number of atoms for element e.
+            %     Number of atoms of element e in species k.
             %
-            % Note: In keeping with the conventions used by Matlab, the
+            % Note: In keeping with the conventions used by MATLAB, the
             % indices start from 1 instead of 0 as in Cantera C++ and
             % Python interfaces.
 
-            n = ct.impl.call('mMix_nPhases', obj.mixID, k - 1, e - 1);
+            n = ct.impl.call('mMix_nAtoms', obj.mixID, k - 1, e - 1);
         end
 
         function n = elementIndex(obj, name)
@@ -206,7 +208,7 @@ classdef Mixture < handle
             % :return:
             %     Index of element with name ``name``.
             %
-            % Note: In keeping with the conventions used by Matlab, the
+            % Note: In keeping with the conventions used by MATLAB, the
             % indices start from 1 instead of 0 as in Cantera C++ and
             % Python interfaces.
 
@@ -214,16 +216,18 @@ classdef Mixture < handle
         end
 
         function n = speciesIndex(obj, k, p)
-            % Index of a species in a mixture. ::
+            % Global index of a species in a mixture. ::
             %
             %     >> n = m.speciesIndex(k, p)
             %
-            % :param name:
-            %     Name of the species whose index is desired.
+            % :param k:
+            %     Index of the species within phase ``p``.
+            % :param p:
+            %     Index of the phase within the mixture.
             % :return:
-            %     Index of species with name ``name``.
+            %     Global index of species ``k`` of phase ``p`` within the mixture.
             %
-            % Note: In keeping with the conventions used by Matlab, the
+            % Note: In keeping with the conventions used by MATLAB, the
             % indices start from 1 instead of 0 as in Cantera C++ and
             % Python interfaces.
 
@@ -236,13 +240,13 @@ classdef Mixture < handle
             %     >> moles = m.elementMoles(e)
             %
             % :param e:
-            %    Integer element number.
+            %    Integer, 1-based element index.
             % :return:
-            %    Moles of element number 'e'. If input 'e' is empty, return
+            %    Moles of element number 'e'. If input 'e' is omitted, return
             %    moles of every element in the mixture.
 
             if nargin == 2
-                moles = ct.impl.call('mMix_elementMoles', obj.mixID, e);
+                moles = ct.impl.call('mMix_elementMoles', obj.mixID, e - 1);
             elseif nargin == 1
                 nel = obj.nElements;
                 moles = zeros(1, nel);
@@ -263,13 +267,13 @@ classdef Mixture < handle
             %     >> moles = m.phaseMoles(n)
             %
             % :param n:
-            %    Integer phase number.
+            %    Integer, 1-based phase index.
             % :return:
-            %    Moles of element number 'n'. If input 'n' is empty, return
-            %    moles of every element in the mixture.
+            %    Moles of phase number 'n'. If input 'n' is omitted, return
+            %    moles of every phase in the mixture.
 
             if nargin == 2
-                moles = ct.impl.call('mMix_phaseMoles', obj.mixID, n);
+                moles = ct.impl.call('mMix_phaseMoles', obj.mixID, n - 1);
             elseif nargin == 1
                 np = obj.nPhases;
                 moles = zeros(1, np);
@@ -290,13 +294,13 @@ classdef Mixture < handle
             %     >> moles = m.speciesMoles(k)
             %
             % :param k:
-            %    Integer species number.
+            %    Integer, 1-based global species index.
             % :return:
-            %    Moles of species number 'k'. If input 'k' is empty, return
-            %    moles of every species in the mixture
+            %    Moles of species number 'k'. If input 'k' is omitted, return
+            %    moles of every species in the mixture.
 
             if nargin == 2
-                moles = ct.impl.call('mMix_speciesMoles', obj.mixID, k);
+                moles = ct.impl.call('mMix_speciesMoles', obj.mixID, k - 1);
             elseif nargin == 1
                 nsp = obj.nSpecies;
                 moles = zeros(1, nsp);
@@ -327,9 +331,9 @@ classdef Mixture < handle
             %     >> m.setPhaseMoles(n, moles)
             %
             % :param n:
-            %     Phase number in the input.
+            %     Integer, 1-based phase index.
             % :param moles:
-            %     Number of moles to add.
+            %     Number of moles [kmol] to set.
 
             ct.impl.call('mMix_setPhaseMoles', obj.mixID, n - 1, moles);
         end
@@ -340,7 +344,7 @@ classdef Mixture < handle
             %     >> m.setSpeciesMoles(moles)
             %
             % Set the moles of multiple species. The moles may be specified either as a
-            % string, or as an vector. If a vector is used, it must be dimensioned at
+            % string, or as a vector. If a vector is used, it must be dimensioned at
             % least as large as the total number of species in the mixture. Note that
             % the species may belong to any phase, and unspecified species are set to
             % zero. ::
@@ -379,8 +383,8 @@ classdef Mixture < handle
             %     If solver = 'auto', the solvers will be tried in order if the initial
             %     solver(s) fail.
             %     Default: ``'auto'``.
-            % :param err:
-            %     Error tolerance. Iteration will continue until :math:`\Delta\mu)/RT`
+            % :param rtol:
+            %     Error tolerance. Iteration will continue until :math:`\Delta\mu/RT`
             %     is less than this value for each reaction. Default:
             %     1.0e-9. Note that this default is very conservative, and good
             %     equilibrium solutions may be obtained with larger error
