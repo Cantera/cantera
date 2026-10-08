@@ -15,6 +15,8 @@ Utility Functions
 
 Library Setup
 -------------
+.. autofunction:: install
+.. autofunction:: uninstall
 .. autofunction:: load
 .. autofunction:: unload
 .. autofunction:: isLoaded
