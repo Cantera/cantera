@@ -1516,13 +1516,6 @@ jobs:
       run: |
         mkdir -p build
         tar -xzf canteraLib.tar.gz -C build
-    - name: Set LD_PRELOAD for MATLAB (Linux)
-      # MATLAB bundles an older libstdc++ than the system compiler that clibgen uses
-      # to build the interface. The Cantera library links libstdc++ statically.
-      if: runner.os == 'Linux'
-      run: |
-        LIB_STDCXX=$(ldconfig -p | grep libstdc++.so.6 | awk '{print $4}' | head -n 1)
-        echo "LD_PRELOAD=$LIB_STDCXX" >> "$GITHUB_ENV"
     - name: Add Cantera library directory to PATH (Windows)
       if: runner.os == 'Windows'
       run: |
@@ -1541,6 +1534,11 @@ jobs:
         release: ${{ matrix.release }}
     - name: Build MATLAB C++ Interface
       uses: matlab-actions/run-command@bfa857648f4895aa98a446fe41c85e0788421ed5 # v3.3.0
+      env:
+        # On Linux, MATLAB R2024b crashes while generating the interface unless the
+        # system libstdc++ is preloaded. Only the build needs it: the interface and the
+        # Cantera library link libstdc++ statically, so the tests run without it.
+        LD_PRELOAD: ${{ runner.os == 'Linux' && '/lib/x86_64-linux-gnu/libstdc++.so.6' || '' }}
       with:
         command: |
           disp("MATLAB version: " + version);
@@ -1551,8 +1549,9 @@ jobs:
           addpath(genpath(ctToolboxDir));
           ct.buildInterface(ctToolboxDir, ctIncludeDir, ctLibDir);
     - name: Run tests
-      # The library has no third-party dependencies, so it should load in-process on
-      # every platform. The tests use the library loaded here instead of loading it.
+      # The library has no third-party dependencies, so it loads in-process on every
+      # platform without LD_PRELOAD. The tests use the library loaded here instead of
+      # loading it.
       uses: matlab-actions/run-command@bfa857648f4895aa98a446fe41c85e0788421ed5 # v3.3.0
       with:
         command: |
