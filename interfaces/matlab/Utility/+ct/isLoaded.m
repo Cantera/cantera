@@ -20,8 +20,14 @@ function i = isLoaded(throw)
         global ctMatlab
         i = ctMatlab.Loaded;
     else
-        cfg = clibConfiguration("ctMatlab");
-        i = cfg.Loaded;
+        try
+            cfg = clibConfiguration("ctMatlab");
+            i = cfg.Loaded;
+        catch ME
+            if ME.identifier ~= "MATLAB:CPP:InterfaceLibraryNotFound"
+                rethrow(ME);
+            end
+        end
     end
 
     if ~i && throw
