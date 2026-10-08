@@ -1416,7 +1416,7 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        os: [ubuntu-24.04, macos-14, macos-15, windows-2022, windows-2025]
+        os: [ubuntu-24.04, macos-14, macos-15, windows-2025]
       fail-fast: false
     env:
       BOOST_ROOT: ${{ github.workspace }}/3rdparty/boost
@@ -1482,27 +1482,17 @@ jobs:
         path: canteraLib.tar.gz
 
   matlab-bundled:
-    # Same matrix and tests as the 'matlab' job, but uses the self-contained library
-    # from 'matlab-library', so no third-party runtime libraries are installed.
+    # Runs the tests of the 'matlab' job with the self-contained library from
+    # 'matlab-library', so no third-party runtime libraries are installed.
     name: MATLAB ${{ matrix.release }} on ${{ matrix.os }} (bundled library)
     strategy:
       matrix:
         os: [ubuntu-24.04, windows-2025, macos-14]
-        release: [R2024a, latest]
+        # R2024b is the oldest release supported by the MATLAB toolbox
+        release: [R2024b, latest]
         include:
-        - os: 'macos-14'
-          release: 'R2024b'
         - os: 'macos-15'
           release: 'latest'
-        - os: 'windows-2022'
-          release: 'R2024a'
-        exclude:
-        - os: 'ubuntu-24.04'
-          release: 'R2024a'
-          # excluded due to glibc compatility issues; see #2035
-        - os: 'windows-2025'
-          release: 'R2024a'
-          # excluded due to Visual Studio 2026 incompatibility; see #2152
       fail-fast: false
     env:
       CANTERA_ROOT: ${{ github.workspace }}
@@ -1538,6 +1528,13 @@ jobs:
       run: |
         echo "$GITHUB_WORKSPACE/build/canteraLib/lib" >> "$GITHUB_PATH"
         echo "$GITHUB_WORKSPACE/interfaces/matlab/+ct/+impl/ctMatlab" >> "$GITHUB_PATH"
+    - name: Install Visual C++ 2022 build tools (Windows, R2024b)
+      # R2024b supports Visual C++ 2022 at newest, but windows-2025 ships a newer
+      # Visual Studio, so mex finds no supported compiler; see #2152.
+      run: |
+        choco install visualstudio2022buildtools -y --no-progress
+        choco install visualstudio2022-workload-vctools -y --no-progress
+      if: runner.os == 'Windows' && matrix.release == 'R2024b'
     - name: Set up MATLAB
       uses: matlab-actions/setup-matlab@f9e43010f1ae678f7cfa0542fe2a4f60f7d1ad8d # v3.1.0
       with:
