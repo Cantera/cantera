@@ -97,6 +97,15 @@ function generateLibraryDefinitions(includeDir, ctLibDir, outputDir)
 
     overwriteExistingDefinitionFiles = true;
 
+    % On Linux, link the interface statically against libstdc++ and libgcc. The
+    % interface is built with the system compiler, whose libstdc++ can be newer than
+    % the one MATLAB ships (R2024b ships the one from GCC 12), so the interface would
+    % otherwise only load with the system libstdc++ preloaded.
+    linkerArgs = {};
+    if isunix && ~ismac
+        linkerArgs = {"AdditionalLinkerFlags", ["-static-libstdc++", "-static-libgcc"]};
+    end
+
     % Set up C++ compiler
     mex -setup cpp
 
@@ -119,6 +128,7 @@ function generateLibraryDefinitions(includeDir, ctLibDir, outputDir)
         "CLinkage", true, ...
         "TreatObjectPointerAsScalar", true, ...
         "TreatConstCharPointerAsCString", true, ...
+        linkerArgs{:}, ...
         "ReturnCArrays", false, ...
         "Verbose", true);
 end
