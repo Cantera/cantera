@@ -1261,9 +1261,9 @@ jobs:
 
   matlab:
     name: MATLAB ${{ matrix.release }} on ${{ matrix.os }}
-    # Set the repository variable SKIP_MATLAB_SYSTEM_LIBS to 'true' to skip this job,
-    # which tests the libraries built with system dependencies by the jobs above.
-    if: vars.SKIP_MATLAB_SYSTEM_LIBS != 'true'
+    # Disabled: MATLAB is tested with the self-contained library that ships with the
+    # MATLAB toolbox instead (see 'matlab-bundled'). This job is to be removed.
+    if: false
     strategy:
       matrix:
         os: [ubuntu-24.04, windows-2025, macos-14]
