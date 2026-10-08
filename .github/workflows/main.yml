@@ -1551,6 +1551,14 @@ jobs:
           addpath(genpath(ctToolboxDir));
           ct.buildInterface(ctToolboxDir, ctIncludeDir, ctLibDir);
     - name: Run tests
-      uses: matlab-actions/run-tests@214a16e600ef2c705a4b2dd6c0794dc6957682a9 # v3.3.0
+      # The library has no third-party dependencies, so it should load in-process on
+      # every platform. The tests use the library loaded here instead of loading it.
+      uses: matlab-actions/run-command@bfa857648f4895aa98a446fe41c85e0788421ed5 # v3.3.0
       with:
-        select-by-folder: test/matlab
+        command: |
+          ctDir = getenv('CANTERA_ROOT');
+          addpath(genpath(fullfile(ctDir, 'interfaces', 'matlab')));
+          ct.load("inprocess");
+          results = runtests(fullfile(ctDir, 'test', 'matlab'));
+          disp(table(results));
+          assertSuccess(results);
