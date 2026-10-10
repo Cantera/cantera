@@ -255,6 +255,19 @@ public:
         *m_funcs_s_sz[name] = makeDelegate(name, func, when, m_base_s_sz[name]);
     }
 
+    //! Set delegates for member functions with the signature `double(size_t)`
+    void setDelegate(const string& name,
+                     const function<int(double&, size_t)>& func,
+                     const string& when)
+    {
+        if (!m_funcs_d_sz.count(name)) {
+            throw NotImplementedError("Delegator::setDelegate",
+                "for function named '{}' with signature "
+                "'double(size_t)'.", name);
+        }
+        *m_funcs_d_sz[name] = makeDelegate(name, func, when, m_base_d_sz[name]);
+    }
+
     //! Set delegates for member functions with the signature `size_t(string)`
     void setDelegate(const string& name,
                      const function<int(size_t&, const string&)>& func,
@@ -405,6 +418,16 @@ protected:
         target = base;
         m_funcs_s_sz[name] = &target;
         m_base_s_sz[name] = base;
+    }
+
+    //! Install a function with the signature `double(size_t)` as being delegatable
+    void install(const string& name,
+                 function<double(size_t)>& target,
+                 const function<double(size_t)>& base)
+    {
+        target = base;
+        m_funcs_d_sz[name] = &target;
+        m_base_d_sz[name] = base;
     }
 
     //! Install a function with the signature `size_t(string)` as being delegatable
@@ -559,8 +582,13 @@ protected:
     map<string, function<double(void*)>> m_base_d_vp;
     map<string, function<double(void*)>*> m_funcs_d_vp;
 
+    // Delegates with a return value of type string
     map<string, function<string(size_t)>> m_base_s_sz;
     map<string, function<string(size_t)>*> m_funcs_s_sz;
+
+    // Delegates with a return value of type double
+    map<string, function<double(size_t)>> m_base_d_sz;
+    map<string, function<double(size_t)>*> m_funcs_d_sz;
 
     map<string, function<size_t(const string&)>> m_base_sz_csr;
     map<string, function<size_t(const string&)>*> m_funcs_sz_csr;

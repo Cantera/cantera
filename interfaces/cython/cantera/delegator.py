@@ -18,7 +18,8 @@ from cython.cimports.cantera.reaction import ExtensibleRate, ExtensibleRateData
 from cython.cimports.cantera._delegate_callbacks import (
     callback_v, callback_v_d, callback_v_b, callback_v_AMr, callback_v_cAMr_cUSr,
     callback_v_csr_vp, callback_v_dp, callback_v_d_dp, callback_v_dp_dp_dp,
-    callback_v_vETr, callback_d_vp, callback_s_sz, callback_sz_csr, callback_v_d_dp_dp)
+    callback_v_vETr, callback_d_vp, callback_s_sz, callback_d_sz, callback_sz_csr,
+    callback_v_d_dp_dp)
 
 if TYPE_CHECKING:
     # ``ExtensibleRate`` / ``ExtensibleRateData`` are cimported above for the runtime
@@ -188,6 +189,10 @@ def assign_delegates(obj, delegator: cython.pointer(CxxDelegator)) -> cython.int
         elif callback == 'string(size_t)':
             delegator.setDelegate(cxx_name,
                 pyOverride(cython.cast(cython.pointer(PyObject), method), callback_s_sz),
+                cxx_when)
+        elif callback == 'double(size_t)':
+            delegator.setDelegate(cxx_name,
+                pyOverride(cython.cast(cython.pointer(PyObject), method), callback_d_sz),
                 cxx_when)
         elif callback == 'size_t(string)':
             delegator.setDelegate(cxx_name,
