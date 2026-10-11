@@ -11,7 +11,13 @@ function ctTestSetUp()
     addpath(genpath(fullfile(canteraRoot, 'test', 'matlab')));
 
     if ~ct.isLoaded
-        ct.load();
+        % Tests run in-process unless CANTERA_MATLAB_TEST_EXECUTION_MODE selects
+        % 'outofprocess'.
+        mode = string(getenv("CANTERA_MATLAB_TEST_EXECUTION_MODE"));
+        if mode == ""
+            mode = "inprocess";
+        end
+        ct.load(mode);
     end
     ct.makeDeprecationWarningsFatal();
 end
