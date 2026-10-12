@@ -18,6 +18,7 @@ species:
   composition: {Ar: 1}
   thermo:
     model: NASA9
+    reference-pressure: 1 bar
     temperature-ranges: [200.0, 2.0e+04]
     data:
     - [0.0, 0.0, 2.5, 0.0, 0.0, 0.0, 0.0, -745.375, 4.37967491]
@@ -26,6 +27,7 @@ species:
   composition: {C: 1, O: 1}
   thermo:
     model: NASA9
+    reference-pressure: 1 bar
     temperature-ranges: [200.0, 1000.0, 6000.0, 2.0e+04]
     data:
     - [1.489045326e+04, -292.2285939, 5.72452717, -8.17623503e-03, 1.456903469e-05,
@@ -39,6 +41,7 @@ species:
   composition: {C: 1, O: 2}
   thermo:
     model: NASA9
+    reference-pressure: 1 bar
     temperature-ranges: [200.0, 1000.0, 6000.0, 2.0e+04]
     data:
     - [4.94365054e+04, -626.411601, 5.30172524, 2.503813816e-03, -2.127308728e-07,
@@ -52,6 +55,7 @@ species:
   composition: {O: 1}
   thermo:
     model: NASA9
+    reference-pressure: 1 bar
     temperature-ranges: [200.0, 1000.0, 6000.0, 2.0e+04]
     data:
     - [-7953.6113, 160.7177787, 1.966226438, 1.01367031e-03, -1.110415423e-06,
