@@ -12,7 +12,7 @@ from jinja2 import Environment, BaseLoader
 
 from .tagfiles import TagFileParser
 from ..dataclasses import HeaderFile, Param, ArgList, Func, Recipe
-from .._helpers import with_unpack_iter
+from .._helpers import with_unpack_iter, short_name, strip_cantera
 
 
 _LOGGER = logging.getLogger()
@@ -32,6 +32,7 @@ class HeaderGenerator:
     """Convert recipes to header file information."""
 
     _clib_bases: list[str] = None  #: list of bases provided via YAML configurations
+    _clib_classes: list[str] = None
 
     def __init__(self, config: dict, templates: dict, bases: list[str]) -> None:
         self._config = Config(**config)
@@ -51,6 +52,7 @@ class HeaderGenerator:
             return sorted(bases), sorted(classes)
 
         self._clib_bases, classes = get_bases()
+        self._clib_classes = classes
         self._doxygen_tags = TagFileParser(root, classes)
 
         for headers in headers_files:
@@ -69,10 +71,12 @@ class HeaderGenerator:
             """Create preliminary CLib argument list."""
             obj_handle = []
             if "::" in wraps:
-                # If class method, add handle as first parameter
-                what = wraps.split("::")[0]
-                obj_handle.append(
-                    Param("int", "handle", f"Handle to queried {what} object."))
+                scope = wraps.rsplit("::", 1)[0]
+                if (any(scope == base or short_name(scope) == short_name(base)
+                        for base in self._clib_classes)):
+                    what = short_name(scope)
+                    obj_handle.append(
+                        Param("int", "handle", f"Handle to queried {what} object."))
             if isinstance(cxx_member, Param):
                 if recipe.what.endswith("setter"):
                     return obj_handle + [cxx_member], cxx_member
@@ -99,7 +103,7 @@ class HeaderGenerator:
             _LOGGER.debug(msg)
             header = loader.from_string(
                 self._templates[f"clib-reserved-{recipe.name}"]
-                ).render(base=recipe.base, prefix=recipe.prefix)
+                ).render(base=short_name(recipe.base), prefix=recipe.prefix)
             reader = yaml.YAML(typ="safe")
             header = reader.load(header)
             for key, value in header.items():
@@ -176,9 +180,10 @@ class HeaderGenerator:
         elif cxx_member:
             # Autodetection of CLib function purpose ("what")
             cxx_arglen = len(cxx_member.arglist)
-            if not cxx_member.base:
+            if not cxx_member.base or cxx_member.base not in recipe.bases:
                 if (cxx_member.name.startswith("new") and
-                    any(base in cxx_member.ret_type
+                    any(base in cxx_member.ret_type or
+                        short_name(base) in cxx_member.ret_type
                         for base in [recipe.base] + list(recipe.derived.keys()))):
                     recipe.what = "constructor"
                 else:
@@ -207,7 +212,8 @@ class HeaderGenerator:
             _LOGGER.debug(msg)
             brief = f"Instantiate {recipe.base} object using default constructor."
             ret_param = Param(
-                "int32_t", "", "Object handle if successful and -1 for exception handling.")
+                "int32_t", "",
+                "Object handle if successful and -1 for exception handling.")
 
         elif recipe.name == "del":
             # Default destructor
@@ -233,6 +239,7 @@ class HeaderGenerator:
     def _handle_crosswalk(
             self, what: str, crosswalk: dict, derived: dict[str, str]) -> str:
         """Crosswalk for object handle."""
+        what = strip_cantera(what)
         cabinet = None
         classes = list(self._clib_bases) + list(derived.keys())
         for base in classes:
@@ -241,6 +248,14 @@ class HeaderGenerator:
                 ret_type = crosswalk[ret_type]
                 cabinet = base
                 break
+            # Also try matching namespace-stripped class name
+            if "::" in base:
+                base_stripped = short_name(base)
+                ret_type = what.replace(f"<{base_stripped}>", "<T>")
+                if ret_type in crosswalk:
+                    ret_type = crosswalk[ret_type]
+                    cabinet = base
+                    break
         if cabinet:
             # successful crosswalk with cabinet object
             return cabinet
@@ -268,8 +283,8 @@ class HeaderGenerator:
             if ret_type.endswith("char*"):
                 # string expressions require special handling
                 returns = Param(
-                    "int32_t", "", "Actual length of string including string-terminating "
-                    "null byte, \\0, or -1 for exception handling.")
+                    "int32_t", "", "Actual length of string including "
+                    "string-terminating null byte, \\0, or -1 for exception handling.")
                 ret_type = ret_type.removeprefix("const ")
                 buffer = [
                     Param("int32_t", "bufLen", "Length of reserved array.", "in"),
@@ -329,7 +344,7 @@ class HeaderGenerator:
             elif "shared_ptr" in par_key:
                 handle = self._handle_crosswalk(
                     par_key, self._config.par_type_crosswalk, {})
-                par_key = par_key.replace(handle, "T")
+                par_key = par_key.replace(handle, "T").replace(short_name(handle), "T")
                 if "vector<" in par_key or "span<" in par_key:
                     params.append(
                         Param("int32_t", f"{par.name}Len",
@@ -349,8 +364,8 @@ class HeaderGenerator:
                     params.append(
                         Param(ret_type, par.name, description.strip(), par.direction))
             else:
-                msg = f"Failed crosswalk for argument type {par_key!r}."
-                msg += " Known types: " + ", ".join(self._config.par_type_crosswalk.keys())
+                msg = f"Failed crosswalk for argument type {par_key!r}. Known types: "
+                msg += ", ".join(self._config.par_type_crosswalk.keys())
                 _LOGGER.critical(msg)
                 sys.exit(1)
         return params
