@@ -643,25 +643,44 @@ TEST(Reaction, TwoTempPlasmaExtendedListFromYaml)
 
 TEST(Reaction, ElectronCollisionPlasmaFromYaml)
 {
-    auto sol = newSolution("oxygen-plasma.yaml", "discretized-electron-energy-plasma", "none");
-    AnyMap rxn = AnyMap::fromYamlString(
-        "{equation: O2 + E => E + O2,"
-        " type: electron-collision-plasma,"
-        " energy-levels: [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0],"
-        " cross-sections: [0.0, 5.97e-20, 6.45e-20, 6.74e-20, 6.93e-20, 7.2e-20, "
-        " 7.52e-20, 7.86e-20, 8.21e-20, 8.49e-20, 8.8e-20]}");
+    auto sol = newSolution("oxygen-plasma.yaml","discretized-electron-energy-plasma","none");
 
-    auto R = newReaction(rxn, *(sol->kinetics()));
-    EXPECT_EQ(R->reactants.at("O2"), 1);
-    EXPECT_EQ(R->reactants.at("E"), 1);
-    EXPECT_EQ(R->products.at("O2"), 1);
-    EXPECT_EQ(R->products.at("E"), 1);
+    ASSERT_GT(sol->kinetics()->nReactions(), 1);
+    auto R = sol->kinetics()->reaction(1);
 
-    const auto rate = std::dynamic_pointer_cast<ElectronCollisionPlasmaRate>(R->rate());
+    EXPECT_DOUBLE_EQ(R->reactants.at("O2"), 1.0);
+    EXPECT_DOUBLE_EQ(R->reactants.at("E"), 1.0);
+    EXPECT_DOUBLE_EQ(R->products.at("O2"), 1.0);
+    EXPECT_DOUBLE_EQ(R->products.at("E"), 1.0);
 
-    for (size_t k = 0; k < rate->energyLevels().size(); k++) {
-        EXPECT_DOUBLE_EQ(rate->energyLevels()[k], rxn["energy-levels"].asVector<double>()[k]);
-        EXPECT_DOUBLE_EQ(rate->crossSections()[k], rxn["cross-sections"].asVector<double>()[k]);
+    auto rate = std::dynamic_pointer_cast<ElectronCollisionPlasmaRate>(R->rate());
+    ASSERT_NE(rate, nullptr);
+
+    EXPECT_EQ(rate->collisionName(), "O2-effective");
+    EXPECT_EQ(rate->kind(), "effective");
+
+    const vector<double> expectedEnergyLevels = {
+        0.0, 1.0, 2.0, 3.0, 4.0, 5.0,
+        6.0, 7.0, 8.0, 9.0, 10.0
+    };
+    const vector<double> expectedCrossSections = {
+        0.0, 5.97e-20, 6.45e-20, 6.74e-20, 6.93e-20,
+        7.2e-20, 7.52e-20, 7.86e-20, 8.21e-20,
+        8.49e-20, 8.8e-20
+    };
+
+    ASSERT_EQ(rate->energyLevels().size(), expectedEnergyLevels.size());
+    ASSERT_EQ(rate->crossSections().size(), expectedCrossSections.size());
+
+    for (size_t k = 0; k < expectedEnergyLevels.size(); k++) {
+        EXPECT_DOUBLE_EQ(
+            rate->energyLevels()[k],
+            expectedEnergyLevels[k]
+        );
+        EXPECT_DOUBLE_EQ(
+            rate->crossSections()[k],
+            expectedCrossSections[k]
+        );
     }
 }
 
