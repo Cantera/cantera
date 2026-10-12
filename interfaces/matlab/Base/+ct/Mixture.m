@@ -53,6 +53,10 @@ classdef Mixture < handle
         chemPotentials % Chemical potentials [J/kmol] of species in the mixture.
     end
 
+    properties (SetAccess = immutable, Hidden)
+        session = -1  % Library session that issued the handle; see ct.impl.release.
+    end
+
     methods
         %% Mixture Class Constructor
 
@@ -66,6 +70,7 @@ classdef Mixture < handle
             end
 
             % Create an empty mixture.
+            obj.session = ct.impl.session();
             obj.mixID = ct.impl.call('mMix_new');
             obj.phases = phases;
 
@@ -103,9 +108,7 @@ classdef Mixture < handle
 
         function delete(obj)
             % Delete the :mat:class:`ct.Mixture` object.
-            if obj.mixID >= 0
-                ct.impl.call('mMix_del', obj.mixID);
-            end
+            ct.impl.release('mMix_del', obj.mixID, obj.session);
         end
 
         %% Mixture Utility methods

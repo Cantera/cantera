@@ -53,6 +53,10 @@ classdef ReactorNet < handle
 
     end
 
+    properties (SetAccess = immutable, Hidden)
+        session = -1  % Library session that issued the handle; see ct.impl.release.
+    end
+
     methods
         %% ReactorNet Class Constructor
 
@@ -66,6 +70,7 @@ classdef ReactorNet < handle
             end
             reactorIDs = cellfun(@(r) r.id, reactors);
 
+            obj.session = ct.impl.session();
             obj.id = ct.impl.call('mReactornet_new', reactorIDs);
             obj.reactors = reactors;
             obj.time = 0;
@@ -76,9 +81,7 @@ classdef ReactorNet < handle
 
         function delete(obj)
             % Delete the :mat:class:`ct.zeroD.ReactorNet` object object.
-            if obj.id >= 0
-                ct.impl.call('mReactornet_del', obj.id);
-            end
+            ct.impl.release('mReactornet_del', obj.id, obj.session);
         end
 
         %% ReactorNet Utility Methods
