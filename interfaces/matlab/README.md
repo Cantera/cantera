@@ -72,7 +72,11 @@ Cantera objects and functions.
 
 1. **Load the toolbox**
 
+   Run `ct.install` once to register the data directory and verify the build;
+   the setting persists across sessions. Then load Cantera in each session:
+
    ```matlab
+   ct.install()   % once
    ct.load()
    ```
 

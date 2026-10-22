@@ -15,6 +15,8 @@ Utility Functions
 
 Library Setup
 -------------
+.. autofunction:: install
+.. autofunction:: uninstall
 .. autofunction:: load
 .. autofunction:: unload
 .. autofunction:: isLoaded
@@ -23,6 +25,7 @@ Library Setup
 
 Global Settings
 ---------------
+.. autofunction:: addDataDirectories
 .. autofunction:: dataDirectories
 .. autofunction:: makeDeprecationWarningsFatal
 
