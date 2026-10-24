@@ -2867,7 +2867,7 @@ class TestSolutionArray:
         states = ct.SolutionArray(self.gas, 8)
         phi = np.linspace(0.5, 2, 7)
         fuel, oxidizer = "H2:1.0", "O2:1.0"
-        with pytest.raises(ValueError, match=r"shape mismatch"):
+        with pytest.raises(ValueError, match="(shape mismatch)|(operands could not)"):
             states.set_equivalence_ratio(phi, fuel, oxidizer)
 
     def test_set_equivalence_ratio_2d(self):
@@ -2900,7 +2900,7 @@ class TestSolutionArray:
         states = ct.SolutionArray(self.gas, 8)
         mixture_fraction = np.linspace(0.5, 1, 7)
         fuel, oxidizer = "H2:1.0", "O2:1.0"
-        with pytest.raises(ValueError, match=r"shape mismatch"):
+        with pytest.raises(ValueError, match="(shape mismatch)|(operands could not)"):
             states.set_mixture_fraction(mixture_fraction, fuel, oxidizer)
 
     def test_set_mixture_fraction_2D(self):
