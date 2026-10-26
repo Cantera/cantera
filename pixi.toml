@@ -120,10 +120,7 @@ pyodide-build = ">=0.33.0,<0.40"
 cmake = ">=3.27,<5"
 ninja = ">=1.13.2,<2"
 # scikit-build-core = ">=1.0.3,<2"
-uv = ">=0.12.13
-
-[feature.wheel.pypi-dependencies]
-build = ">=1.5.0,<2"
+uv = ">=0.12.13"
 
 [environments]
 default = { features = ["core", "devtools", "docs", "samples"], no-default-feature = true }
