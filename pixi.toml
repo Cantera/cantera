@@ -97,7 +97,7 @@ cython = ">=3.2.4,<4"
 numpy = ">=2.4.2,<3"
 "ruamel.yaml" = ">=0.19.1,<0.20"
 pip = ">=26.0.1,<27"
-cmake = ">=3.27,<4"
+cmake = ">=3.27,<5"
 ninja = ">=1.13.2,<2"
 nodejs = ">=25.2.1,<25.8"
 # pyodide-build shells out to `make` to read Makefile.envs when initializing the
@@ -119,7 +119,8 @@ pyodide-build = ">=0.33.0,<0.40"
 [feature.wheel.dependencies]
 cmake = ">=3.27,<5"
 ninja = ">=1.13.2,<2"
-scikit-build-core = ">=1.0.3,<2"
+# scikit-build-core = ">=1.0.3,<2"
+uv = ">=0.12.13
 
 [feature.wheel.pypi-dependencies]
 build = ">=1.5.0,<2"
