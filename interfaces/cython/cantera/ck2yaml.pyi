@@ -78,6 +78,7 @@ class Nasa7:
 
 class Nasa9:
     note: str
+    ref_pressure: str | None
     data: list[tuple[list[float], list[float]]]
     Tranges: list[float]
     def __init__(
@@ -86,6 +87,7 @@ class Nasa9:
         parser: Parser,
         data: list[tuple[list[float], list[float]]],
         note: str = "",
+        ref_pressure: str | None = "1 bar",
     ) -> None: ...
     @classmethod
     def to_yaml(cls, representer: SafeRepresenter, node: Nasa9) -> MappingNode: ...
