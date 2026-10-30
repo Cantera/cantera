@@ -5,7 +5,7 @@
 
 #include "cantera/oneD/OneDim.h"
 #include "cantera/numerics/Func1.h"
-#include "cantera/oneD/MultiNewton.h"
+#include "cantera/numerics/MultiNewton.h"
 #include "cantera/base/AnyMap.h"
 #include "cantera/numerics/SystemJacobianFactory.h"
 
