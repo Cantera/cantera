@@ -628,10 +628,11 @@ jobs:
       - uses: actions/checkout@v7
         name: Checkout the repository
         with:
-          submodules: recursive
           persist-credentials: false
       - name: Set up Pixi
         uses: prefix-dev/setup-pixi@ad1da6449d9e506fd127fd67ab2d054a769f6a94 # v0.11.2
+        with:
+          environments: "pyodide"
       - name: Build Pyodide wheel
         run: |
           pixi run -e pyodide scons pyodide-wheel
@@ -1109,7 +1110,7 @@ jobs:
         path: ${{env.BOOST_ROOT}}
         key: boost-187-win
     - name: Set up MinGW
-      uses: egor-tensin/setup-mingw@a7b8fccd4af723a2de8bb0d2578431b0e7e529be # v3.0
+      uses: egor-tensin/setup-mingw@a7b8fccd4af723a2de8bb0d2578431b0e7e529be # v3.0.4
       with:
         platform: x64
         static: false
