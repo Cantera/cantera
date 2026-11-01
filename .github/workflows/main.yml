@@ -199,15 +199,8 @@ jobs:
     timeout-minutes: 90
     strategy:
       matrix:
-        macos-version: ['macos-14', 'macos-15']
-        python-version: ['3.12', '3.13']
-        include:
-          - macos-version: 'macos-14'
-            python-version: '3.12'
-          - macos-version: 'macos-15'
-            python-version: '3.13'
-          - macos-version: 'macos-15'
-            python-version: '3.14'
+        macos-version: ['macos-15', 'macos-26']
+        python-version: ['3.12', '3.13', '3.14']
       fail-fast: false
     steps:
     - uses: actions/checkout@v7
@@ -440,7 +433,7 @@ jobs:
           mypy --config-file interfaces/cython/pyproject.toml \
             --cobertura-xml-report type_check/ interfaces/cython/cantera
       - name: Summarize the report
-        uses: danielpalme/ReportGenerator-GitHub-Action@d3ebf1f760f7d8ab92cc44d9bcfee7ad73722a31 # v5.5.11
+        uses: danielpalme/ReportGenerator-GitHub-Action@861674232075b2c6bd1405a04c4bb9b150653e81 # v5.5.12
         with:
           reports: './type_check/cobertura.xml'
           targetdir: './type_check'
@@ -521,7 +514,7 @@ jobs:
       - name: Build Cantera
         run: scons build -j4 debug=n optimize=y use_pch=n
       - name: Set up Julia
-        uses: julia-actions/setup-julia@fa02766e078afaaf09b14210362cee14137e6a32 # v3.0.2
+        uses: julia-actions/setup-julia@da908477b5db94c10ffce8cfea9f2b3b9d5db687 # v3.0.3
         with:
           version: '1'
       - name: Build documentation
@@ -631,7 +624,9 @@ jobs:
           submodules: recursive
           persist-credentials: false
       - name: Set up Pixi
-        uses: prefix-dev/setup-pixi@d3f436a425481402e6a95a1d1fc10331c708cd9e # v0.10.2
+        uses: prefix-dev/setup-pixi@ad1da6449d9e506fd127fd67ab2d054a769f6a94 # v0.11.2
+        with:
+          environments: "pyodide"
       - name: Build Pyodide wheel
         run: |
           pixi run -e pyodide scons pyodide-wheel
@@ -1109,7 +1104,7 @@ jobs:
         path: ${{env.BOOST_ROOT}}
         key: boost-187-win
     - name: Set up MinGW
-      uses: egor-tensin/setup-mingw@41b837e47d7f85214629d255b9c4bc3fcbe9fd63 # v3.0
+      uses: egor-tensin/setup-mingw@d54f5ef0ce585bd3fbb1f8a71b5b254f59dbf931 # v3.0.4
       with:
         platform: x64
         static: false
@@ -1160,7 +1155,7 @@ jobs:
     name: .NET on ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-24.04, windows-2022, windows-2025, macos-14]
+        os: [ubuntu-24.04, windows-2022, windows-2025, macos-15]
       fail-fast: false
     runs-on: ${{ matrix.os }}
     needs: [ubuntu-multiple-pythons, macos-multiple-pythons, windows-2022, windows]
@@ -1174,7 +1169,7 @@ jobs:
       # Python version does not matter as it is only used to run sourcegen
       uses: actions/setup-python@v7
       with:
-        python-version: "3.12"
+        python-version: "3.14"
     - name: Install library dependencies with micromamba (Windows)
       uses: mamba-org/setup-micromamba@f457c30a868e4760d3a6fcea5f25dc655b8edf39 # v3.2.1
       with:
@@ -1263,10 +1258,10 @@ jobs:
     name: MATLAB ${{ matrix.release }} on ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-24.04, windows-2025, macos-14]
+        os: [ubuntu-24.04, windows-2025, macos-15]
         release: [R2024a, latest]
         include:
-        - os: 'macos-14'
+        - os: 'macos-15'
           release: 'R2024b'
         - os: 'macos-15'
           release: 'latest'
