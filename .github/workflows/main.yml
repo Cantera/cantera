@@ -1110,7 +1110,7 @@ jobs:
         path: ${{env.BOOST_ROOT}}
         key: boost-187-win
     - name: Set up MinGW
-      uses: egor-tensin/setup-mingw@a7b8fccd4af723a2de8bb0d2578431b0e7e529be # v3.0.4
+      uses: egor-tensin/setup-mingw@d54f5ef0ce585bd3fbb1f8a71b5b254f59dbf931 # v3.0.4
       with:
         platform: x64
         static: false
