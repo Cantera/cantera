@@ -199,15 +199,8 @@ jobs:
     timeout-minutes: 90
     strategy:
       matrix:
-        macos-version: ['macos-14', 'macos-15']
-        python-version: ['3.12', '3.13']
-        include:
-          - macos-version: 'macos-14'
-            python-version: '3.12'
-          - macos-version: 'macos-15'
-            python-version: '3.13'
-          - macos-version: 'macos-15'
-            python-version: '3.14'
+        macos-version: ['macos-15', 'macos-26']
+        python-version: ['3.12', '3.13', '3.14']
       fail-fast: false
     steps:
     - uses: actions/checkout@v7
