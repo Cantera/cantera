@@ -263,8 +263,8 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        python-version: ['3.14']
-        os: ['ubuntu-24.04']
+        python-version: ['3.16']
+        os: ['ubuntu-26.04']
       fail-fast: false
     steps:
     - uses: actions/checkout@v7
@@ -318,7 +318,7 @@ jobs:
     timeout-minutes: 90
     strategy:
       matrix:
-        os: ['macos-14', 'macos-15']
+        os: ['macos-15', 'macos-26']
       fail-fast: false
     steps:
     - uses: actions/checkout@v7
