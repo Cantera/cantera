@@ -157,6 +157,11 @@ protected:
     //! reactions on adjacent surfaces.
     void updateSurfaceProductionRates();
 
+    //! Common post-processing after #m_advancelimits was modified: drop the limits
+    //! entirely if none is positive, and notify the network (if any) so the integrator
+    //! re-registers its advance-limit root function before the next step.
+    void finalizeAdvanceLimits();
+
     //! Evaluate terms related to Walls. Calculates #m_vdot and #m_Qdot based on
     //! wall movement and heat transfer.
     //! @param t     the current time
