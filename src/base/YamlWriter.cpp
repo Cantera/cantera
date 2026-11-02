@@ -6,6 +6,7 @@
 #include "cantera/base/Solution.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/thermo/ThermoPhase.h"
+#include "cantera/thermo/PlasmaPhase.h"
 #include "cantera/thermo/Species.h"
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/kinetics/Reaction.h"
@@ -203,6 +204,37 @@ string YamlWriter::toYamlString() const
                 phaseDef["reactions"] = vector<string>{groupName};
             }
         }
+    }
+
+    // Build electron-collision definitions used by plasma phases
+    vector<AnyMap> electronCollisionDefs;
+    std::unordered_map<string, size_t> electronCollisionDefIndex;
+
+    for (const auto& phase : m_phases) {
+        auto plasma = std::dynamic_pointer_cast<PlasmaPhase>(phase->thermo());
+        if (!plasma) {
+            continue;
+        }
+
+        for (const auto& [name, collisionDef] :
+                plasma->electronCollisionDefinitions()) {
+            auto iter = electronCollisionDefIndex.find(name);
+            if (iter == electronCollisionDefIndex.end()) {
+                electronCollisionDefs.emplace_back(collisionDef);
+                electronCollisionDefIndex[name] =
+                    electronCollisionDefs.size() - 1;
+            } else if (electronCollisionDefs[iter->second] != collisionDef) {
+                throw CanteraError("YamlWriter::toYamlString",
+                    "Multiple electron collisions with name '{}' and different "
+                    "definitions are not supported:\n>>>>>>\n{}\n======\n{}\n<<<<<<\n",
+                    name, collisionDef.toYamlString(),
+                    electronCollisionDefs[iter->second].toYamlString());
+            }
+        }
+    }
+
+    if (!electronCollisionDefs.empty()) {
+        output["electron-collisions"] = std::move(electronCollisionDefs);
     }
 
     output.setMetadata("precision", AnyValue(m_float_precision));
