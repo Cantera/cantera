@@ -16,6 +16,7 @@ species:
   note: Gurvich,1996a pt1 p173 pt2 p134.
   thermo:
     model: NASA9
+    reference-pressure: 1 bar
     temperature-ranges: [200.0, 1000.0, 6000.0]
     data:
     - [7.75060097e+04, -1440.779717, 14.01744141, -6.38163124e-03, 5.87167472e-06,
@@ -27,6 +28,7 @@ species:
   note: 'Ref-Species. Chase, 1998 3/82.                                '
   thermo:
     model: NASA9
+    reference-pressure: 1 bar
     temperature-ranges: [298.15, 1000.0, 6000.0, 2.0e+04]
     data:
     - [0.0, 0.0, 2.5, 0.0, 0.0, 0.0, 0.0, -745.375, -11.72081224]
@@ -37,6 +39,7 @@ species:
   note: 'Ref-Elm. Moore,1971. Gordon,1999..                                '
   thermo:
     model: NASA9
+    reference-pressure: 1 bar
     temperature-ranges: [200.0, 1000.0]
     data:
     - [0.0, 0.0, 2.5, 0.0, 0.0, 0.0, 0.0, -745.375, 4.37967491]

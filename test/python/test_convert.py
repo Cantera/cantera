@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import io
 import itertools
 from pathlib import Path
 import pytest
@@ -287,6 +288,38 @@ class Testck2yaml:
         ref, gas = self.checkConversion("nasa9-embedded.yaml", output)
         self.checkThermo(ref, gas, [300, 500, 1200, 5000])
         self.checkKinetics(ref, gas, [300, 1200, 9000], [5e3, 1e5, 2e6])
+
+    def test_nasa9_condensed_phase(self):
+        # NASA9 condensed species (phase flag > 0 in col 52) must omit reference-pressure,
+        # preserving the 1 atm default, whereas gas species (flag == 0) use 1 bar.
+        parser = ck2yaml.Parser()
+        entry_cond = [
+            "Cr(cr)            Ref-Elm. Moore,1971. Gordon,1999..",
+            " 1 g 3/98 Cr  1.00    0.00    0.00    0.00    0.00 1   51.9961000          0.000",
+            "    200.000   1000.0007 -2.0 -1.0  0.0  1.0  2.0  3.0  4.0  0.0         6197.428",
+            " 0.000000000D+00 0.000000000D+00 2.500000000D+00 0.000000000D+00 0.000000000D+00",
+            " 0.000000000D+00 0.000000000D+00                -7.453750000D+02 4.379674910D+00",
+        ]
+        _, thermo_cond, _ = parser.read_NASA9_entry(entry_cond, [])
+        assert thermo_cond.ref_pressure is None
+        emitter = ck2yaml.yaml.YAML()
+        emitter.register_class(ck2yaml.Nasa9)
+        s_cond = io.StringIO()
+        emitter.dump(thermo_cond, s_cond)
+        assert "reference-pressure" not in s_cond.getvalue()
+
+        entry_gas = [
+            "AR                Ref-Elm. Moore,1971. Gordon,1999..",
+            " 1 g 3/98 Ar  1.00    0.00    0.00    0.00    0.00 0   39.9480000          0.000",
+            "    200.000   1000.0007 -2.0 -1.0  0.0  1.0  2.0  3.0  4.0  0.0         6197.428",
+            " 0.000000000D+00 0.000000000D+00 2.500000000D+00 0.000000000D+00 0.000000000D+00",
+            " 0.000000000D+00 0.000000000D+00                -7.453750000D+02 4.379674910D+00",
+        ]
+        _, thermo_gas, _ = parser.read_NASA9_entry(entry_gas, [])
+        assert thermo_gas.ref_pressure == "1 bar"
+        s_gas = io.StringIO()
+        emitter.dump(thermo_gas, s_gas)
+        assert "reference-pressure: 1 bar" in s_gas.getvalue()
 
     def test_sri_falloff(self):
         output = self.convert("sri-falloff.inp", thermo="dummy-thermo.dat")
@@ -1537,6 +1570,23 @@ class Testctml2yaml:
         self.convert("nasa9-test")
         ctmlGas, yamlGas = self.checkConversion("nasa9-test")
         self.checkThermo(ctmlGas, yamlGas, [300, 500, 1300, 2000])
+
+    def test_nasa9_no_p0(self):
+        # When P0 is omitted from NASA9 CTML element, reference-pressure should not be set
+        from xml.etree import ElementTree as etree
+        root = etree.fromstring("""
+        <species name="test">
+          <thermo>
+            <NASA9 Tmax="1000.0" Tmin="200.0">
+              <floatArray name="coeffs" size="9">
+                0, 0, 2.5, 0, 0, 0, 0, 0, 0
+              </floatArray>
+            </NASA9>
+          </thermo>
+        </species>
+        """)
+        converter = ctml2yaml.SpeciesThermo(root.find("thermo"))
+        assert "reference-pressure" not in converter.attribs
 
     def test_chemically_activated(self):
         self.convert("chemically-activated-reaction")

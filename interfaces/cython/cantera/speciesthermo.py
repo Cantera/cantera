@@ -32,6 +32,7 @@ _SpeciesThermoInput = _TypedDict(
         "temperature-ranges": list[float],
         "data": list[list[float]],
         "note": str,
+        "reference-pressure": float | str,
     },
     total=False,
 )
