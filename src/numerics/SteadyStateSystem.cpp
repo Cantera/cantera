@@ -4,7 +4,7 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/numerics/SteadyStateSystem.h"
-#include "cantera/oneD/MultiNewton.h"
+#include "cantera/numerics/MultiNewton.h"
 #include "cantera/numerics/Func1.h"
 
 #include <chrono>
