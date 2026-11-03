@@ -161,6 +161,10 @@ void MultiTransport::solveLMatrixEquation()
     eval_L0100();
     eval_L0110();
     eval_L0101(m_molefracs);
+    // With one species, the diffusion row and column are all zero
+    if (m_nsp == 1) {
+        m_Lmatrix(0,0) = 1.0;
+    }
 
     // Solve it using GMRES or LU decomposition. The last solution in m_a should
     // provide a good starting guess, so convergence should be fast.
@@ -375,6 +379,11 @@ void MultiTransport::getMultiDiffCoeffs(const size_t ld, span<double> d)
         throw CanteraError("MultiTransport::getMultiDiffCoeffs", "ld is too small");
     }
     checkArraySize("MultiTransport::getMultiDiffCoeffs", d.size(), ld * m_nsp);
+    // diffusion coefficients are zero for a single species
+    if (m_nsp == 1) {
+        d[0] = 0.0;
+        return;
+    }
     double p = pressure_ig();
 
     // update the mole fractions
