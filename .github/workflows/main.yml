@@ -688,7 +688,7 @@ jobs:
               print(f"{cantera_wheel=}")
               try:
                   await micropip.install(cantera_wheel, deps=True, reinstall=True)
-              except BaseException ase:
+              except BaseException as e:
                   import traceback
                   traceback.print_exc()
                   print(repr(e))
