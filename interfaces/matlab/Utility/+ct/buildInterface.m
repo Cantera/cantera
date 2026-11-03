@@ -86,7 +86,7 @@ function generateLibraryDefinitions(includeDir, ctLibDir, outputDir)
     headerPaths = fullfile({headerFiles.folder}, headerPaths);
 
     % Get path for the shared library file
-    libraries = ct.ctLib(ctLibDir);
+    libraries = ctLib(ctLibDir);
     disp("Using shared library: " + libraries);
 
     if isMATLABReleaseOlderThan("R2024a")
@@ -97,8 +97,25 @@ function generateLibraryDefinitions(includeDir, ctLibDir, outputDir)
 
     overwriteExistingDefinitionFiles = true;
 
+    % On Linux, link the interface statically against libstdc++ and libgcc. The
+    % interface is built with the system compiler, whose libstdc++ can be newer than
+    % the one MATLAB ships (R2024b ships the one from GCC 12), so the interface would
+    % otherwise only load with the system libstdc++ preloaded.
+    linkerArgs = {};
+    if isunix && ~ismac
+        linkerArgs = {"AdditionalLinkerFlags", ["-static-libstdc++", "-static-libgcc"]};
+    end
+
     % Set up C++ compiler
     mex -setup cpp
+
+    % With R2026b, the interface build command on macOS no longer includes a C++
+    % standard flag, so older compilers (for example, Xcode 15) fall back to C++98,
+    % which cannot compile the MATLAB Data API headers.
+    compilerArgs = {};
+    if ~ispc
+        compilerArgs = {"AdditionalCompilerFlags", "-std=c++17"};
+    end
 
     % Generate definition file for C++ library
     clibgen.generateLibraryDefinition(headerPaths, ...
@@ -107,9 +124,11 @@ function generateLibraryDefinitions(includeDir, ctLibDir, outputDir)
         "OutputFolder", outputDir, ...
         nameArg, "ctMatlab", ...
         "OverwriteExistingDefinitionFiles", overwriteExistingDefinitionFiles, ...
+        compilerArgs{:}, ...
         "CLinkage", true, ...
         "TreatObjectPointerAsScalar", true, ...
         "TreatConstCharPointerAsCString", true, ...
+        linkerArgs{:}, ...
         "ReturnCArrays", false, ...
         "Verbose", true);
 end
