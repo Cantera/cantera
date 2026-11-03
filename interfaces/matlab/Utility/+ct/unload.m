@@ -24,6 +24,7 @@ function unload()
     if hasGlobalCt
         try
             ctMatlab.unload;
+            invalidateHandles();
             disp("Cantera has been unloaded");
         catch ME
             warning("ct.unload:UnloadFailed", ...
@@ -34,10 +35,16 @@ function unload()
         cfg = clibConfiguration("ctMatlab");
         try
             unload(cfg);
+            invalidateHandles();
             disp("Cantera has been unloaded");
         catch ME
             warning("ct.unload:UnloadFailed", ...
                 "unload(clibConfiguration) failed (%s).", ME.message);
         end
     end
+end
+
+function invalidateHandles()
+    % Unloading freed every library object; see ct.impl.release.
+    setappdata(groot, 'CanteraSession', ct.impl.session() + 1);
 end

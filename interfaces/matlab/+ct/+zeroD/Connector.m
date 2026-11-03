@@ -29,6 +29,10 @@ classdef (Abstract) Connector < handle
 
     end
 
+    properties (SetAccess = immutable, Hidden)
+        session = -1  % Library session that issued the handle; see ct.impl.release.
+    end
+
     methods
         %% Connector Class Constructor
 
@@ -40,6 +44,7 @@ classdef (Abstract) Connector < handle
                 name (1,1) string = "(none)"
             end
 
+            obj.session = ct.impl.session();
             obj.id = ct.impl.call('mConnector_new', typ, r1.id, r2.id, name);
         end
 
@@ -47,9 +52,7 @@ classdef (Abstract) Connector < handle
 
         function delete(obj)
             % Delete the :mat:class:`ct.zeroD.Connector` object.
-            if obj.id >= 0
-                ct.impl.call('mConnector_del', obj.id);
-            end
+            ct.impl.release('mConnector_del', obj.id, obj.session);
         end
 
         %% Connector Get Methods
