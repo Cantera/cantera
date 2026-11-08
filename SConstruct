@@ -210,12 +210,12 @@ def _build_python_sdist() -> None:
     )
     subprocess.run(
         [
-            sys.executable,
-            "-m",
+            "uv",
             "build",
             "--sdist",
             python_sdist_dir,
         ],
+        check=True,
     )
     message = textwrap.dedent(f"""
         ****************************************************************
@@ -244,7 +244,7 @@ if "pyodide-wheel" in COMMAND_LINE_TARGETS:
     _build_python_sdist()
     subprocess.run(
         [
-            sys.executable,
+            "uv", "run", "--script",
             "interfaces/python_sdist/build_pyodide_wheel.py",
         ],
         check=True,

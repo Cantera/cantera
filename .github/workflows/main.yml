@@ -383,8 +383,6 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     needs: ["ubuntu-multiple-pythons"]
-    strategy:
-      fail-fast: false
     steps:
       # Only need pyproject.toml for type checker settings
       - name: Checkout the repository
@@ -626,10 +624,30 @@ jobs:
       - name: Set up Pixi
         uses: prefix-dev/setup-pixi@ad1da6449d9e506fd127fd67ab2d054a769f6a94 # v0.11.2
         with:
-          environments: "pyodide"
-      - name: Build Pyodide wheel
+          environments: "wheel"
+      - name: Build and extract the sdist
+        id: build-sdist
         run: |
-          pixi run -e pyodide scons pyodide-wheel
+          pixi run -e wheel sdist
+          echo "cantera-sdist=$(find build/python_sdist/dist -name '*.tar.gz' -print)" >> "$GITHUB_OUTPUT"
+      - name: Find Pixi include directory
+        run: |
+          echo "Boost_INCLUDE_DIRS=$(pixi info --json | jq -r '.environments_info[] | select(.name == "wheel") | .prefix')/include" >> "${GITHUB_ENV}"
+      - uses: actions/cache@v6
+        with:
+          path: ${{ runner.temp }}/cibw-cache
+          key: cibw-${{ runner.os }}-${{ hashFiles('interfaces/python_sdist/pyproject.toml.in') }}
+          restore-keys: |
+            cibw-${{ runner.os }}-
+      - name: Build wheels
+        uses: pypa/cibuildwheel@b9e566a2b284570af229f6c2a33673410d0389a3 # v4.3.4
+        env:
+          CANTERA_TEST_DIR: ${{ github.workspace }}
+          CIBW_CACHE_PATH: ${{ runner.temp }}/cibw-cache
+        with:
+          package-dir: ./${{ steps.build-sdist.outputs.cantera-sdist }}
+          output-dir: ${{ github.workspace }}/build/pyodide_dist
+          only: "cp314-pyodide_wasm32"
       - name: Upload Pyodide wheel artifact
         uses: actions/upload-artifact@v7
         with:
@@ -637,68 +655,6 @@ jobs:
           name: cantera-wheel-pyodide
           if-no-files-found: error
           retention-days: 14
-      - name: Create Pyodide venv
-        run: |
-          pixi run -e pyodide pyodide venv .pyodide-venv
-      - name: Install wheel and dependencies into Pyodide venv
-        run: |
-          WHEELHOUSE="${RUNNER_TEMP}/pyodide-wheelhouse"
-          mkdir -p "${WHEELHOUSE}"
-
-          # Load packages that are part of the Pyodide distribution. This is a
-          # separate process since loadPackage does not reliably return control
-          # to the calling Python script in the Node.js CLI runtime.
-          pixi run -e pyodide .pyodide-venv/bin/python - <<'PY'
-          from pyodide_js import loadPackage
-
-          loadPackage(["pytest", "pandas"])
-          PY
-
-          # Download pure-Python packages and their dependencies with host pip.
-          # The Pyodide venv pip wrapper can fail with newer pip / urllib3
-          # combinations before it starts dependency resolution.
-          pixi run -e pyodide python -m pip download --only-binary=:all: \
-            --dest "${WHEELHOUSE}" pint graphviz ruamel.yaml packaging
-
-          export WHEELHOUSE
-          pixi run -e pyodide .pyodide-venv/bin/python - <<'PY'
-          import asyncio
-          import os
-          from pathlib import Path
-
-          import micropip
-
-          wheelhouse = Path(os.environ["WHEELHOUSE"])
-          pure_python_wheels = [
-              f"emfs:{wheel}" for wheel in sorted(wheelhouse.glob("*.whl"))
-          ]
-          cantera_wheel = f"emfs:{list(Path('build/pyodide_dist').glob('*.whl'))[0].resolve()}"
-
-          async def main():
-              await micropip.install(pure_python_wheels, deps=True, reinstall=True)
-              await micropip.install(cantera_wheel, deps=True, reinstall=True)
-
-          asyncio.run(main())
-          PY
-
-          # Sanity checks (useful to debug future regressions)
-          pixi run -e pyodide .pyodide-venv/bin/python - <<'PY'
-          import sys
-
-          import js
-          import cantera
-          import pandas
-          import graphviz
-          import pint
-          import pytest
-
-          print("platform:", sys.platform)
-          print("ok: js/cantera/pandas/graphviz/pint/pytest imported")
-          PY
-      - name: Run Python tests
-        run: |
-          pixi run -e pyodide .pyodide-venv/bin/python -m pytest -raP -v --durations=50 test/python
-
   run-examples:
     name: Run Python ${{ matrix.python-version }} examples on ${{ matrix.os }}, NumPy ${{ matrix.numpy || 'latest' }}
     runs-on: ${{ matrix.os }}
