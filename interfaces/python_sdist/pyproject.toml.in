@@ -117,8 +117,8 @@ test-command = "pytest -vv --durations=100 \"${CANTERA_TEST_DIR}/test/python\""
 [tool.cibuildwheel.windows]
 before-build = "pip install delvewheel"
 repair-wheel-command = """\
-delvewheel repair --ignore-existing --analyze-existing
---add-path "%HDF5_LIB_DIR%;%SUNDIALS_LIB_DIR%;%YAML_CPP_LIB_DIR%;%FMT_LIB_DIR%"
+delvewheel repair --ignore-existing --analyze-existing \
+--add-path "%HDF5_LIB_DIR%;%SUNDIALS_LIB_DIR%;%YAML_CPP_LIB_DIR%;%FMT_LIB_DIR%" \
 -w "{dest_dir}" "{wheel}"\
 """
 test-command = "pytest -vv --durations=100 %CANTERA_TEST_DIR%\\test\\python"
