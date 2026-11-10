@@ -4425,3 +4425,28 @@ class TestNonIdealConstPressureEnergy:
         assert net.linear_solver_type == "GMRES"
         assert reactor.mass * reactor.phase.h == approx(H0, rel=1e-8)
         assert reactor.T > 1050.0
+
+
+def test_clone_preserves_noninteger_stoichiometry():
+    # Cloning the phase for a reactor must not round stoichiometric coefficients
+    # (gh-2188)
+    species = [
+        ct.Species.from_dict({
+            "name": name,
+            "composition": {"H": atoms},
+            "thermo": {"model": "constant-cp"},
+        })
+        for name, atoms in [("H", 1), ("BIN", 16000000)]
+    ]
+    gas = ct.Solution(thermo="ideal-gas", kinetics="gas", species=species)
+    gas.add_reaction(ct.Reaction.from_dict({
+        "equation": "H + BIN => 2 H + 0.9999999375 BIN",
+        "type": "elementary",
+        "rate-constant": {"A": 1.0, "b": 0.0, "Ea": 0.0},
+    }, gas))
+    gas.TPX = 1200, ct.one_atm, {"H": 1e-6, "BIN": 1e-12}
+    for clone in (False, True):
+        r = ct.IdealGasConstPressureReactor(gas, clone=clone)
+        rxn = r.phase.reaction(0)
+        assert rxn.products["BIN"] == 0.9999999375
+        assert rxn.reactants["BIN"] == 1.0

@@ -349,7 +349,10 @@ string Reaction::reactantString() const
             result << " + ";
         }
         if (iter->second != 1.0) {
-            result << iter->second << " ";
+            // Shortest representation that round-trips exactly, so that equations
+            // re-parsed from this string (for example when cloning) keep the
+            // original stoichiometric coefficients.
+            result << fmt::format("{} ", iter->second);
         }
         result << iter->first;
     }
@@ -367,7 +370,10 @@ string Reaction::productString() const
             result << " + ";
         }
         if (iter->second != 1.0) {
-            result << iter->second << " ";
+            // Shortest representation that round-trips exactly, so that equations
+            // re-parsed from this string (for example when cloning) keep the
+            // original stoichiometric coefficients.
+            result << fmt::format("{} ", iter->second);
         }
         result << iter->first;
     }

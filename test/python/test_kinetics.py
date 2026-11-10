@@ -1950,3 +1950,29 @@ class TestElectronCollisionPlasmaReaction:
         rrop = approx(gas.reverse_rates_of_progress[1])
 
         assert frop == rrop
+
+
+def test_noninteger_stoichiometry_in_equation():
+    # The equation string must keep non-integer coefficients exactly (gh-2188)
+    species = [
+        ct.Species.from_dict({
+            "name": name,
+            "composition": {"H": atoms},
+            "thermo": {"model": "constant-cp"},
+        })
+        for name, atoms in [("H", 1), ("BIN", 16000000)]
+    ]
+    gas = ct.Solution(thermo="ideal-gas", kinetics="gas", species=species)
+    gas.add_reaction(ct.Reaction.from_dict({
+        "equation": "H + BIN => 2 H + 0.9999999375 BIN",
+        "type": "elementary",
+        "rate-constant": {"A": 1.0, "b": 0.0, "Ea": 0.0},
+    }, gas))
+    rxn = gas.reaction(0)
+    assert "0.9999999375 BIN" in rxn.equation
+    rebuilt = ct.Reaction.from_dict(rxn.input_data, gas)
+    assert rebuilt.products["BIN"] == 0.9999999375
+    # ordinary coefficients keep their usual appearance
+    simple = ct.Reaction(equation="2 A + 1.5 B => 0.5 C + D",
+                         rate=ct.ArrheniusRate(1, 0, 0))
+    assert simple.equation == "2 A + 1.5 B => 0.5 C + D"
