@@ -190,6 +190,7 @@ const MECH = "gri30.yaml"
         close!(gas)
     end
 
+    include("test_library_names.jl")
     include("test_mechanisms.jl")
     include("test_thermo.jl")
     include("test_kinetics.jl")
