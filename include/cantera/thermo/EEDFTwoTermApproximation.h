@@ -223,7 +223,7 @@ protected:
     //! Vector g is used by matrix_P() and matrix_Q().
     /**
      * \f[
-     * g_i = \frac{1}{\epsilon_{i+1} - \epsilon_{i-1}} \ln(\frac{F_{0, i+1}}{F_{0, i-1}})
+     * g_i = \frac{1}{\epsilon_{i+1} - \epsilon_{i-1}} \ln(\frac{F_{0, i-1}}{F_{0, i+1}})
      * \f]
      */
     vector<double> vector_g(const Eigen::VectorXd& f0);

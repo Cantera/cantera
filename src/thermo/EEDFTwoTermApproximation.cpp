@@ -477,19 +477,19 @@ vector<double> EEDFTwoTermApproximation::vector_g(const Eigen::VectorXd& f0)
     // Handle first point (i = 0)
     double f1 = std::max(f0(1), f_min);
     double f0_ = std::max(f0(0), f_min);
-    g[0] = log(f1 / f0_) / (m_gridCenter[1] - m_gridCenter[0]);
+    g[0] = log(f0_ / f1) / (m_gridCenter[1] - m_gridCenter[0]);
 
     // Handle last point (i = N)
     size_t N = m_points - 1;
     double fN = std::max(f0(N), f_min);
     double fNm1 = std::max(f0(N - 1), f_min);
-    g[N] = log(fN / fNm1) / (m_gridCenter[N] - m_gridCenter[N - 1]);
+    g[N] = log(fNm1 / fN) / (m_gridCenter[N] - m_gridCenter[N - 1]);
 
     // Handle interior points
     for (size_t i = 1; i < N; ++i) {
         double f_up   = std::max(f0(i + 1), f_min);
         double f_down = std::max(f0(i - 1), f_min);
-        g[i] = log(f_up / f_down) / (m_gridCenter[i + 1] - m_gridCenter[i - 1]);
+        g[i] = log(f_down / f_up) / (m_gridCenter[i + 1] - m_gridCenter[i - 1]);
     }
     return g;
 }
