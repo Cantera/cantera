@@ -231,6 +231,14 @@ class TestFreeFlame:
 
         assert not self.sim.energy_enabled
 
+    def test_restart_hdf_without_hdf_support(self, monkeypatch):
+        # Regression test for Cantera/cantera#2199
+        import cantera.onedim
+        monkeypatch.setattr(cantera.onedim, "hdf_support", lambda: set())
+        self.create_sim(ct.one_atm, 300, "H2:1.1, O2:1, AR:5")
+        with pytest.raises(ct.CanteraError, match="HDF support"):
+            self.sim.set_initial_guess(data="restart.h5", group="restart")
+
     def solve_fixed_T_with_growth(self, growth_factor=1.5, strategy="fixed-growth"):
         dts = []
         self.sim.set_time_step_callback(lambda dt: dts.append(float(dt)) or 0)
