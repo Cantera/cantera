@@ -205,10 +205,14 @@ net_rates_of_progress_ddX!(out, g::KineticsLike) =
 
 Volumetric heat release rate [W/m^3], `-Σ_k h_k · ẇ_k`, where `h_k` are the
 partial molar enthalpies and `ẇ_k` the net production rates.  Matches Python's
-`gas.heat_release_rate` (the CLib exposes no direct getter).
+`gas.heat_release_rate` (the CLib exposes no direct getter, so this allocates
+the two arrays it is computed from).
 """
-heat_release_rate(g::Solution) =
-    -sum(partial_molar_enthalpies(g) .* net_production_rates(g))
+function heat_release_rate(g::Solution)
+    h = partial_molar_enthalpies(g)
+    wdot = net_production_rates(g)
+    return -sum(h[k] * wdot[k] for k in eachindex(h, wdot))
+end
 
 # ---- stoichiometry ----------------------------------------------------------
 
@@ -310,7 +314,22 @@ Per-reaction volumetric heat production rates [W/m^3], `-q_i · Δh_i` (net rate
 of progress times reaction enthalpy).  Their sum equals [`heat_release_rate`](@ref).
 """
 heat_production_rates(g::KineticsLike) =
-    -net_rates_of_progress(g) .* delta_enthalpy(g)
+    heat_production_rates!(Vector{Float64}(undef, _nrxn(g)), g)
+
+"""
+    heat_production_rates!(out, gas; work=similar(out)) -> out
+
+In-place [`heat_production_rates`](@ref): fill `out` and return it.  The
+reaction enthalpies are computed into `work`, so pass a preallocated `work`
+vector of the same length as `out` to avoid allocating.
+"""
+function heat_production_rates!(out, g::KineticsLike;
+                                work=Vector{Float64}(undef, length(out)))
+    net_rates_of_progress!(out, g)
+    delta_enthalpy!(work, g)
+    out .*= .-work
+    return out
+end
 
 export n_reactions, n_total_species, reaction_equation, reaction_equations,
        is_reversible,
@@ -331,7 +350,7 @@ export n_reactions, n_total_species, reaction_equation, reaction_equations,
        destruction_rates_ddT!, destruction_rates_ddP!, destruction_rates_ddC!,
        net_rates_of_progress_ddT!, net_rates_of_progress_ddP!,
        net_rates_of_progress_ddC!,
-       heat_release_rate, heat_production_rates,
+       heat_release_rate, heat_production_rates, heat_production_rates!,
        reactant_stoich_coeff, product_stoich_coeff,
        reactant_stoich_coeffs, product_stoich_coeffs,
        multiplier, set_multiplier!,

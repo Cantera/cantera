@@ -213,3 +213,17 @@ end
     close!(h2)
     close!(gas)
 end
+
+@testset "Heat production rates" begin
+    gas = Solution("gri30.yaml")
+    set_TPX!(gas, 1500.0, one_atm, "CH4:1, O2:2, N2:7.52")
+    nr = n_reactions(gas)
+    ref = heat_production_rates(gas)
+    out, work = zeros(nr), zeros(nr)
+    hp!(o, g) = heat_production_rates!(o, g; work)
+    @test hp!(out, gas) == ref
+    @test allocations(hp!, out, gas) == 0
+    @test heat_production_rates!(zeros(nr), gas) == ref
+    @test sum(ref) ≈ heat_release_rate(gas) rtol=1e-10
+    close!(gas)
+end
