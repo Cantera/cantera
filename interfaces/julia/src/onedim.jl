@@ -50,7 +50,13 @@ domain_type(d::Domain1D) =
 grid(d::Domain1D) =
     get_array(n_points(d), (bl, b) -> LibCantera.domain_grid(d.handle, bl, b))
 
-"Scalar value of `component` in a boundary domain (a single-point domain)."
+"""
+    value(domain, component) -> Float64
+
+Scalar value of `component` in a single-point domain.  Cantera implements this
+only for reacting-surface boundaries; other domains, including inlets and
+outlets, raise a `CanteraError`.
+"""
 value(d::Domain1D, component::AbstractString) =
     checkd(LibCantera.domain_value(d.handle, component))
 

@@ -9,6 +9,7 @@ using Test
     set_TPX!(gas, 1000.0, one_atm, "H2:2, O2:1, N2:4")
     r = IdealGasReactor(gas)
     net = ReactorNet(r)
+    @test reactor_type(r) == "IdealGasReactor"
 
     # mass, volume, temperature + species
     @test n_components(net) == 3 + n_species(gas)

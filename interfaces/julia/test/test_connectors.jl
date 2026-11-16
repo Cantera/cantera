@@ -39,6 +39,10 @@ end
     set_chemistry_enabled!(r1, false); set_chemistry_enabled!(r2, false)
     w = Wall(r1, r2; A=1.0, U=100.0)
     @test area(w) ≈ 1.0
+    @test set_heat_flux!(w, constant_function(0.0)) === w
+    @test set_heat_flux!(w, 0) === w
+    @test set_velocity!(w, 0.0) === w
+    @test_throws ArgumentError set_heat_flux!(w, "100")
     net = ReactorNet([r1, r2])
     T1_0 = temperature(r1); T2_0 = temperature(r2)
     advance!(net, 1.0)
@@ -49,6 +53,33 @@ end
     @test T1 > T2
     q = heat_rate(w)
     @test isfinite(q) && q > 0
+end
+
+@testset "Wall heat flux and velocity given as numbers" begin
+    function network(; kw...)
+        g1 = Solution(CONN_MECH); set_TPX!(g1, 300.0, one_atm, "N2:1")
+        g2 = Solution(CONN_MECH); set_TPX!(g2, 300.0, one_atm, "N2:1")
+        r1 = IdealGasReactor(g1); r2 = IdealGasReactor(g2)
+        set_chemistry_enabled!(r1, false); set_chemistry_enabled!(r2, false)
+        w = Wall(r1, r2; A=2.0, kw...)
+        return ReactorNet([r1, r2]), w, r1, r2
+    end
+    # A constant heat flux behaves like the equivalent constant Func1.
+    net, w, r1, r2 = network(Q=500.0)
+    GC.gc()
+    advance!(net, 1e-3)
+    @test heat_rate(w) ≈ 2.0 * 500.0
+    @test temperature(r1) < 300.0 < temperature(r2)
+    net_f, w_f, r1_f, _ = network(Q=constant_function(500.0))
+    advance!(net_f, 1e-3)
+    @test temperature(r1) ≈ temperature(r1_f)
+    # Integers are values too, not Func1 handles.
+    net, w, _, _ = network(Q=0)
+    advance!(net, 1e-3)
+    @test heat_rate(w) == 0.0
+    net, w, _, _ = network(velocity=1e-3)
+    advance!(net, 1e-3)
+    @test expansion_rate(w) ≈ 2.0 * 1e-3
 end
 
 @testset "Valve" begin
