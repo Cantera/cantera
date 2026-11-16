@@ -245,10 +245,15 @@ for (jl, c, doc) in (
          "internal energies u°_k/RT"),
         (:standard_cp_R,            :thermo_getCp_R,         "heat capacities cp°_k/R"),
     )
+    bang = Symbol(jl, :!)
+    bang_doc = inplace_doc(jl)
     @eval begin
         @doc $("Nondimensional standard-state species " * doc * ".")
         $jl(g::ThermoLike) =
             get_array(n_species(g), (n, b) -> LibCantera.$c(_thermo_handle(g), n, b))
+        $bang(out, g::ThermoLike) =
+            get_array!(out, n_species(g), (n, b) -> LibCantera.$c(_thermo_handle(g), n, b))
+        @doc $bang_doc $bang
     end
 end
 
@@ -259,35 +264,40 @@ molecular_weights(g::ThermoLike) =
     get_array(n_species(g),
         (n, b) -> LibCantera.thermo_getMolecularWeights(_thermo_handle(g), n, b))
 
-"In-place [`molecular_weights`](@ref)."
 molecular_weights!(out, g::ThermoLike) =
-    get_array!(out,
+    get_array!(out, n_species(g),
         (n, b) -> LibCantera.thermo_getMolecularWeights(_thermo_handle(g), n, b))
+@doc inplace_doc(:molecular_weights) molecular_weights!
 
 "Mole fractions of all species."
 mole_fractions(g::ThermoLike) =
     get_array(n_species(g),
         (n, b) -> LibCantera.thermo_getMoleFractions(_thermo_handle(g), n, b))
 
-"In-place [`mole_fractions`](@ref)."
 mole_fractions!(out, g::ThermoLike) =
-    get_array!(out,
+    get_array!(out, n_species(g),
         (n, b) -> LibCantera.thermo_getMoleFractions(_thermo_handle(g), n, b))
+@doc inplace_doc(:mole_fractions) mole_fractions!
 
 "Mass fractions of all species."
 mass_fractions(g::ThermoLike) =
     get_array(n_species(g),
         (n, b) -> LibCantera.thermo_getMassFractions(_thermo_handle(g), n, b))
 
-"In-place [`mass_fractions`](@ref)."
 mass_fractions!(out, g::ThermoLike) =
-    get_array!(out,
+    get_array!(out, n_species(g),
         (n, b) -> LibCantera.thermo_getMassFractions(_thermo_handle(g), n, b))
+@doc inplace_doc(:mass_fractions) mass_fractions!
 
 "Species concentrations [kmol/m^3]."
 concentrations(g::ThermoLike) =
     get_array(n_species(g),
         (n, b) -> LibCantera.thermo_getConcentrations(_thermo_handle(g), n, b))
+
+concentrations!(out, g::ThermoLike) =
+    get_array!(out, n_species(g),
+        (n, b) -> LibCantera.thermo_getConcentrations(_thermo_handle(g), n, b))
+@doc inplace_doc(:concentrations) concentrations!
 
 # ---- partial molar / potentials --------------------------------------------
 
@@ -308,13 +318,13 @@ for (jl, c, doc) in (
             "Electrochemical potentials of the species [J/kmol]."),
     )
     bang = Symbol(jl, :!)
-    bang_doc = "In-place [`$jl`](@ref)."
+    bang_doc = inplace_doc(jl)
     @eval begin
         $jl(g::ThermoLike) =
             get_array(n_species(g), (n, b) -> LibCantera.$c(_thermo_handle(g), n, b))
         @doc $doc $jl
         $bang(out, g::ThermoLike) =
-            get_array!(out, (n, b) -> LibCantera.$c(_thermo_handle(g), n, b))
+            get_array!(out, n_species(g), (n, b) -> LibCantera.$c(_thermo_handle(g), n, b))
         @doc $bang_doc $bang
     end
 end
@@ -455,7 +465,7 @@ export n_species, n_elements, species_name, species_names, species_index,
        element_name, element_names,
        mole_fractions, mole_fractions!, mass_fractions, mass_fractions!,
        set_mole_fractions!, set_mass_fractions!, molecular_weights,
-       molecular_weights!, concentrations, mean_molecular_weight
+       molecular_weights!, concentrations, concentrations!, mean_molecular_weight
 
 export temperature, pressure, density, molar_density,
        enthalpy_mass, enthalpy_mole, internal_energy_mass, internal_energy_mole,
@@ -474,7 +484,10 @@ export temperature, pressure, density, molar_density,
        partial_molar_int_energies, partial_molar_cp, partial_molar_volumes,
        chemical_potentials, electrochemical_potentials,
        partial_molar_enthalpies!, partial_molar_entropies!, partial_molar_cp!,
-       chemical_potentials!
+       partial_molar_int_energies!, partial_molar_volumes!,
+       chemical_potentials!, electrochemical_potentials!,
+       standard_enthalpies_RT!, standard_entropies_R!, standard_gibbs_RT!,
+       standard_int_energies_RT!, standard_cp_R!
 
 export set_TP!, set_TPX!, set_TPY!, set_HP!, set_UV!, set_SP!, set_SV!,
        set_TD!, set_DP!, equilibrate!, set_equivalence_ratio!

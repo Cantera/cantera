@@ -51,13 +51,13 @@ for (jl, c, doc) in (
          "Entropy change for each reaction [J/kmol/K]."),
     )
     bang = Symbol(jl, :!)
-    bang_doc = "In-place [`$jl`](@ref)."
+    bang_doc = inplace_doc(jl)
     @eval begin
         $jl(g::KineticsLike) =
             get_array(_nrxn(g), (n, b) -> LibCantera.$c(_kinetics_handle(g), n, b))
         @doc $doc $jl
         $bang(out, g::KineticsLike) =
-            get_array!(out, (n, b) -> LibCantera.$c(_kinetics_handle(g), n, b))
+            get_array!(out, _nrxn(g), (n, b) -> LibCantera.$c(_kinetics_handle(g), n, b))
         @doc $bang_doc $bang
     end
 end
@@ -67,9 +67,19 @@ end
 
 Reverse rate constants for all reactions.
 """
-function reverse_rate_constants(g::KineticsLike; do_irreversible::Bool=false)
+reverse_rate_constants(g::KineticsLike; do_irreversible::Bool=false) =
+    reverse_rate_constants!(Vector{Float64}(undef, _nrxn(g)), g; do_irreversible)
+
+"""
+    reverse_rate_constants!(out, gas; do_irreversible=false) -> out
+
+In-place [`reverse_rate_constants`](@ref): fill `out` and return it, without
+allocating.  `out` must have one element per reaction; a contiguous view is
+accepted.
+"""
+function reverse_rate_constants!(out, g::KineticsLike; do_irreversible::Bool=false)
     h = _kinetics_handle(g)
-    return get_array(_nrxn(g),
+    return get_array!(out, _nrxn(g),
         (n, b) -> LibCantera.kin_getRevRateConstants(h, n, b, Int32(do_irreversible)))
 end
 
@@ -83,13 +93,13 @@ for (jl, c, doc) in (
          "Destruction rates for all species [kmol/m^3/s]."),
     )
     bang = Symbol(jl, :!)
-    bang_doc = "In-place [`$jl`](@ref)."
+    bang_doc = inplace_doc(jl)
     @eval begin
         $jl(g::KineticsLike) =
             get_array(_nsp(g), (n, b) -> LibCantera.$c(_kinetics_handle(g), n, b))
         @doc $doc $jl
         $bang(out, g::KineticsLike) =
-            get_array!(out, (n, b) -> LibCantera.$c(_kinetics_handle(g), n, b))
+            get_array!(out, _nsp(g), (n, b) -> LibCantera.$c(_kinetics_handle(g), n, b))
         @doc $bang_doc $bang
     end
 end
@@ -134,13 +144,13 @@ for (jl, c, len, quantity, wrt) in (
     )
     bang = Symbol(jl, :!)
     doc = "Derivative of the $quantity with respect to $wrt."
-    bang_doc = "In-place [`$jl`](@ref)."
+    bang_doc = inplace_doc(jl)
     @eval begin
         $jl(g::KineticsLike) =
             get_array($len(g), (n, b) -> LibCantera.$c(_kinetics_handle(g), n, b))
         @doc $doc $jl
         $bang(out, g::KineticsLike) =
-            get_array!(out, (n, b) -> LibCantera.$c(_kinetics_handle(g), n, b))
+            get_array!(out, $len(g), (n, b) -> LibCantera.$c(_kinetics_handle(g), n, b))
         @doc $bang_doc $bang
     end
 end
@@ -156,13 +166,19 @@ end
 Dense composition Jacobian d(wdot_k)/dX_j of the net production rates with
 respect to species mole fractions, size nSpecies x nSpecies.
 """
-function net_production_rates_ddX(g::KineticsLike)
-    n = _nsp(g)
-    buf = get_array(n * n,
+net_production_rates_ddX(g::KineticsLike) =
+    net_production_rates_ddX!(Matrix{Float64}(undef, _nsp(g), _nsp(g)), g)
+
+"""
+    net_production_rates_ddX!(out, gas) -> out
+
+In-place [`net_production_rates_ddX`](@ref): fill the nSpecies x nSpecies matrix
+`out` and return it, without allocating.
+"""
+net_production_rates_ddX!(out, g::KineticsLike) =
+    get_matrix!(out, _nsp(g), _nsp(g),
         (len, b) -> LibCantera.kin_getNetProductionRates_ddX(
             _kinetics_handle(g), len, b))
-    return reshape(buf, n, n)
-end
 
 """
     net_rates_of_progress_ddX(gas) -> Matrix{Float64}
@@ -170,13 +186,19 @@ end
 Dense composition Jacobian d(q_i)/dX_j of the net rates of progress, size
 nReactions x nSpecies.
 """
-function net_rates_of_progress_ddX(g::KineticsLike)
-    nr = _nrxn(g); ns = _nsp(g)
-    buf = get_array(nr * ns,
+net_rates_of_progress_ddX(g::KineticsLike) =
+    net_rates_of_progress_ddX!(Matrix{Float64}(undef, _nrxn(g), _nsp(g)), g)
+
+"""
+    net_rates_of_progress_ddX!(out, gas) -> out
+
+In-place [`net_rates_of_progress_ddX`](@ref): fill the nReactions x nSpecies
+matrix `out` and return it, without allocating.
+"""
+net_rates_of_progress_ddX!(out, g::KineticsLike) =
+    get_matrix!(out, _nrxn(g), _nsp(g),
         (len, b) -> LibCantera.kin_getNetRatesOfProgress_ddX(
             _kinetics_handle(g), len, b))
-    return reshape(buf, nr, ns)
-end
 
 """
     heat_release_rate(gas) -> Float64
@@ -232,20 +254,25 @@ end
 
 # ---- standard-state reaction deltas -----------------------------------------
 
-"Standard-state enthalpy change for each reaction [J/kmol]."
-delta_standard_enthalpy(g::KineticsLike) =
-    get_array(_nrxn(g),
-        (n, b) -> LibCantera.kin_getDeltaSSEnthalpy(_kinetics_handle(g), n, b))
-
-"Standard-state Gibbs free energy change for each reaction [J/kmol]."
-delta_standard_gibbs(g::KineticsLike) =
-    get_array(_nrxn(g),
-        (n, b) -> LibCantera.kin_getDeltaSSGibbs(_kinetics_handle(g), n, b))
-
-"Standard-state entropy change for each reaction [J/kmol/K]."
-delta_standard_entropy(g::KineticsLike) =
-    get_array(_nrxn(g),
-        (n, b) -> LibCantera.kin_getDeltaSSEntropy(_kinetics_handle(g), n, b))
+for (jl, c, doc) in (
+        (:delta_standard_enthalpy, :kin_getDeltaSSEnthalpy,
+         "Standard-state enthalpy change for each reaction [J/kmol]."),
+        (:delta_standard_gibbs,    :kin_getDeltaSSGibbs,
+         "Standard-state Gibbs free energy change for each reaction [J/kmol]."),
+        (:delta_standard_entropy,  :kin_getDeltaSSEntropy,
+         "Standard-state entropy change for each reaction [J/kmol/K]."),
+    )
+    bang = Symbol(jl, :!)
+    bang_doc = inplace_doc(jl)
+    @eval begin
+        $jl(g::KineticsLike) =
+            get_array(_nrxn(g), (n, b) -> LibCantera.$c(_kinetics_handle(g), n, b))
+        @doc $doc $jl
+        $bang(out, g::KineticsLike) =
+            get_array!(out, _nrxn(g), (n, b) -> LibCantera.$c(_kinetics_handle(g), n, b))
+        @doc $bang_doc $bang
+    end
+end
 
 # ---- forward/reverse rate-of-progress derivatives ---------------------------
 
@@ -263,11 +290,16 @@ for (jl, c, quantity, wrt) in (
         (:reverse_rates_of_progress_ddC, :kin_getRevRatesOfProgress_ddC,
          "reverse rates of progress", "molar concentration"),
     )
+    bang = Symbol(jl, :!)
     doc = "Derivative of the $quantity with respect to $wrt."
+    bang_doc = inplace_doc(jl)
     @eval begin
         $jl(g::KineticsLike) =
             get_array(_nrxn(g), (n, b) -> LibCantera.$c(_kinetics_handle(g), n, b))
         @doc $doc $jl
+        $bang(out, g::KineticsLike) =
+            get_array!(out, _nrxn(g), (n, b) -> LibCantera.$c(_kinetics_handle(g), n, b))
+        @doc $bang_doc $bang
     end
 end
 
@@ -306,4 +338,10 @@ export n_reactions, n_total_species, reaction_equation, reaction_equations,
        delta_standard_enthalpy, delta_standard_gibbs, delta_standard_entropy,
        forward_rates_of_progress_ddT, forward_rates_of_progress_ddP,
        forward_rates_of_progress_ddC, reverse_rates_of_progress_ddT,
-       reverse_rates_of_progress_ddP, reverse_rates_of_progress_ddC
+       reverse_rates_of_progress_ddP, reverse_rates_of_progress_ddC,
+       reverse_rate_constants!, delta_enthalpy!, delta_gibbs!, delta_entropy!,
+       delta_standard_enthalpy!, delta_standard_gibbs!, delta_standard_entropy!,
+       forward_rates_of_progress_ddT!, forward_rates_of_progress_ddP!,
+       forward_rates_of_progress_ddC!, reverse_rates_of_progress_ddT!,
+       reverse_rates_of_progress_ddP!, reverse_rates_of_progress_ddC!,
+       net_production_rates_ddX!, net_rates_of_progress_ddX!

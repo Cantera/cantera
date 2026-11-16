@@ -101,10 +101,13 @@ passed to the constructor.
 reactor_phase(r::Reactor) = Solution(check(LibCantera.reactor_phase(r.handle)))
 
 "Mass fractions in the reactor."
-function mass_fractions(r::Reactor)
-    nsp = n_species(r.solution)
-    return get_array(nsp, (n, b) -> LibCantera.reactor_massFractions(r.handle, n, b))
-end
+mass_fractions(r::Reactor) =
+    mass_fractions!(Vector{Float64}(undef, n_species(r.solution)), r)
+
+mass_fractions!(out, r::Reactor) =
+    get_array!(out, n_species(r.solution),
+        (n, b) -> LibCantera.reactor_massFractions(r.handle, n, b))
+@doc inplace_doc(:mass_fractions, "reactor") mass_fractions!(::Any, ::Reactor)
 
 "Enable/disable the energy equation in the reactor."
 function set_energy_enabled!(r::Reactor, flag::Bool)
