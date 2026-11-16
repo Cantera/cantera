@@ -202,7 +202,7 @@ composition string (e.g. `"CH4:1, O2:2"`).
 """
 function set_moles!(mp::MultiPhase, moles::AbstractVector{<:Real})
     n = as_f64(moles)
-    check(LibCantera.mix_setMoles(mp.handle, Int32(length(n)), pointer(n)))
+    check(LibCantera.mix_setMoles(mp.handle, Int32(length(n)), n))
     return mp
 end
 function set_moles!(mp::MultiPhase, moles::AbstractString)

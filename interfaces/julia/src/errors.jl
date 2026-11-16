@@ -31,8 +31,8 @@ function last_cantera_error()
     buflen = LibCantera.ct_getCanteraError(Int32(0), Ptr{UInt8}(C_NULL))
     buflen <= 0 && return "unknown Cantera error (no message available)"
     buf = Vector{UInt8}(undef, buflen)
-    LibCantera.ct_getCanteraError(Int32(buflen), pointer(buf))
-    return unsafe_string(pointer(buf))
+    LibCantera.ct_getCanteraError(Int32(buflen), buf)
+    return GC.@preserve buf unsafe_string(pointer(buf))
 end
 
 """

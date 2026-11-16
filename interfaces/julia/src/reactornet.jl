@@ -19,7 +19,7 @@ mutable struct ReactorNet <: CanteraObject
         isempty(reactors) &&
             throw(ArgumentError("ReactorNet needs at least one reactor"))
         handles = Int32[r.handle for r in reactors]
-        h = check(LibCantera.reactornet_new(Int32(length(handles)), pointer(handles)))
+        h = check(LibCantera.reactornet_new(Int32(length(handles)), handles))
         net = new(h, reactors, false)
         finalizer(close!, net)
         return net

@@ -339,8 +339,7 @@ Set mole fractions from a numeric vector or a composition string
 """
 function set_mole_fractions!(g::ThermoLike, X::AbstractVector{<:Real})
     x = as_f64(X)
-    check(LibCantera.thermo_setMoleFractions(_thermo_handle(g), Int32(length(x)),
-                                             pointer(x)))
+    check(LibCantera.thermo_setMoleFractions(_thermo_handle(g), Int32(length(x)), x))
     return g
 end
 function set_mole_fractions!(g::ThermoLike, X::AbstractString)
@@ -355,8 +354,7 @@ Set mass fractions from a numeric vector or a composition string.
 """
 function set_mass_fractions!(g::ThermoLike, Y::AbstractVector{<:Real})
     y = as_f64(Y)
-    check(LibCantera.thermo_setMassFractions(_thermo_handle(g), Int32(length(y)),
-                                             pointer(y)))
+    check(LibCantera.thermo_setMassFractions(_thermo_handle(g), Int32(length(y)), y))
     return g
 end
 function set_mass_fractions!(g::ThermoLike, Y::AbstractString)
@@ -381,7 +379,7 @@ vector or a composition string.
 function set_TPX!(g::ThermoLike, T, P, X::AbstractVector{<:Real})
     x = as_f64(X)
     check(LibCantera.thermo_setState_TPX(_thermo_handle(g), Float64(T), Float64(P),
-                                         Int32(length(x)), pointer(x)))
+                                         Int32(length(x)), x))
     return g
 end
 function set_TPX!(g::ThermoLike, T, P, X::AbstractString)
@@ -399,7 +397,7 @@ vector or a composition string.
 function set_TPY!(g::ThermoLike, T, P, Y::AbstractVector{<:Real})
     y = as_f64(Y)
     check(LibCantera.thermo_setState_TPY(_thermo_handle(g), Float64(T), Float64(P),
-                                         Int32(length(y)), pointer(y)))
+                                         Int32(length(y)), y))
     return g
 end
 function set_TPY!(g::ThermoLike, T, P, Y::AbstractString)

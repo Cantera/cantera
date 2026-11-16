@@ -166,7 +166,7 @@ phase `surf` (a [`Solution`](@ref) for an interface phase) to a bulk `reactor`.
 function ReactorSurface(surf::Solution, reactor::Reactor; name::AbstractString="")
     reactors = Int32[reactor.handle]
     h = check(LibCantera.reactor_newSurface(surf.handle, Int32(length(reactors)),
-                                            pointer(reactors), Int32(0), name))
+                                            reactors, Int32(0), name))
     rs = Reactor(h, surf, false)
     finalizer(close!, rs)
     return rs

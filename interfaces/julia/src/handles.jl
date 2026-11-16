@@ -57,7 +57,7 @@ export CanteraObject, ThermoPhase, Kinetics, Transport
 """
     get_string(f) -> String
 
-Call a CLib string getter through the closure `f(bufLen::Int32, buf::Ptr{UInt8})`
+Call a CLib string getter through the closure `f(bufLen::Int32, buf)`
 using the size-query protocol: first with a null buffer to obtain the required
 length, then again with a correctly sized buffer.
 """
@@ -65,8 +65,8 @@ function get_string(f)
     n = check(f(Int32(0), Ptr{UInt8}(C_NULL)))
     n <= 0 && return ""
     buf = Vector{UInt8}(undef, n)
-    check(f(Int32(n), pointer(buf)))
-    return unsafe_string(pointer(buf))
+    check(f(Int32(n), buf))
+    return GC.@preserve buf unsafe_string(pointer(buf))
 end
 
 "Whether the elements of `a` are stored contiguously in column-major order."
