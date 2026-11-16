@@ -34,6 +34,7 @@ from cython.cimports.cantera.delegator import CxxDelegatorPtr, assign_delegates
 from cython.cimports.cantera.solutionbase import _SolutionBase, _wrap_Solution
 
 from ._types import Array as _Array, ArrayLike as _ArrayLike, LogLevel as _LogLevel
+from ._utils import CanteraError
 from .func1 import _Func1Like
 
 if TYPE_CHECKING:
