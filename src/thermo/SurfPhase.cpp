@@ -112,6 +112,20 @@ void SurfPhase::getChemPotentials(span<double> mu) const
     }
 }
 
+void SurfPhase::getActivityCoefficients(span<double> ac) const
+{
+    checkArraySize("SurfPhase::getActivityCoefficients", ac.size(), m_kk);
+    double sumX = 0.0;
+    double sumXS = 0.0;
+    for (size_t k = 0; k < m_kk; k++) {
+        sumX += moleFraction(k);
+        sumXS += moleFraction(k) * size(k);
+    }
+    for (size_t k = 0; k < m_kk; k++) {
+        ac[k] = size(k) * sumX / sumXS;
+    }
+}
+
 void SurfPhase::getActivityConcentrations(span<double> c) const
 {
     getConcentrations(c);

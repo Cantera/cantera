@@ -162,6 +162,10 @@ public:
     double cp_mole() const override;
     double cv_mole() const override;
 
+    //! Molar activity coefficients, satisfying a_k = gamma_k X_k = theta_k.
+    //! The expression remains finite for absent species.
+    void getActivityCoefficients(span<double> ac) const override;
+
     void getChemPotentials(span<double> mu) const override;
     void getPartialMolarEnthalpies(span<double> hbar) const override;
     void getPartialMolarEntropies(span<double> sbar) const override;
