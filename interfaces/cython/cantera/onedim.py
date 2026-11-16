@@ -141,7 +141,8 @@ class FlameBase(Sim1D):
                 if "native" in hdf_support():
                     arr.restore(data, name=group, sub=self.domains[1].name)
                 else:
-                    arr.read_hdf(data, group=group, subgroup=self.domains[1].name)
+                    raise CanteraError(
+                        "HDF input requires Cantera to be compiled with HDF support.")
             elif data.endswith(".yaml") or data.endswith(".yml"):
                 # data source identifies a YAML file
                 arr.restore(data, name=group, sub=self.domains[1].name)
