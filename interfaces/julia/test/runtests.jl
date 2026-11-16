@@ -194,6 +194,7 @@ const MECH = "gri30.yaml"
     include("test_thermo.jl")
     include("test_kinetics.jl")
     include("test_transport.jl")
+    include("test_inplace.jl")
     include("test_reactor.jl")
     include("test_solutionarray.jl")
     include("test_func1.jl")

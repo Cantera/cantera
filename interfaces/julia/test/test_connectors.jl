@@ -39,6 +39,10 @@ end
     set_chemistry_enabled!(r1, false); set_chemistry_enabled!(r2, false)
     w = Wall(r1, r2; A=1.0, U=100.0)
     @test area(w) ≈ 1.0
+    # Time-dependent wall properties take a Func1, not a plain number.
+    @test_throws ArgumentError set_heat_flux!(w, 100.0)
+    @test_throws ArgumentError set_velocity!(w, 0.0)
+    @test set_heat_flux!(w, constant_function(0.0)) === w
     net = ReactorNet([r1, r2])
     T1_0 = temperature(r1); T2_0 = temperature(r2)
     advance!(net, 1.0)

@@ -19,7 +19,7 @@ mutable struct ReactorNet <: CanteraObject
         isempty(reactors) &&
             throw(ArgumentError("ReactorNet needs at least one reactor"))
         handles = Int32[r.handle for r in reactors]
-        h = check(LibCantera.reactornet_new(Int32(length(handles)), pointer(handles)))
+        h = check(LibCantera.reactornet_new(Int32(length(handles)), handles))
         net = new(h, reactors, false)
         finalizer(close!, net)
         return net
@@ -142,9 +142,12 @@ n_components(net::ReactorNet) = Int(check(LibCantera.reactornet_neq(net.handle))
 
 Current network state vector, of length [`n_components`](@ref).
 """
-state(net::ReactorNet) =
-    get_array(n_components(net),
+state(net::ReactorNet) = state!(Vector{Float64}(undef, n_components(net)), net)
+
+state!(out, net::ReactorNet) =
+    get_array!(out, n_components(net),
         (n, b) -> LibCantera.reactornet_getState(net.handle, n, b))
+@doc inplace_doc(:state, "net") state!
 
 "Name of state-vector component `i` (1-based)."
 function component_name(net::ReactorNet, i::Integer)
@@ -165,5 +168,5 @@ Base.show(io::IO, net::ReactorNet) =
 
 export ReactorNet,
        advance!, step!, set_initial_time!, set_max_time_step!, set_tolerances!,
-       rtol, atol, set_sensitivity_tolerances!, sensitivity, state,
+       rtol, atol, set_sensitivity_tolerances!, sensitivity, state, state!,
        n_components, component_name, component_names

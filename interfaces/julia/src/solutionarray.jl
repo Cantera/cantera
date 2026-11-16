@@ -85,7 +85,7 @@ function set_state!(sa::SolutionArray, i::Integer; T, P, X=nothing, Y=nothing)
     end
     sa.T[i] = temperature(sa.gas)
     sa.P[i] = pressure(sa.gas)
-    sa.Y[:, i] = mass_fractions(sa.gas)
+    mass_fractions!(view(sa.Y, :, i), sa.gas)
     return sa
 end
 

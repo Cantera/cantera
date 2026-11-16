@@ -50,7 +50,13 @@ domain_type(d::Domain1D) =
 grid(d::Domain1D) =
     get_array(n_points(d), (bl, b) -> LibCantera.domain_grid(d.handle, bl, b))
 
-"Scalar value of `component` in a boundary domain (a single-point domain)."
+"""
+    value(domain, component) -> Float64
+
+Scalar value of `component` in a single-point domain.  Cantera implements this
+only for reacting-surface boundaries; other domains, including inlets and
+outlets, raise a `CanteraError`.
+"""
 value(d::Domain1D, component::AbstractString) =
     checkd(LibCantera.domain_value(d.handle, component))
 
@@ -71,8 +77,8 @@ function set_profile!(d::Domain1D, component::AbstractString, positions, values)
     pos = as_f64(collect(positions))
     val = as_f64(collect(values))
     check(LibCantera.domain_setProfile(d.handle, component,
-                                       Int32(length(pos)), pointer(pos),
-                                       Int32(length(val)), pointer(val)))
+                                       Int32(length(pos)), pos,
+                                       Int32(length(val)), val))
     return d
 end
 
@@ -93,7 +99,7 @@ end
 "Set an explicit grid from a vector of positions [m]."
 function setup_grid!(d::Domain1D, z)
     zz = as_f64(collect(z))
-    check(LibCantera.domain_setupGrid(d.handle, Int32(length(zz)), pointer(zz)))
+    check(LibCantera.domain_setupGrid(d.handle, Int32(length(zz)), zz))
     return d
 end
 
@@ -159,22 +165,18 @@ function FreeFlame(gas::Solution; width::Real=0.03)
     # Flow domain: operating pressure and the initial non-uniform flame grid.
     check(LibCantera.flow_setPressure(hflw, Float64(P)))
     z0 = _initial_flame_grid(width)
-    GC.@preserve z0 check(LibCantera.domain_setupGrid(hflw, Int32(length(z0)),
-                                                       pointer(z0)))
+    check(LibCantera.domain_setupGrid(hflw, Int32(length(z0)), z0))
 
     # Inlet boundary: unburned temperature and composition.  The mass flux is
     # left at zero here; `set_initial_guess!` seeds it (mdot = 1*rho_u) exactly
     # as Python does.
     check(LibCantera.bdry_setTemperature(hin, Float64(Tu)))
     xu = as_f64(Xu)
-    GC.@preserve xu check(LibCantera.bdry_setMoleFractions(hin, Int32(length(xu)),
-                                                            pointer(xu)))
+    check(LibCantera.bdry_setMoleFractions(hin, Int32(length(xu)), xu))
 
     # Build the simulation from the three domain handles (order matters).
-    # GC.@preserve keeps `doms` alive across the ccall.s
     doms = Int32[hin, hflw, hout]
-    hsim = GC.@preserve doms check(LibCantera.sim1D_newSim1D(Int32(length(doms)),
-                                                              pointer(doms)))
+    hsim = check(LibCantera.sim1D_newSim1D(Int32(length(doms)), doms))
 
     flame = FreeFlame(gas, inlet, flow, outlet, hsim, rho_u, Tu, P, Yu, false)
     finalizer(close!, flame)
@@ -189,9 +191,9 @@ function _set_initial_guess!(flame::FreeFlame)
     gas  = flame.gas
     locs = as_f64([0.0, 0.3, 0.5, 1.0])
 
-    _setprof(comp, vals) = GC.@preserve locs vals check(
-        LibCantera.domain_setProfile(hflw, comp, Int32(length(locs)), pointer(locs),
-                                     Int32(length(vals)), pointer(vals)))
+    _setprof(comp, vals) = check(
+        LibCantera.domain_setProfile(hflw, comp, Int32(length(locs)), locs,
+                                     Int32(length(vals)), vals))
 
     # Unburned state at the inlet.
     set_TPY!(gas, flame.Tu, flame.P, flame.Yu)
@@ -265,7 +267,7 @@ function set_inlet!(flame::FreeFlame; T=nothing, X=nothing, mdot=nothing)
             check(LibCantera.bdry_setMoleFractionsByName(h, X))
         else
             x = as_f64(collect(X))
-            check(LibCantera.bdry_setMoleFractions(h, Int32(length(x)), pointer(x)))
+            check(LibCantera.bdry_setMoleFractions(h, Int32(length(x)), x))
         end
     end
     return flame
@@ -280,8 +282,7 @@ end
 # Regrid the flow domain to a uniform `N`-point grid over `[zmin, zmax]`.
 function _regrid!(flame::FreeFlame, N::Integer, zmin::Real, zmax::Real)
     z = collect(range(zmin, zmax; length=N))
-    GC.@preserve z check(LibCantera.domain_setupGrid(flame.flow.handle,
-                                                     Int32(length(z)), pointer(z)))
+    check(LibCantera.domain_setupGrid(flame.flow.handle, Int32(length(z)), z))
     return flame
 end
 
@@ -412,8 +413,7 @@ function solve!(flame::FreeFlame; loglevel::Integer=0, refine_grid::Bool=true,
             # `sim1D_refine` only adapts the grid (inserting points per the
             # refine criteria), it does not solve.
             znew = grid(flame.flow) .* 2
-            GC.@preserve znew check(LibCantera.domain_setupGrid(flow,
-                                        Int32(length(znew)), pointer(znew)))
+            check(LibCantera.domain_setupGrid(flow, Int32(length(znew)), znew))
             refine_grid && check(LibCantera.sim1D_refine(sim, ll))
         end
     end
@@ -533,20 +533,17 @@ function BurnerFlame(gas::Solution; width::Real=0.03, mdot=nothing)
     # Flow domain: operating pressure and the initial non-uniform grid.
     check(LibCantera.flow_setPressure(hflw, Float64(P)))
     z0 = _initial_burner_grid(width)
-    GC.@preserve z0 check(LibCantera.domain_setupGrid(hflw, Int32(length(z0)),
-                                                       pointer(z0)))
+    check(LibCantera.domain_setupGrid(hflw, Int32(length(z0)), z0))
 
     # Burner boundary: unburned temperature, composition, and prescribed mdot.
     check(LibCantera.bdry_setTemperature(hbrn, Float64(Tu)))
     xu = as_f64(Xu)
-    GC.@preserve xu check(LibCantera.bdry_setMoleFractions(hbrn, Int32(length(xu)),
-                                                            pointer(xu)))
+    check(LibCantera.bdry_setMoleFractions(hbrn, Int32(length(xu)), xu))
     md = mdot === nothing ? 0.4 * rho_u : Float64(mdot)
     check(LibCantera.bdry_setMdot(hbrn, md))
 
     doms = Int32[hbrn, hflw, hout]
-    hsim = GC.@preserve doms check(LibCantera.sim1D_newSim1D(Int32(length(doms)),
-                                                              pointer(doms)))
+    hsim = check(LibCantera.sim1D_newSim1D(Int32(length(doms)), doms))
 
     flame = BurnerFlame(gas, burner, flow, outlet, hsim, rho_u, Tu, P, Yu, false)
     finalizer(close!, flame)
@@ -561,9 +558,9 @@ function _set_initial_guess!(flame::BurnerFlame)
     gas  = flame.gas
     locs = as_f64([0.0, 0.2, 1.0])
 
-    _setprof(comp, vals) = GC.@preserve locs vals check(
-        LibCantera.domain_setProfile(hflw, comp, Int32(length(locs)), pointer(locs),
-                                     Int32(length(vals)), pointer(vals)))
+    _setprof(comp, vals) = check(
+        LibCantera.domain_setProfile(hflw, comp, Int32(length(locs)), locs,
+                                     Int32(length(vals)), vals))
 
     # Unburned state at the burner.
     set_TPY!(gas, flame.Tu, flame.P, flame.Yu)
@@ -605,7 +602,7 @@ function set_burner!(flame::BurnerFlame; T=nothing, X=nothing, mdot=nothing)
             check(LibCantera.bdry_setMoleFractionsByName(h, X))
         else
             x = as_f64(collect(X))
-            check(LibCantera.bdry_setMoleFractions(h, Int32(length(x)), pointer(x)))
+            check(LibCantera.bdry_setMoleFractions(h, Int32(length(x)), x))
         end
         # Refresh the cached unburned composition/density from the new state.
         set_TPX!(flame.gas, flame.Tu, flame.P, X isa AbstractString ? X : collect(X))
@@ -631,8 +628,7 @@ end
 
 _regrid!(flame::BurnerFlame, N::Integer, zmin::Real, zmax::Real) =
     (z = collect(range(zmin, zmax; length=N));
-     GC.@preserve z check(LibCantera.domain_setupGrid(flame.flow.handle,
-                                                      Int32(length(z)), pointer(z)));
+     check(LibCantera.domain_setupGrid(flame.flow.handle, Int32(length(z)), z));
      flame)
 
 # Staged multi-grid solve for a burner flame: no fixed-temperature eigenvalue.
