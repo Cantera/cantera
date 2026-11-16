@@ -833,3 +833,282 @@ def test_excluded_species_TP_polyatomic(solver):
     # Element abundances must be conserved despite the excluded liquid water
     assert [mix.element_moles(e) for e in elements] == approx(elements_before, rel=1e-7)
     assert_at_equilibrium(mix)
+
+
+class TestSurfaceMultiphaseEquil:
+    """Fixed-TP equilibrium conserves the sites of each ideal surface (#1720)."""
+
+    @staticmethod
+    def make_phases(sizes=(1, 1), preference=4, charge=0, single=False,
+                    surface_X=None):
+        charged_composition = f", E: {-charge}" if charge else ""
+        surface_species = "As" if single else "As, Bs"
+        definition = f"""
+        phases:
+        - name: gas
+          thermo: ideal-gas
+          species: [A, B]
+        - name: surface
+          thermo: ideal-surface
+          species: [{surface_species}]
+          site-density: 1
+          kinetics: surface
+          reactions: none
+        species:
+        - name: A
+          composition: {{H: 1}}
+          thermo: {{model: constant-cp}}
+        - name: B
+          composition: {{He: 1}}
+          thermo: {{model: constant-cp}}
+        - name: As
+          composition: {{H: 1{charged_composition}}}
+          sites: {sizes[0]}
+          thermo:
+            model: constant-cp
+            s0: {ct.gas_constant * np.log(preference)}
+        - name: Bs
+          composition: {{He: 1}}
+          sites: {sizes[1]}
+          thermo: {{model: constant-cp}}
+        """
+        gas = ct.Solution(yaml=definition, name="gas", transport_model="none")
+        surf = ct.Interface(yaml=definition, name="surface")
+        surf.site_density = 1
+        gas.TPX = 1000, ct.one_atm, [0.8, 0.2]
+        if surface_X is None:
+            surface_X = [1] if single else [0.2, 0.8]
+        surf.TPX = gas.TP + (surface_X,)
+        return gas, surf
+
+    @staticmethod
+    def constraints(mix):
+        # Construct chemical and site balances directly from the phase metadata.
+        # The public mixture element list must contain only chemical elements.
+        phases = [mix.phase(i) for i in range(mix.n_phases)]
+        elements = list(dict.fromkeys(e for p in phases for e in p.element_names))
+        surfaces = [i for i, p in enumerate(phases)
+                    if p.thermo_model == "ideal-surface"]
+        assert mix.n_elements == len(elements)
+        matrix = np.zeros((len(elements) + len(surfaces), mix.n_species))
+        offset = 0
+        for i, phase in enumerate(phases):
+            for k in range(phase.n_species):
+                for e in phase.element_names:
+                    matrix[elements.index(e), offset + k] = phase.n_atoms(k, e)
+                if i in surfaces:
+                    matrix[len(elements) + surfaces.index(i), offset + k] = (
+                        phase.species(k).size)
+            offset += phase.n_species
+        return matrix
+
+    @staticmethod
+    def gibbs(mix):
+        return np.dot(mix.species_moles, mix.chemical_potentials)
+
+    def check_equilibrium(self, mix, matrix, initial, initial_gibbs):
+        final = mix.species_moles.copy()
+        assert np.all(np.isfinite(final))
+        assert np.all(final >= 0)
+        assert matrix @ final == approx(matrix @ initial, rel=1e-9, abs=1e-13)
+
+        # Include one independent site potential per surface in the KKT equations.
+        present = final > 1e-12 * final.sum()
+        mu_RT = mix.chemical_potentials / (ct.gas_constant * mix.T)
+        potentials, *_ = np.linalg.lstsq(matrix[:, present].T, mu_RT[present],
+                                         rcond=None)
+        assert matrix[:, present].T @ potentials == approx(mu_RT[present], abs=2e-6)
+        equilibrium_gibbs = self.gibbs(mix)
+        assert equilibrium_gibbs <= initial_gibbs + 1e-8 * ct.gas_constant * mix.T
+
+        # Convex combinations with the initial state preserve every balance and
+        # provide feasible competitors without using the equilibrium solver.
+        try:
+            for fraction in (0.01, 0.5):
+                mix.species_moles = (1 - fraction) * final + fraction * initial
+                assert matrix @ mix.species_moles == approx(
+                    matrix @ initial, rel=1e-9, abs=1e-13)
+                assert self.gibbs(mix) >= (equilibrium_gibbs
+                                           - 1e-8 * ct.gas_constant * mix.T)
+        finally:
+            mix.species_moles = final
+
+    def equilibrate(self, mix, solver):
+        matrix = self.constraints(mix)
+        initial = mix.species_moles.copy()
+        initial_gibbs = self.gibbs(mix)
+        temperature, pressure = mix.T, mix.P
+        mix.equilibrate("TP", solver=solver, rtol=1e-10, max_steps=2000)
+        assert mix.T == temperature
+        assert mix.P == pressure
+        self.check_equilibrium(mix, matrix, initial, initial_gibbs)
+
+    @pytest.mark.parametrize("solver", ["vcs", "auto"])
+    @pytest.mark.parametrize("size", [1, 2])
+    @pytest.mark.parametrize("surface_first", [False, True])
+    def test_analytic_equilibrium(self, solver, size, surface_first):
+        gas, surf = self.make_phases(sizes=(size, size))
+        phases = [(gas, 1), (surf, 1)]
+        mix = ct.Mixture(phases[::-1] if surface_first else phases)
+        initial_gibbs = self.gibbs(mix)
+        self.equilibrate(mix, solver)
+        # mu_As^0 / RT = -log(4). With one H and one He atom in total,
+        # X_As / X_Bs = 4 X_A / X_B gives X_As=2/3 and X_A=1/3.
+        assert gas.X == approx([1/3, 2/3], abs=1e-8)
+        assert surf.coverages == approx([2/3, 1/3], abs=1e-8)
+        assert mix.phase_moles(surf) == approx(1, abs=1e-10)
+        assert size * mix.phase_moles(surf) == approx(size, abs=1e-10)
+        assert surf.activity_coefficients == approx([1, 1])
+        assert self.gibbs(mix) < initial_gibbs - 0.01 * ct.gas_constant * mix.T
+
+    @pytest.mark.parametrize("solver", ["vcs", "auto"])
+    def test_independent_surfaces_with_same_name(self, solver):
+        gas, surf1 = self.make_phases()
+        _, surf2 = self.make_phases(sizes=(2, 2), preference=16)
+        surf2.X = [0.7, 0.3]
+        assert surf1.name == surf2.name
+        mix = ct.Mixture([(surf1, 1), (gas, 1), (surf2, 0.5)])
+        self.equilibrate(mix, solver)
+        # Use phase indices: name-based lookup cannot distinguish these phases.
+        assert mix.phase_moles(0) == approx(1, abs=1e-10)
+        assert 2 * mix.phase_moles(2) == approx(1, abs=1e-10)
+
+    @pytest.mark.parametrize("solver", ["vcs", "auto"])
+    def test_site_name_collides_with_later_chemical_element(self, solver):
+        gas, surf = self.make_phases()
+        later = ct.Solution(yaml="""
+        elements:
+        - symbol: surface_sites_0
+          atomic-weight: 10
+        phases:
+        - name: later
+          thermo: ideal-gas
+          elements: [surface_sites_0]
+          species: [inert]
+        species:
+        - name: inert
+          composition: {surface_sites_0: 1}
+          thermo: {model: constant-cp}
+        """)
+        later.TP = gas.TP
+        mix = ct.Mixture([(surf, 1), (gas, 1), (later, 0.3)])
+        self.equilibrate(mix, solver)
+        assert mix.element_moles("surface_sites_0") == approx(0.3, abs=1e-10)
+        assert mix.phase_moles(0) == approx(1, abs=1e-10)
+        assert gas.X == approx([1/3, 2/3], abs=1e-8)
+        assert surf.X == approx([2/3, 1/3], abs=1e-8)
+
+    @pytest.mark.parametrize("solver", ["vcs", "auto"])
+    @pytest.mark.parametrize("amount,single", [(0, False), (1, True)])
+    def test_zero_capacity_and_single_species(self, solver, amount, single):
+        gas, surf = self.make_phases(single=single)
+        mix = ct.Mixture([(gas, 1), (surf, amount)])
+        self.equilibrate(mix, solver)
+        assert mix.phase_moles(surf) == approx(amount, abs=1e-12)
+        assert gas.X == approx([0.8, 0.2], abs=1e-10)
+
+    @pytest.mark.parametrize("size", [1, 2])
+    @pytest.mark.parametrize("n_species", [1, 2])
+    @pytest.mark.parametrize("composition", [pytest.param({}, id="empty-elements"),
+                                            pytest.param({"C": 0}, id="zero-carbon")])
+    def test_surface_with_only_vacancy_states(self, size, n_species, composition):
+        species = []
+        for k in range(n_species):
+            sp = ct.Species(f"vacancy{k}", composition, size=size)
+            entropy = ct.gas_constant * np.log(4) if k == 0 else 0
+            sp.thermo = ct.ConstantCp(200, 3000, ct.one_atm, (300, 0, entropy, 0))
+            species.append(sp)
+        surf = ct.Interface(thermo="ideal-surface", species=species,
+                            kinetics="surface", reactions=[])
+        surf.site_density = 1
+        surf.TPX = 1000, ct.one_atm, [1] if n_species == 1 else [0.2, 0.8]
+        mix = ct.Mixture([(surf, 1)])
+        self.equilibrate(mix, "vcs")
+        expected = [1] if n_species == 1 else [0.8, 0.2]
+        assert mix.species_moles == approx(expected, abs=1e-8)
+        assert mix.phase_moles(0) == approx(1, abs=1e-10)
+        if composition:
+            assert mix.element_moles("C") == 0
+        else:
+            assert mix.n_elements == 0
+
+    @pytest.mark.parametrize("T,P,sites,gas_moles,diamond_moles,theta_HH", [
+        (1200, 101325, 1e-5, 0.37346440232793876, 0.973904706601698,
+         0.997442000328515),
+        (800, 101325, 1e-5, 0.24752046360251584, 0.8479608756049983,
+         0.9999982512276374),
+        (1600, 101325, 1e-5, 0.3972783906183318, 0.9977038880187284,
+         0.8714736510630471),
+        (1200, 2666.4473684210525, 1e-5, 0.40263099575282046, 1.0030710782644412,
+         0.9854446914600354),
+        (1200, 101325, 1e-3, 0.37341973611003765, 0.973908233546205,
+         0.997442000328515),
+    ])
+    def test_diamond(self, T, P, sites, gas_moles, diamond_moles, theta_HH):
+        # Frozen results from an independent constrained Gibbs calculation using
+        # diamond.yaml and gri30.yaml thermochemistry, including the site balance.
+        surf = ct.Interface("diamond.yaml", "diamond_100")
+        diamond = surf.adjacent["diamond"]
+        gas = surf.adjacent["gas"]
+        mix = ct.Mixture([(surf, sites), (diamond, 1), (gas, 0.4)])
+        mix.T, mix.P = T, P
+        self.equilibrate(mix, "vcs")
+        assert mix.phase_moles(0) == approx(sites, rel=1e-9)
+        assert mix.phase_moles(1) == approx(diamond_moles, rel=2e-7)
+        assert mix.phase_moles(2) == approx(gas_moles, rel=2e-7)
+        assert surf.coverages[surf.species_index("c6HH")] == approx(theta_HH, rel=2e-7)
+
+    @staticmethod
+    def check_rejected(mix, pair, solver, message, **kwargs):
+        initial_moles = mix.species_moles.copy()
+        initial_amounts = mix.phase_moles()
+        initial_TP = mix.T, mix.P
+        phases = [mix.phase(i) for i in range(mix.n_phases)]
+        states = [(p.state.copy(), p.P, p.electric_potential) for p in phases]
+        with pytest.raises(ct.CanteraError, match=message):
+            mix.equilibrate(pair, solver=solver, **kwargs)
+        assert (mix.T, mix.P) == initial_TP
+        assert mix.species_moles == approx(initial_moles, abs=1e-14)
+        assert mix.phase_moles() == approx(initial_amounts, abs=1e-14)
+        for phase, (state, pressure, potential) in zip(phases, states):
+            np.testing.assert_allclose(phase.state, state, rtol=1e-14, atol=1e-14,
+                                       equal_nan=True)
+            assert phase.P == approx(pressure, rel=1e-14)
+            assert phase.electric_potential == potential
+
+    @pytest.mark.parametrize("pair,solver", [("TP", "gibbs")] + [
+        (pair, solver) for pair in ("HP", "SP", "TV", "UV")
+        for solver in ("vcs", "auto")])
+    def test_unsupported_solver_or_constraints_preserve_state(self, pair, solver):
+        gas, surf = self.make_phases()
+        mix = ct.Mixture([(surf, 1), (gas, 1)])
+        self.check_rejected(mix, pair, solver, "only at fixed TP")
+
+    def test_failed_vcs_does_not_fall_back_to_gibbs(self):
+        gas, surf = self.make_phases()
+        mix = ct.Mixture([(surf, 1), (gas, 1)])
+        self.check_rejected(mix, "TP", "auto",
+                            "Surface equilibrium requires the VCS solver", max_steps=0)
+
+    @pytest.mark.parametrize("kind", ["unequal", "charged", "coverage", "edge"])
+    @pytest.mark.parametrize("solver", ["vcs", "auto"])
+    def test_unsupported_surface_preserves_state(self, kind, solver):
+        gas, surf = self.make_phases(sizes=(1, 2) if kind == "unequal" else (1, 1),
+                                     charge=1 if kind == "charged" else 0)
+        message = "neutral species with equal positive site sizes"
+        if kind == "coverage":
+            surf = ct.Interface("copt_covdepsurf_example.yaml", "covdep")
+            message = "Only ideal surface phases"
+        elif kind == "edge":
+            surf = ct.Interface("surface-phases.yaml", "TPB")
+            message = "Only ideal surface phases"
+        mix = ct.Mixture([(gas, 1), (surf, 1)])
+        self.check_rejected(mix, "TP", solver, message if solver == "vcs" else
+                            "Surface equilibrium requires the VCS solver")
+
+    @pytest.mark.parametrize("size", [0, -1])
+    def test_invalid_site_sizes_rejected(self, size):
+        gas, surf = self.make_phases(sizes=(1, size), surface_X=[0.9, 0.1])
+        mix = ct.Mixture([(gas, 1), (surf, 1)])
+        with pytest.raises(ct.CanteraError, match="positive site sizes"):
+            mix.equilibrate("TP", solver="vcs")

@@ -13,6 +13,7 @@
 #include "cantera/equil/MultiPhase.h"
 #include "cantera/thermo/speciesThermoTypes.h"
 #include "cantera/thermo/ThermoPhase.h"
+#include "cantera/thermo/SurfPhase.h"
 
 using namespace std;
 
@@ -131,14 +132,34 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
         // Get the ThermoPhase object - assume volume phase
         ThermoPhase* tPhase = &mphase->phase(iphase);
 
-        // Assign the value of eqn of state. Handle conflicts here.
+        string siteConstraint;
         if (tPhase->nDim() != 3) {
-            throw CanteraError("VCS_SOLVE::VCS_SOLVE",
-                               "Surface/edge phase not handled yet.");
+            auto* surface = dynamic_cast<SurfPhase*>(tPhase);
+            if (!surface || tPhase->nDim() != 2 || tPhase->nSpecies() == 0
+                    || tPhase->type() != "ideal-surface") {
+                throw CanteraError("VCS_SOLVE::VCS_SOLVE",
+                    "Only ideal surface phases are supported.");
+            }
+            double size = surface->size(0);
+            for (size_t k = 0; k < tPhase->nSpecies(); k++) {
+                if (!std::isfinite(surface->size(k)) || surface->size(k) <= 0.0
+                        || surface->size(k) != size || tPhase->charge(k) != 0.0) {
+                    throw CanteraError("VCS_SOLVE::VCS_SOLVE",
+                        "Surface equilibrium requires neutral species with equal "
+                        "positive site sizes.");
+                }
+            }
+            // Keep the site inventory independent for each surface. Avoid real
+            // element names in every phase, including phases not yet imported.
+            siteConstraint = fmt::format("surface_sites_{}", iphase);
+            while (mphase->elementIndex(siteConstraint, false) != npos
+                    || elementIndex(siteConstraint) != npos) {
+                siteConstraint += "_";
+            }
         }
 
         m_VolPhaseList.emplace_back(
-            make_unique<vcs_VolPhase>(this, tPhase, iphase));
+            make_unique<vcs_VolPhase>(this, tPhase, iphase, siteConstraint));
         vcs_VolPhase* VolPhase = m_VolPhaseList[iphase].get();
         VolPhase->setState_TP(m_temperature, m_pressurePA);
 
@@ -1274,9 +1295,18 @@ void VCS_SOLVE::vcs_prep(int printLvl)
     for (size_t e = 0; e < m_mix->nElements(); e++) {
         sum += m_mix->elementMoles(e);
     }
+    // A surface consisting only of vacant site states can have no chemical
+    // atoms while still having a positive conserved site inventory.
+    for (size_t i = 0; i < m_mix->nPhases(); i++) {
+        auto* surface = dynamic_cast<SurfPhase*>(&m_mix->phase(i));
+        if (surface) {
+            // Surface sizes are equal within each supported phase.
+            sum += m_mix->phaseMoles(i) * surface->size(0);
+        }
+    }
     if (sum < 1.0E-20) {
         throw CanteraError("VCS_SOLVE::vcs_prep", "The problem is not well posed"
-                           " because the total number of element moles is zero.");
+                           " because the total conserved inventory is zero.");
     }
 }
 

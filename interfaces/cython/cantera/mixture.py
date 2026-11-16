@@ -60,6 +60,14 @@ class Mixture:
        the `list of issues on GitHub <https://github.com/Cantera/cantera/issues?q=is%3Aopen+is%3Aissue+label%3AEquilibrium>`_
        for more information.
 
+    Neutral ideal surface phases whose species all occupy the same number of sites
+    can be equilibrated at fixed TP using the VCS solver (or solver='auto').
+    Their initial site inventories, and therefore their areas at fixed site density,
+    are conserved independently. The supplied phase amounts count kmol of surface
+    species; the site inventory is this amount times the common species site size.
+    Surface phases with unequal species sizes, charged species, and other surface
+    models are not supported by multiphase equilibrium.
+
     Mixture objects are 'lightweight' in the sense that they do not store
     parameters needed to compute thermodynamic or kinetic properties of the
     phases. These are contained in the ('heavyweight') phase objects. Multiple
