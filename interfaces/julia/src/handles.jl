@@ -130,6 +130,19 @@ inplace_doc(name, arg="gas") = """
 "`get_array(n, f)` allocates a `Vector{Float64}` of length `n` and fills it."
 get_array(n::Integer, f) = get_array!(Vector{Float64}(undef, n), n, f)
 
-"Convert an arbitrary real vector to a contiguous `Vector{Float64}` at the boundary."
+"`get_matrix(nrows, ncols, f)` allocates a `Matrix{Float64}` and fills it."
+get_matrix(nrows::Integer, ncols::Integer, f) =
+    get_matrix!(Matrix{Float64}(undef, nrows, ncols), nrows, ncols, f)
+
+"""
+    as_f64(x) -> contiguous `Float64` vector
+
+Prepare a real vector for a CLib call.  Contiguous `Float64` storage (a `Vector`
+or a unit-stride view such as `view(M, :, j)`) is passed through without
+copying; anything else is converted to a new `Vector{Float64}`.  Pass the
+result itself to the CLib call, not `pointer(x)`: `ccall` then keeps it alive
+for the duration of the call.
+"""
 as_f64(x::Vector{Float64}) = x
+as_f64(x::StridedVector{Float64}) = is_contiguous(x) ? x : Vector{Float64}(x)
 as_f64(x::AbstractVector{<:Real}) = convert(Vector{Float64}, x)

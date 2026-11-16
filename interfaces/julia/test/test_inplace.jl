@@ -159,3 +159,32 @@ end
         close!(g)
     end
 end
+
+@testset "Setters accept views" begin
+    gas = Solution("gri30.yaml")
+    set_TPX!(gas, 1500.0, one_atm, "CH4:1, O2:2, N2:7.52")
+    X = mole_fractions(gas); Y = mass_fractions(gas)
+    M = repeat(Y, 1, 3)
+    T, P = temperature(gas), pressure(gas)
+
+    # Contiguous views are passed to the CLib without a copy.
+    for (set!, args, get) in (
+            (set_mole_fractions!, (view(repeat(X, 1, 2), :, 2),), mole_fractions),
+            (set_mass_fractions!, (view(M, :, 2),), mass_fractions),
+            (set_TPX!, (T, P, view(repeat(X, 1, 2), :, 2)), mole_fractions),
+            (set_TPY!, (T, P, view(M, :, 2)), mass_fractions),
+        )
+        @test allocations((v, g) -> set!(g, v...), args, gas) == 0
+        @test get(gas) ≈ (get === mole_fractions ? X : Y) rtol=1e-12
+    end
+
+    # A strided view is copied, and still sets the right state.
+    S = zeros(2 * length(Y)); S[1:2:end] .= Y
+    set_mass_fractions!(gas, view(S, 1:2:length(S)))
+    @test mass_fractions(gas) ≈ Y rtol=1e-12
+
+    # SolutionArray rows are restored from views of its storage.
+    sa = SolutionArray(gas, 3)
+    @test allocations(restore!, sa, 2) == 0
+    close!(gas)
+end
