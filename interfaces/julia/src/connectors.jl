@@ -23,9 +23,12 @@ Abstract supertype of flow devices that move mass between reactors.
 """
 abstract type FlowDevice <: Connector end
 
-# Resolve a Func1-like object (or raw handle) to its CLib handle.
+# Resolve a Func1 (or raw handle) to its CLib handle.
 _func_handle(f::Integer) = Int32(f)
-_func_handle(f) = Int32(f.handle)
+_func_handle(f::Func1) = Int32(f.handle)
+_func_handle(f) = throw(ArgumentError(
+    "expected a Func1 (or a Func1 handle), got $(typeof(f)); " *
+    "wrap a constant value with `constant_function(value)`"))
 
 # ---- concrete types ---------------------------------------------------------
 

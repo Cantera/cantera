@@ -201,6 +201,6 @@ n_sens_params(r::Reactor) = Int(check(LibCantera.reactor_nSensParams(r.handle)))
 
 export Reactor, IdealGasReactor, ConstPressureReactor, IdealGasConstPressureReactor,
        set_energy_enabled!, set_chemistry_enabled!, set_initial_volume!,
-       mass, volume, reactor_phase
+       mass, volume, reactor_phase, reactor_type
 export Reservoir, ReactorSurface, mass_flow_rate, set_mass_flow_rate!,
        area, set_area!, add_sensitivity_reaction!, n_sens_params
