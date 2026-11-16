@@ -1496,6 +1496,12 @@ class TestWellStirredReactorIgnition:
         assert self.combustor.phase['H2O'].Y[0] == approx(0.103658, rel=1e-5)
         assert self.combustor.phase['HO2'].Y[0] == approx(8.734515e-06, rel=1e-5)
 
+    def test_advance_to_steady_state_invalid_threshold(self):
+        self.setup_reactor(900.0, 10*ct.one_atm, 1.0, 20.0)
+        with pytest.raises(ct.CanteraError, match="Residual threshold"):
+            self.net.advance_to_steady_state(
+                residual_threshold=0.5 * self.net.rtol)
+
     @pytest.mark.parametrize("reactor_class",
         [ct.Reactor, ct.IdealGasReactor, ct.MoleReactor, ct.IdealGasMoleReactor])
     def test_solve_steady(self, reactor_class):
