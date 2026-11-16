@@ -188,3 +188,28 @@ end
     @test allocations(restore!, sa, 2) == 0
     close!(gas)
 end
+
+@testset "Allocation-free scalars" begin
+    gas = Solution("gri30.yaml")
+    set_TPX!(gas, 1500.0, one_atm, "CH4:1, O2:2, N2:7.52")
+    ne = n_elements(gas)
+
+    @test [atomic_weight(gas, m) for m in 1:ne] == atomic_weights(gas)
+    @test sum(elemental_mole_fraction(gas, m) for m in 1:ne) ≈ 1.0 rtol=1e-12
+    @test sum(elemental_mass_fraction(gas, m) for m in 1:ne) ≈ 1.0 rtol=1e-12
+    for f in (atomic_weight, elemental_mole_fraction, elemental_mass_fraction)
+        @test allocations(f, gas, 1) == 0
+        @test_throws BoundsError f(gas, 0)
+        @test_throws BoundsError f(gas, ne + 1)
+    end
+    @test allocations((_, g) -> equivalence_ratio(g), nothing, gas) == 0
+
+    # No oxygen in the mixture, or no oxygen element in the phase at all.
+    set_TPX!(gas, 300.0, one_atm, "CH4:1")
+    @test equivalence_ratio(gas) == Inf
+    h2 = Solution("h2o2.yaml")
+    set_TPX!(h2, 300.0, one_atm, "H2:1, O2:1")
+    @test isfinite(equivalence_ratio(h2))
+    close!(h2)
+    close!(gas)
+end

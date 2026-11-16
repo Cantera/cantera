@@ -175,8 +175,17 @@ atomic_weights(g::ThermoLike) =
     get_array(n_elements(g),
         (n, b) -> LibCantera.thermo_atomicWeights(_thermo_handle(g), n, b))
 
+# 0-based CLib index of element `m` (1-based).  Checked here because
+# `Phase::atomicWeight` does not check its argument.
+function _element_index0(g::ThermoLike, m::Integer)
+    ne = n_elements(g)
+    1 <= m <= ne || throw(BoundsError(1:ne, m))
+    return Int32(m - 1)
+end
+
 "Atomic weight of element `m` (1-based) [kg/kmol]."
-atomic_weight(g::ThermoLike, m::Integer) = atomic_weights(g)[m]
+atomic_weight(g::ThermoLike, m::Integer) =
+    checkd(LibCantera.thermo_atomicWeight(_thermo_handle(g), _element_index0(g, m)))
 
 "Species electric charges (per elementary charge)."
 charges(g::ThermoLike) =
@@ -189,35 +198,31 @@ charges(g::ThermoLike) =
 Mole fraction of element `m` (1-based) — moles of that element per mole of all
 elements in the mixture.
 """
-function elemental_mole_fraction(g::ThermoLike, m::Integer)
-    X = mole_fractions(g); ne = n_elements(g); nsp = n_species(g)
-    num = sum(n_atoms(g, k, m) * X[k] for k in 1:nsp)
-    den = sum(sum(n_atoms(g, k, j) * X[k] for k in 1:nsp) for j in 1:ne)
-    return num / den
-end
+elemental_mole_fraction(g::ThermoLike, m::Integer) =
+    checkd(LibCantera.thermo_elementalMoleFraction(
+        _thermo_handle(g), _element_index0(g, m)))
 
 """
     elemental_mass_fraction(gas, m) -> Float64
 
 Mass fraction of element `m` (1-based) in the mixture.
 """
-function elemental_mass_fraction(g::ThermoLike, m::Integer)
-    X = mole_fractions(g); nsp = n_species(g)
-    num = atomic_weight(g, m) * sum(n_atoms(g, k, m) * X[k] for k in 1:nsp)
-    return num / mean_molecular_weight(g)
-end
+elemental_mass_fraction(g::ThermoLike, m::Integer) =
+    checkd(LibCantera.thermo_elementalMassFraction(
+        _thermo_handle(g), _element_index0(g, m)))
 
 """
     equivalence_ratio(gas) -> Float64
 
 Fuel/air equivalence ratio from the elemental composition (C, H, O, S), using
 complete-combustion available-oxygen accounting: `φ = (2·Z_C + Z_H/2 + 2·Z_S) / Z_O`.
+Returns `Inf` when the mixture contains no oxygen, including when the phase has
+no oxygen element at all.
 """
 function equivalence_ratio(g::ThermoLike)
-    Z(sym) = (i = element_index(g, sym); i == 0 ? 0.0 : elemental_mole_fraction(g, i))
-    ZO = Z("O")
-    ZO == 0 && return Inf
-    return (2Z("C") + Z("H") / 2 + 2Z("S")) / ZO
+    # Cantera throws when the phase has no oxygen element; keep returning Inf.
+    element_index(g, "O") == 0 && return Inf
+    return checkd(LibCantera.thermo_equivalenceRatio(_thermo_handle(g)))
 end
 
 # ---- composition setters ----------------------------------------------------
