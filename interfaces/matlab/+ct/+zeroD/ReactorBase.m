@@ -86,6 +86,10 @@ classdef (Abstract) ReactorBase < handle
 
     end
 
+    properties (SetAccess = immutable, Hidden)
+        session = -1  % Library session that issued the handle; see ct.impl.release.
+    end
+
     methods
         %% ReactorBase Class Constructor
 
@@ -99,6 +103,7 @@ classdef (Abstract) ReactorBase < handle
                 id (1,1) {mustBeInteger, mustBeGreaterThan(id, -1)}
             end
 
+            obj.session = ct.impl.session();
             obj.id = id;
             phaseID = ct.impl.call('mReactor_phase', id);
             obj.phase = ct.Solution(phaseID);
@@ -108,9 +113,7 @@ classdef (Abstract) ReactorBase < handle
 
         function delete(obj)
             % Delete the :mat:class:`ct.zeroD.ReactorBase` object.
-            if obj.id >= 0
-                ct.impl.call('mReactor_del', obj.id);
-            end
+            ct.impl.release('mReactor_del', obj.id, obj.session);
         end
 
         %% ReactorBase Utility Methods

@@ -46,6 +46,10 @@ classdef Solution < handle & ct.ThermoPhase & ct.Kinetics & ct.Transport
         transportModel % Transport model of the :mat:class:`ct.Solution` object.
     end
 
+    properties (SetAccess = immutable, Hidden)
+        session = -1  % Library session that issued the handle; see ct.impl.release.
+    end
+
     methods
 
         %% Solution Class Constructor
@@ -73,6 +77,7 @@ classdef Solution < handle & ct.ThermoPhase & ct.Kinetics & ct.Transport
             obj@ct.ThermoPhase(ID);
             obj@ct.Kinetics(ID);
             obj@ct.Transport(ID);
+            obj.session = ct.impl.session();
             obj.solnID = ID;
             obj.solnName = ct.impl.getString('mSol_name', obj.solnID);
             obj.th = obj.tpID;
@@ -82,9 +87,7 @@ classdef Solution < handle & ct.ThermoPhase & ct.Kinetics & ct.Transport
 
         function delete(obj)
             % Delete :mat:class:`ct.Solution` object.
-            if obj.solnID >= 0
-                ct.impl.call('mSol_del', obj.solnID);
-            end
+            ct.impl.release('mSol_del', obj.solnID, obj.session);
         end
 
         %% Solution Class Getter Methods

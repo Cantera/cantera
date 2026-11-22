@@ -44,6 +44,10 @@ classdef (Abstract) Domain < handle
 
     end
 
+    properties (SetAccess = immutable, Hidden)
+        session = -1  % Library session that issued the handle; see ct.impl.release.
+    end
+
     methods
         %% Domain Class Constructor.
 
@@ -51,6 +55,7 @@ classdef (Abstract) Domain < handle
             arguments
                 id (1,1) double {mustBeInteger}
             end
+            obj.session = ct.impl.session();
             obj.domainID = id;
             phaseID = ct.impl.call('mDomain_phase', id);
             obj.phase = ct.Solution(phaseID);
@@ -60,9 +65,7 @@ classdef (Abstract) Domain < handle
 
         function delete(obj)
             % Delete the :mat:class:`ct.oneD.Domain` object.
-            if obj.domainID >= 0
-                ct.impl.call('mDomain_del', obj.domainID);
-            end
+            ct.impl.release('mDomain_del', obj.domainID, obj.session);
         end
 
         %% Domain Utility Methods
