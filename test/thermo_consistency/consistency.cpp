@@ -520,21 +520,41 @@ TEST_P(TestConsistency, cv_eq_dsdT_const_v_times_T)
 
 TEST_P(TestConsistency, cv_eq_cp_minus_T_V_beta2_over_kappa_T)
 {
-    double cv, cp, beta, kappa_T, V;
+    double cv, cp, kappa_T;
     try {
         cv = phase->cv_mole();
         cp = phase->cp_mole();
-        beta = phase->thermalExpansionCoeff();
+        phase->thermalExpansionCoeff(); // only to skip models that don't implement it
         kappa_T = phase->isothermalCompressibility();
-        V = phase->molarVolume();
     } catch (NotImplementedError& err) {
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
+    // Some models (IdealSolnGasVPSS, MargulesVPSSTP, HMWSoln) compute cv_mole from
+    // this identity using their own thermalExpansionCoeff() and
+    // isothermalCompressibility(), so comparing against those methods would just
+    // re-evaluate the same expression. Instead, take beta and kappa_T from central
+    // differences of the molar volume. Together with cp_eq_dhdT, this checks cv for
+    // the incompressible phases skipped by cv_eq_dudT and cv_eq_dsdT_const_v_times_T.
+    double V = phase->molarVolume();
+    double dT = 1e-4 * T;
+    double dP = 1e-4 * p;
+    phase->setState_TP(T + dT, p);
+    double V_Tplus = phase->molarVolume();
+    phase->setState_TP(T - dT, p);
+    double V_Tminus = phase->molarVolume();
+    phase->setState_TP(T, p + dP);
+    double V_Pplus = phase->molarVolume();
+    phase->setState_TP(T, p - dP);
+    double V_Pminus = phase->molarVolume();
+    double beta_fd = (V_Tplus - V_Tminus) / (2 * dT * V);
+    double kappa_fd = -(V_Pplus - V_Pminus) / (2 * dP * V);
     if (kappa_T == 0.0) {
-        // Truly incompressible: cv = cp exactly
+        // Truly incompressible: cv = cp by convention. Check the premise.
+        EXPECT_NEAR(kappa_fd, 0.0, atol_c);
         EXPECT_NEAR(cv, cp, atol);
     } else {
-        EXPECT_NEAR(cv, cp - T * V * beta * beta / kappa_T, max({rtol_fd * cv, atol}));
+        EXPECT_NEAR(cv, cp - T * V * beta_fd * beta_fd / kappa_fd,
+                    max({rtol_fd * cv, atol}));
     }
 }
 
