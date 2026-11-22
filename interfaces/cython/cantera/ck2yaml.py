@@ -1088,7 +1088,7 @@ class Parser:
         composition = self.parse_composition(entry[1][10:50], 5, 8)
 
         # In NASA 9-coefficient polynomial format (NASA RP-1311 / TP-2002-211556),
-        # column 52 of Card 2 designates phase: 0 for gas, >0 for condensed.
+        # column 52 of line 2 designates phase: 0 for gas, >0 for condensed.
         # Gas species have standard pressure 1 bar; condensed species use 1 atm.
         phase_flag = entry[1][51:52].strip() if len(entry[1]) > 51 else '0'
         is_condensed = phase_flag not in ('', '0')
