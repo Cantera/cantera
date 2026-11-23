@@ -1402,16 +1402,14 @@ jobs:
         select-by-folder: test/matlab
 
   matlab-library:
-    # Builds a self-contained Cantera library for MATLAB: all dependencies are vendored
-    # and linked statically, and the result is audited for non-system dependencies.
-    # The cantera_matlab toolbox builds its library with the same scripts in
-    # interfaces/matlab/buildUtilities.
+    # Builds a self-contained Cantera library for MATLAB, as shipped with the MATLAB
+    # toolbox: all dependencies are vendored and linked statically.
     name: MATLAB bundled library on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     strategy:
       matrix:
-        os: [ubuntu-24.04, macos-14, macos-15, windows-2025]
+        os: [ubuntu-24.04, macos-15, macos-26, windows-2025]
       fail-fast: false
     env:
       BOOST_ROOT: ${{ github.workspace }}/3rdparty/boost
@@ -1464,12 +1462,23 @@ jobs:
         choco install doxygen.install -y --no-progress
         echo "C:/Program Files/doxygen/bin" >> "$GITHUB_PATH"
     - name: Build the Cantera library
-      run: >-
-        python interfaces/matlab/buildUtilities/build_cantera_library.py --verbose
-        --cantera-root "$GITHUB_WORKSPACE" --prefix "$GITHUB_WORKSPACE/build/canteraLib"
+      run: |
+        options=(system_eigen=n system_fmt=n system_yamlcpp=n system_sundials=n
+                 system_highfive=n system_blas_lapack=n hdf_support=n
+                 python_package=n f90_interface=n googletest=none optimize=y debug=n
+                 renamed_shared_libraries=y versioned_shared_library=y)
+        case "$RUNNER_OS" in
+          Linux)
+            options+=("no_debug_linker_flags=-static-libstdc++ -static-libgcc -Wl,--exclude-libs,ALL") ;;
+          macOS)
+            options+=("boost_inc_dir=$BOOST_INC_DIR") ;;
+          Windows)
+            options+=(toolchain=msvc "boost_inc_dir=$BOOST_INC_DIR") ;;
+        esac
+        python -m SCons build -j4 "${options[@]}"
     - name: Archive the Cantera library
       # tar keeps the versioned library symlinks, which upload-artifact does not
-      run: tar -czf canteraLib.tar.gz -C build canteraLib
+      run: tar -czf canteraLib.tar.gz interfaces/clib/include build/lib/*cantera_shared*
     - name: Upload the Cantera library
       uses: actions/upload-artifact@v7
       with:
@@ -1482,16 +1491,14 @@ jobs:
     name: MATLAB ${{ matrix.release }} on ${{ matrix.os }} (bundled library)
     strategy:
       matrix:
-        os: [ubuntu-24.04, windows-2025, macos-14]
-        # R2024b is the oldest release supported by the MATLAB toolbox
+        os: [ubuntu-24.04, windows-2025, macos-15]
         release: [R2024b, latest]
         include:
-        - os: 'macos-15'
+        - os: 'macos-26'
           release: 'latest'
       fail-fast: false
     env:
       CANTERA_ROOT: ${{ github.workspace }}
-      CANTERA_DATA: ${{ github.workspace }}/data
     runs-on: ${{ matrix.os }}
     needs: [matlab-library]
     timeout-minutes: 60
@@ -1508,13 +1515,11 @@ jobs:
       with:
         name: matlab-canteraLib-${{ matrix.os }}
     - name: Extract the Cantera library
-      run: |
-        mkdir -p build
-        tar -xzf canteraLib.tar.gz -C build
+      run: tar -xzf canteraLib.tar.gz
     - name: Add Cantera library directory to PATH (Windows)
       if: runner.os == 'Windows'
       run: |
-        echo "$GITHUB_WORKSPACE/build/canteraLib/lib" >> "$GITHUB_PATH"
+        echo "$GITHUB_WORKSPACE/build/lib" >> "$GITHUB_PATH"
         echo "$GITHUB_WORKSPACE/interfaces/matlab/+ct/+impl/ctMatlab" >> "$GITHUB_PATH"
     - name: Install Visual C++ 2022 build tools (Windows, R2024b)
       # R2024b supports Visual C++ 2022 at newest, but windows-2025 ships a newer
@@ -1539,8 +1544,8 @@ jobs:
           disp("MATLAB version: " + version);
           ctDir = getenv('CANTERA_ROOT');
           ctToolboxDir = fullfile(ctDir, 'interfaces', 'matlab');
-          ctIncludeDir = fullfile(ctDir, 'build', 'canteraLib', 'include');
-          ctLibDir = fullfile(ctDir, 'build', 'canteraLib', 'lib');
+          ctIncludeDir = fullfile(ctDir, 'interfaces', 'clib', 'include');
+          ctLibDir = fullfile(ctDir, 'build', 'lib');
           addpath(genpath(ctToolboxDir));
           ct.buildInterface(ctToolboxDir, ctIncludeDir, ctLibDir);
     - name: Run tests
