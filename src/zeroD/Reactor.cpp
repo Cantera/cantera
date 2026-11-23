@@ -420,21 +420,20 @@ void Reactor::resetSensitivity(span<const double> params)
 
 void Reactor::setAdvanceLimits(span<const double> limits)
 {
+    bool hadLimits = hasAdvanceLimits();
     m_advancelimits.assign(limits.begin(), limits.end());
-    finalizeAdvanceLimits();
+    finalizeAdvanceLimits(hadLimits);
 }
 
-void Reactor::finalizeAdvanceLimits()
+void Reactor::finalizeAdvanceLimits(bool hadLimits)
 {
     // resize to zero length if no limits are set
     if (std::none_of(m_advancelimits.begin(), m_advancelimits.end(),
                      [](double val){return val>0;})) {
         m_advancelimits.resize(0);
     }
-    // The number of root functions used by the network may have changed; the
-    // integrator must be reinitialized so CVODES sets up its root-finding state
-    // before the next step.
-    if (m_net != nullptr) {
+    // Reinitialize only if the number of root functions may have changed
+    if (m_net != nullptr && hasAdvanceLimits() != hadLimits) {
         m_net->setNeedsReinit();
     }
 }
@@ -453,9 +452,10 @@ bool Reactor::getAdvanceLimits(span<double> limits) const
 void Reactor::setAdvanceLimit(const string& nm, const double limit)
 {
     size_t k = componentIndex(nm);
+    bool hadLimits = hasAdvanceLimits();
     m_advancelimits.resize(m_nv, -1.0);
     m_advancelimits[k] = limit;
-    finalizeAdvanceLimits();
+    finalizeAdvanceLimits(hadLimits);
 }
 
 }
