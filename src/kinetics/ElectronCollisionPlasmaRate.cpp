@@ -45,51 +45,84 @@ bool ElectronCollisionPlasmaData::update(const ThermoPhase& phase, const Kinetic
     return true;
 }
 
-void ElectronCollisionPlasmaRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
+void ElectronCollisionPlasmaRate::setParameters(
+    const AnyMap& node, const UnitStack& rate_units)
 {
     ReactionRate::setParameters(node, rate_units);
 
-    if (!node.hasKey("collision")) {
-        throw InputFileError("ElectronCollisionPlasmaRate::setParameters", node,
-            "Electron-collision reactions require a named 'collision' reference. "
-            "Tabulated cross-section data must be declared in the root "
-            "'electron-collisions' section.");
+    // Cross-section data are stored directly in the rate object.
+    const bool hasLevels = node.hasKey("energy-levels");
+    const bool hasSections = node.hasKey("cross-sections");
+
+    // Preserve support for default-constructed rate objects.
+    if (!hasLevels && !hasSections) {
+        return;
     }
 
-    m_collisionName = node["collision"].asString();
-
-    if (m_collisionName.empty()) {
-        throw InputFileError("ElectronCollisionPlasmaRate::setParameters", node,
-            "The 'collision' reference cannot be empty.");
+    if (hasLevels != hasSections) {
+        throw InputFileError(
+            "ElectronCollisionPlasmaRate::setParameters", node,
+            "'energy-levels' and 'cross-sections' must be provided together.");
     }
 
-    for (const string& key : {
-        "name", "kind", "target", "product", "threshold",
-        "energy-levels", "cross-sections"
-    }) {
-        if (node.hasKey(key)) {
-            throw InputFileError("ElectronCollisionPlasmaRate::setParameters", node,
-                "Electron-collision reaction entries cannot contain '{}'. "
-                "Collision metadata and tabulated data must be declared in the "
-                "referenced root 'electron-collisions' entry.",
-                key);
-        }
+    // The target of a reactive collision comes from its equation.
+    if (node.hasKey("equation") && node.hasKey("target")) {
+        throw InputFileError(
+            "ElectronCollisionPlasmaRate::setParameters", node,
+            "A reactive electron collision must infer its target from the equation.");
     }
-}
 
-void ElectronCollisionPlasmaRate::getParameters(AnyMap& node) const {
-    node["type"] = type();
-    node["collision"] = m_collisionName;
-}
+    // Kind and target can be absent until the reaction context has been analyzed.
+    m_kind = node.getString("kind", "");
+    m_target = node.getString("target", "");
+    m_product = node.getString("product", "");
 
-void ElectronCollisionPlasmaRate::updateInterpolatedCrossSection(
-    span<const double> sharedLevels)
-{
+    m_energyLevels = node["energy-levels"].asVector<double>();
+    m_crossSections = node["cross-sections"].asVector<double>(m_energyLevels.size());
+
+    m_hasExplicitThreshold = node.hasKey("threshold");
+    m_threshold = node.getDouble("threshold", 0.0);
+    m_isReactionRate = false;
+
+    validateCollisionData(node);
+    setDefaultThreshold();
+
+    // Invalidate interpolation caches after loading new data.
+    m_levelNumber = -3;
+    m_levelNumberSuperelastic = -2;
     m_crossSectionsInterpolated.clear();
-    m_crossSectionsInterpolated.reserve(sharedLevels.size());
-    for (double level : sharedLevels) {
-        m_crossSectionsInterpolated.emplace_back(linearInterp(level,
-                                            m_energyLevels, m_crossSections));
+    m_crossSectionsOffset.resize(0);
+
+    m_hasCrossSectionData = true;
+}
+
+void ElectronCollisionPlasmaRate::getParameters(
+    AnyMap& node) const
+{
+    node["type"] = type();
+
+    if (!m_hasCrossSectionData) {
+        return;
+    }
+
+    node["energy-levels"] = m_energyLevels;
+    node["cross-sections"] = m_crossSections;
+
+    if (!m_kind.empty()) {
+        node["kind"] = m_kind;
+    }
+
+    // Reactive entries infer the target from their equation.
+    if (!m_isReactionRate && !m_target.empty()) {
+        node["target"] = m_target;
+    }
+
+    if (!m_product.empty()) {
+        node["product"] = m_product;
+    }
+
+    if (m_hasExplicitThreshold || m_threshold != 0.0) {
+        node["threshold"] = m_threshold;
     }
 }
 
@@ -182,185 +215,105 @@ void ElectronCollisionPlasmaRate::setContext(
     const ThermoPhase& thermo = kin.thermo();
 
     if (thermo.type() != "plasma") {
-        throw CanteraError("ElectronCollisionPlasmaRate::setContext",
+        throw CanteraError(
+            "ElectronCollisionPlasmaRate::setContext",
             "ElectronCollisionPlasmaRate requires a plasma phase.");
     }
 
     const auto& plasma = dynamic_cast<const PlasmaPhase&>(thermo);
-    const string electronName = plasma.electronSpeciesName();
 
-    if (m_collisionName.empty()) {
-        throw InputFileError("ElectronCollisionPlasmaRate::setContext", rxn.input,
-            "Electron-collision reaction '{}' does not specify a named "
-            "'collision' reference.",
-            rxn.equation());
+    // All metadata inference is performed independently of Kinetics.
+    setReactionContext(rxn, plasma.electronSpeciesName());
+}
+
+void ElectronCollisionPlasmaRate::setReactionContext(
+    const Reaction& rxn, const string& electronName)
+{
+    const string routine =
+        "ElectronCollisionPlasmaRate::setReactionContext";
+
+    if (!m_hasCrossSectionData) {
+        throw InputFileError(routine, rxn.input,
+            "Electron-collision reaction '{}' has no tabulated cross sections.", rxn.equation());
     }
-
-    if (!plasma.hasElectronCollisionDefinition(m_collisionName)) {
-        throw InputFileError("ElectronCollisionPlasmaRate::setContext", rxn.input,
-            "Reaction '{}' references unknown electron collision '{}'.",
-            rxn.equation(), m_collisionName);
-    }
-
-    applyCollisionData(
-        plasma.electronCollisionDefinition(m_collisionName));
 
     if (rxn.reactants.size() != 2) {
-        throw InputFileError("ElectronCollisionPlasmaRate::setContext", rxn.input,
-            "ElectronCollisionPlasmaRate requires exactly two reactants.");
+        throw InputFileError(routine, rxn.input,
+            "Electron-collision reactions require exactly two reactant species.");
     }
 
-    auto electronReactant = rxn.reactants.find(electronName);
+    auto electron = rxn.reactants.find(electronName);
 
-    if (electronReactant == rxn.reactants.end() ||
-        electronReactant->second != 1.0) {
-        throw InputFileError("ElectronCollisionPlasmaRate::setContext", rxn.input,
-            "ElectronCollisionPlasmaRate requires exactly one electron "
-            "reactant.");
+    if (electron == rxn.reactants.end() || electron->second != 1.0) {
+        throw InputFileError(routine, rxn.input,
+            "Electron-collision reactions require exactly one electron reactant.");
     }
 
-    string reactionTarget;
-
+    // Infer the heavy-particle target from reactants.
+    string target;
     for (const auto& [name, coefficient] : rxn.reactants) {
-        if (name != electronName && coefficient != 0.0) {
-            reactionTarget = name;
-            break;
+        if (name != electronName) {
+            target = name;
         }
     }
 
-    if (reactionTarget != m_target) {
-        throw InputFileError("ElectronCollisionPlasmaRate::setContext", rxn.input,
-            "Electron collision '{}' targets '{}', but reaction '{}' uses '{}'.",
-            m_collisionName, m_target, rxn.equation(), reactionTarget);
+    if (!m_target.empty() && m_target != target) {
+        throw InputFileError(routine, rxn.input,
+            "Collision target '{}' disagrees with '{}'.", m_target, target);
     }
 
-    double reactantElectrons = electronReactant->second;
-    double productElectrons = 0.0;
+    m_target = target;
 
-    auto electronProduct = rxn.products.find(electronName);
-    if (electronProduct != rxn.products.end()) {
-        productElectrons = electronProduct->second;
+    // Determine the number of electrons in the products.
+    const double productElectrons = (electron == rxn.products.end()) ? 0.0 : electron->second;
+
+    string inferredKind;
+
+    if (productElectrons > 1.0) {
+        inferredKind = "ionization";
+    } else if (productElectrons < 1.0) {
+        inferredKind = "attachment";
+    } else if (rxn.reactants != rxn.products) {
+        inferredKind = "excitation";
     }
 
-    string reactionKind;
-
-    if (productElectrons > reactantElectrons) {
-        reactionKind = "ionization";
-    } else if (productElectrons < reactantElectrons) {
-        reactionKind = "attachment";
-    } else if (rxn.reactants == rxn.products) {
-        reactionKind = "effective";
-    } else {
-        reactionKind = "excitation";
+    // Identical reactants and products do not uniquely
+    // determine the collision kind.
+    if (inferredKind.empty() && m_kind.empty()) {
+        throw InputFileError(routine, rxn.input,
+            "The collision 'kind' is required when reactants and products are identical.");
     }
 
-    bool compatibleKind = reactionKind == m_kind;
-
-    // Elastic and effective cross sections both correspond to an unchanged
-    // electron-target reaction.
-    if (reactionKind == "effective" &&
-        (m_kind == "effective" || m_kind == "elastic")) {
-        compatibleKind = true;
+    // An unchanged electron-target reaction cannot
+    // represent ionization or attachment.
+    if (inferredKind.empty() && !m_kind.empty()
+        && m_kind != "effective"
+        && m_kind != "elastic"
+        && m_kind != "excitation") {
+        throw InputFileError(routine, rxn.input, "Collision kind '{}' is incompatible with an unchanged electron-target reaction.", m_kind);
     }
 
-    // Allow an unresolved inelastic channel whose product is not represented
-    // as a phase species. The reaction is compositionally unchanged, while the
-    // collision remains inelastic in the Boltzmann equation.
-    if (reactionKind == "effective" && m_kind == "excitation") {
-        compatibleKind = true;
+    if (!inferredKind.empty()) {
+        if (!m_kind.empty() && m_kind != inferredKind) {
+            throw InputFileError(routine, rxn.input,
+                "Collision kind '{}' disagrees with the inferred kind '{}'.",
+                m_kind, inferredKind);
+        }
+
+        m_kind = inferredKind;
     }
 
-    if (!compatibleKind) {
-        throw InputFileError("ElectronCollisionPlasmaRate::setContext", rxn.input,
-            "Electron collision '{}' has kind '{}', but reaction '{}' implies "
-            "kind '{}'.",
-            m_collisionName, m_kind, rxn.equation(), reactionKind);
-    }
-
-    if (!rxn.reversible) {
-        return;
-    }
-
-    if (rxn.products.size() != 2) {
-        throw InputFileError("ElectronCollisionPlasmaRate::setContext", rxn.input,
-            "ElectronCollisionPlasmaRate requires exactly two products for "
-            "a reversible excitation reaction.");
-    }
-
-    if (electronProduct == rxn.products.end() ||
-        electronProduct->second != 1.0) {
-        throw InputFileError("ElectronCollisionPlasmaRate::setContext", rxn.input,
-            "A reversible electron-collision reaction requires exactly one "
-            "electron product.");
-    }
-}
-
-void ElectronCollisionPlasmaRate::applyCollisionData(const AnyMap& node)
-{
-    const string routineName =
-        "ElectronCollisionPlasmaRate::applyCollisionData";
-
-    if (!node.hasKey("name")) {
-        throw InputFileError(routineName, node,
-            "Electron-collision definitions require a unique 'name'.");
-    }
-
-    const string name = node["name"].asString();
-
-    if (name.empty()) {
-        throw InputFileError(routineName, node,
-            "Electron-collision definition names cannot be empty.");
-    }
-
-    if (!m_collisionName.empty() && m_collisionName != name) {
-        throw InputFileError(routineName, node,
-            "Reaction references electron collision '{}', but data for '{}' "
-            "were supplied.",
-            m_collisionName, name);
-    }
-
-    m_collisionName = name;
-
-    if (!node.hasKey("kind")) {
-        throw InputFileError(routineName, node,
-            "Electron-collision definition '{}' requires 'kind'.", name);
-    }
-
-    if (!node.hasKey("target")) {
-        throw InputFileError(routineName, node,
-            "Electron-collision definition '{}' requires 'target'.", name);
-    }
-
-    if (!node.hasKey("energy-levels")) {
-        throw InputFileError(routineName, node,
-            "Electron-collision definition '{}' requires 'energy-levels'.",
-            name);
-    }
-
-    if (!node.hasKey("cross-sections")) {
-        throw InputFileError(routineName, node,
-            "Electron-collision definition '{}' requires 'cross-sections'.",
-            name);
-    }
-
-    m_kind = node["kind"].asString();
-    m_target = node["target"].asString();
-    m_product = node.getString("product", "");
-
-    m_energyLevels = node["energy-levels"].asVector<double>();
-    m_crossSections = node["cross-sections"].asVector<double>(m_energyLevels.size());
-
-    m_threshold = node.getDouble("threshold", 0.0);
+    // The method can be called first by PlasmaPhase and
+    // again by Kinetics without changing the result.
+    m_isReactionRate = true;
     setDefaultThreshold();
-    validateCollisionData(node);
 
-    // Invalidate all interpolated data after assigning a new table.
-    m_levelNumber = -3;
-    m_levelNumberSuperelastic = -2;
-    m_crossSectionsInterpolated.clear();
-    m_crossSectionsOffset.resize(0);
-
-    m_hasCrossSectionData = true;
+    // Validate superelastic reverse-reaction requirements.
+    if (rxn.reversible &&
+        (rxn.products.size() != 2 || electron == rxn.products.end() || electron->second != 1.0)) {
+        throw InputFileError(routine, rxn.input,
+            "A reversible electron-collision reaction requires exactly one electron and one other product species.");
+    }
 }
 
 void ElectronCollisionPlasmaRate::validateCollisionData(
@@ -372,17 +325,13 @@ void ElectronCollisionPlasmaRate::validateCollisionData(
         "effective", "elastic", "excitation", "ionization", "attachment"
     };
 
-    if (!validKinds.count(m_kind)) {
+    // An empty kind is allowed before the reaction context is known.
+    if (!m_kind.empty() && !validKinds.count(m_kind)) {
         throw InputFileError(routineName, node,
             "Unknown electron-collision kind '{}'. Expected one of "
             "'effective', 'elastic', 'excitation', 'ionization', or "
             "'attachment'.",
             m_kind);
-    }
-
-    if (m_target.empty()) {
-        throw InputFileError(routineName, node,
-            "The electron-collision target cannot be empty.");
     }
 
     if (m_energyLevels.size() < 2) {

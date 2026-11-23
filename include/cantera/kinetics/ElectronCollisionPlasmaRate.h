@@ -213,18 +213,16 @@ public:
     //! Update the value of #m_crossSectionsInterpolated [m2]
     void updateInterpolatedCrossSection(span<const double>);
 
-    //! Name of the electron-collision definition referenced by this rate.
-    const string& collisionName() const {
-        return m_collisionName;
-    }
-
     //! Return whether tabulated cross-section data have been assigned.
     bool hasCrossSectionData() const {
         return m_hasCrossSectionData;
     }
 
-    //! Assign data from a named entry in the root `electron-collisions` section.
-    void applyCollisionData(const AnyMap& node);
+    //! Infer collision metadata directly from the reaction equation.
+    //! Does not require a Kinetics object or a fully initialized phase.
+    void setReactionContext(
+        const Reaction& rxn,
+        const string& electronName);
 
 private:
     //! The name of the kind of electron collision
@@ -261,11 +259,14 @@ private:
     //! rate coefficient.
     Eigen::ArrayXd m_crossSectionsOffset;
 
-    //! Name used to reference the collision data from a reaction.
-    string m_collisionName;
-
     //! Whether this rate contains validated tabulated cross-section data.
     bool m_hasCrossSectionData = false;
+
+    //! True when threshold was explicitly provided in the input.
+    bool m_hasExplicitThreshold = false;
+
+    //! True when the target was determined from a reaction equation.
+    bool m_isReactionRate = false;
 
     //! Validate the contents of a named electron-collision definition.
     void validateCollisionData(const AnyMap& node) const;
