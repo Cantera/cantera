@@ -365,22 +365,15 @@ double ReactorNet::advance(double time, bool applylimit)
         return time;
     }
 
-    // Activate the advance-limit root function and set the base state to the
-    // current state. The root function itself stays registered with the integrator
-    // for as long as the network has advance limits (see nRootFunctions()); it is
-    // only *activated* here. Registering and removing it around every call would
-    // make CVODES re-allocate its root-finding work arrays mid-integration, and
-    // CVODES only initializes those arrays on the first internal step, so the first
-    // root check after re-registration would compare against uninitialized memory
-    // and could report a spurious root (see GH issue #2179).
+    // Enable root-based limit detection and set the base state to the current state
     m_ybase.assign(m_nv, 0.0);
     getState(m_ybase);
     m_ybase_time = m_time;
     m_limit_check_active = true;
 
     // Integrate toward the requested time; integrator will return early if a limit is
-    // reached (CV_ROOT_RETURN). The try/catch ensures the limit check is deactivated
-    // even when CVODE throws so subsequent calls start clean.
+    // reached (CV_ROOT_RETURN). The try/catch ensures limit detection is disabled
+    // even when CVODE throws.
     try {
         m_integ->integrate(time);
     } catch (...) {
@@ -393,8 +386,7 @@ double ReactorNet::advance(double time, bool applylimit)
     // (which may be earlier than 'time' if a limit was triggered)
     updateState(m_integ->solution());
 
-    // Deactivate limit checking after this call; the root function then evaluates
-    // to a constant positive value and can no longer trigger.
+    // Disable limit checking after this call
     m_limit_check_active = false;
 
     // When a root event stopped integration before reaching the requested time, report
@@ -542,11 +534,6 @@ int ReactorNet::lastOrder() const
 
 size_t ReactorNet::nRootFunctions() const
 {
-    // The root function is registered whenever advance limits exist, independent of
-    // whether a limit check is currently active. Changing the number of root
-    // functions requires the integrator to be reinitialized so that CVODES
-    // initializes its root-finding state on the next step; this is triggered from
-    // Reactor::setAdvanceLimit(s) via setNeedsReinit().
     return hasAdvanceLimits() ? 1 : 0;
 }
 

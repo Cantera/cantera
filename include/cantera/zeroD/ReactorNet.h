@@ -424,9 +424,8 @@ public:
     //! @param settings the settings map propagated to all reactors and kinetics objects
     virtual void setDerivativeSettings(AnyMap& settings);
 
-    //! Number of root functions: 1 if any reactor has advance limits, 0 otherwise.
-    //! The root function is kept registered with the integrator as long as limits
-    //! exist and is only *activated* during `advance(t, applylimit=true)`.
+    //! The advance-limit root function is registered whenever any reactor has
+    //! advance limits, but can only trigger during advance(time, true).
     size_t nRootFunctions() const override;
 
     //! Evaluate the advance-limit root function used to stop integration once a limit
