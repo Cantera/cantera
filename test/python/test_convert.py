@@ -11,6 +11,57 @@ from cantera import ck2yaml, cti2yaml, ctml2yaml, yaml2ck, lxcat2yaml
 from .utilities import load_yaml
 
 
+@pytest.mark.parametrize("gas_basis,surface_basis,local_basis", [
+    ("MOLES", "MOLECULES", None),
+    ("MOLECULES", "MOLES", None),
+    ("MOLES", "MOLES", None),
+    ("MOLECULES", "MOLECULES", None),
+    ("MOLES", "MOLES", "MOLECULES"),
+    ("MOLECULES", "MOLECULES", "MOLES"),
+])
+def test_ck2yaml_surface_quantity_units(tmp_path, test_data_path,
+                                      gas_basis, surface_basis, local_basis):
+    # This synthetic fixture uses only noble-gas labels and idealized sites.
+    gas_input = tmp_path / "gas.inp"
+    surface_input = tmp_path / "surface.inp"
+    gas_ref = test_data_path / "ck2yaml-inert-surface-gas.inp"
+    surface_ref = test_data_path / "ck2yaml-inert-surface.inp"
+    gas_input.write_text(gas_ref.read_text().replace("REACTIONS MOLES", f"REACTIONS {gas_basis}"))
+    surface_text = surface_ref.read_text().replace("REACTIONS MOLECULES",
+                                                   f"REACTIONS {surface_basis}")
+    if local_basis:
+        surface_text = surface_text.replace("FORD /VAC 1.5/",
+                                            f"FORD /VAC 1.5/\n    UNITS /{local_basis}/")
+    surface_input.write_text(surface_text)
+    out = tmp_path / "mechanism.yaml"
+    ck2yaml.convert(gas_input, surface_file=surface_input, out_name=out, quiet=True)
+
+    gas = ct.Solution(out, "gas")
+    surf = ct.Interface(out, "SURF", adjacent=[gas])
+    assert gas.reaction(0).rate.pre_exponential_factor == approx(17.)
+    assert surf.n_reactions == 7
+    yaml_reactions = load_yaml(out)["SURF-reactions"]
+    assert yaml_reactions[3]["sticking-coefficient"]["A"] == 0.05
+    assert "units" not in yaml_reactions[3]
+    # Effective orders (including the fractional order and explicit reverse)
+    # determine the cm-to-m and particle/mole-to-kmol powers independently.
+    expected = [
+        (5e-24, 1., 1.), (4e-24, 0., 2.), (6e-45, 1., 2.),
+        (0.05, 0., 0.), (4e-22, 0., 2.5), (3e-24, 1., 1.), (2., 0., 1.),
+    ]
+    energies = [1250., 1000., 1700., 2100., 1300., 1900., 900.]
+    for i, ((A, ng, ns), energy) in enumerate(zip(expected, energies)):
+        basis = local_basis if local_basis and i == 4 else surface_basis
+        qty = 1e-3 / (6.02214076e23 if basis == "MOLECULES" else 1)
+        if i != 3:
+            A *= 0.01**(3*ng + 2*ns - 2) * qty**(1 - ng - ns)
+        rate = surf.reaction(i).rate
+        assert rate.pre_exponential_factor == approx(A, rel=2e-14, abs=0)
+        assert rate.activation_energy == approx(energy*1000)
+    assert surf.reaction(4).orders == {"VAC": 1.5}
+    assert surf.reaction(0).rate.coverage_dependencies["VAC"]["E"] == approx(513000.)
+
+
 class Testck2yaml:
     @pytest.fixture(autouse=True)
     def inject_fixtures(self, capsys, test_data_path):
