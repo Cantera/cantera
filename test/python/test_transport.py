@@ -462,8 +462,7 @@ def test_single_species_transport(model):
     rtol = 1e-4 if model == "multicomponent" else 1e-6
     assert single.thermal_conductivity == approx(ref.thermal_conductivity, rel=rtol)
     k = ref.species_index('H2O2')
-    # skipped for multicomponent: thermal_conductivity modifies the cached
-    # self-diffusion coefficient
+    assert single.mix_diff_coeffs[0] == approx(ref.binary_diff_coeffs[k, k], rel=rtol)
     if model == "multicomponent":
         assert single.multi_diff_coeffs[0, 0] == 0.0
 
