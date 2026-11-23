@@ -255,8 +255,8 @@ void GasTransport::getMixDiffCoeffsMass(span<double> d)
                 sum1 += m_molefracs[i] / m_bdiff(k,i);
                 sum2 += m_molefracs[i] * m_mw[i] / m_bdiff(k,i);
             }
-            double denom = mmw - m_mw[k]*m_molefracs[k];
-            d[k] = denom / std::max(Tiny, p*(denom*sum1 + m_molefracs[k]*sum2));
+            double delta_mw = mmw - m_mw[k]*m_molefracs[k];
+            d[k] = delta_mw / std::max(Tiny, p*(delta_mw*sum1 + m_molefracs[k]*sum2));
         }
     }
 }
