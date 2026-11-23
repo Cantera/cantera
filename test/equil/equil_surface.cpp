@@ -10,7 +10,7 @@
 
 using namespace Cantera;
 
-TEST(SurfaceEquilibrium, directNonTPDriversReject)
+TEST(SurfaceEquilibrium, directUnsupportedZeroVolumeDriversReject)
 {
     auto surface = newThermo("diamond.yaml", "diamond_100");
     MultiPhase mix;
@@ -18,11 +18,9 @@ TEST(SurfaceEquilibrium, directNonTPDriversReject)
     mix.init();
     vector<double> initial(mix.nSpecies());
     mix.getMoles(initial);
-    // Construction must succeed; only the requested non-TP modes should fail.
+    // The supported HP and SP paths are exercised by the surface tests.
     vcs_MultiPhaseEquil solver(&mix, 0);
-    EXPECT_THROW(solver.equilibrate_HP(mix.enthalpy(), HP, 300, 2000), CanteraError);
     EXPECT_THROW(solver.equilibrate_HP(mix.IntEnergy(), UP, 300, 2000), CanteraError);
-    EXPECT_THROW(solver.equilibrate_SP(mix.entropy(), 300, 2000), CanteraError);
     for (int mode : {TV, HV, UV, SV}) {
         EXPECT_THROW(solver.equilibrate_TV(mode, 1200), CanteraError);
     }
