@@ -836,7 +836,7 @@ def test_excluded_species_TP_polyatomic(solver):
 
 
 class TestSurfaceMultiphaseEquil:
-    """Fixed-TP equilibrium conserves the sites of each ideal surface (#1720)."""
+    """VCS equilibrium conserves the sites of each ideal surface (#1720)."""
 
     @staticmethod
     def make_phases(sizes=(1, 1), preference=4, charge=0, single=False,
@@ -1076,13 +1076,94 @@ class TestSurfaceMultiphaseEquil:
             assert phase.P == approx(pressure, rel=1e-14)
             assert phase.electric_potential == potential
 
+    @pytest.mark.parametrize("pair", ["HP", "SP"])
+    @pytest.mark.parametrize("surface_only", [False, True])
+    @pytest.mark.parametrize("T_target,pressure", [(600, 90000), (800, 140000)])
+    @pytest.mark.parametrize("y0", [0.2, 0.85])
+    def test_fixed_pressure_temperature_motion(self, pair, surface_only, T_target,
+                                               pressure, y0):
+        # A/As and B/Bs have one inert atom each; the site size is one.
+        # In the mixed system there is one Ar atom and one He atom in total.
+        # For a surface alone both surface species carry one Ar atom.
+        y_target = 2 / 3
+        T_ref = 300
+        h_as, cp = -7.5e6, 22000
+        phase_count = 1 if surface_only else 2
+        # The exchange chemical potential is g_As^0 plus one term
+        # R*T*log(y/(1-y)) per phase. Choose s_As^0 to make it vanish.
+        s_as = h_as / T_target + phase_count * ct.gas_constant * np.log(2)
+        total_cp = phase_count * cp
+
+        def species(name, atom, h0=0, s0=0):
+            sp = ct.Species(name, {atom: 1})
+            sp.thermo = ct.ConstantCp(200, 3000, ct.one_atm, (T_ref, h0, s0, cp))
+            return sp
+
+        surf = ct.Interface(thermo="ideal-surface", kinetics="surface", reactions=[],
+                            species=[species("As", "Ar", h_as, s_as),
+                                     species("Bs", "Ar" if surface_only else "He")])
+        surf.site_density = 1
+
+        def entropy_offset(y):
+            ideal = y * np.log(y) + (1 - y) * np.log1p(-y)
+            if not surface_only:
+                ideal = 2 * ideal + np.log(pressure / ct.one_atm)
+            return s_as * y - ct.gas_constant * ideal
+
+        if pair == "HP":
+            target = total_cp * (T_target - T_ref) + h_as * y_target
+            T0 = T_ref + (target - h_as * y0) / total_cp
+            prop = "enthalpy_mole"
+        else:
+            target = total_cp * np.log(T_target / T_ref) + entropy_offset(y_target)
+            T0 = T_ref * np.exp((target - entropy_offset(y0)) / total_cp)
+            prop = "entropy_mole"
+
+        surf.TPX = T0, pressure, [y0, 1 - y0]
+        phases = [(surf, 1)]
+        expected = [y_target, 1 - y_target]
+        if not surface_only:
+            gas = ct.Solution(thermo="ideal-gas", species=[species("A", "Ar"),
+                                                         species("B", "He")])
+            gas.TPX = T0, pressure, [1 - y0, y0]
+            phases.insert(0, (gas, 1))
+            expected = [1 - y_target, y_target] + expected
+        mix = ct.Mixture(phases)
+
+        def total_property():
+            return sum(mix.phase_moles(i) * getattr(mix.phase(i), prop)
+                       for i in range(mix.n_phases))
+
+        matrix = self.constraints(mix)
+        before = matrix @ mix.species_moles
+        assert abs(T0 - T_target) > 2
+        assert total_property() == approx(target, rel=1e-12)
+        mix.equilibrate(pair, solver="vcs", rtol=1e-9)
+        assert mix.T == approx(T_target, abs=3e-4)
+        assert mix.P == approx(pressure, rel=1e-13)
+        assert mix.species_moles == approx(expected, abs=3e-7)
+        assert matrix @ mix.species_moles == approx(before, abs=3e-11)
+        assert total_property() == approx(target, rel=3e-8)
+
     @pytest.mark.parametrize("pair,solver", [("TP", "gibbs")] + [
-        (pair, solver) for pair in ("HP", "SP", "TV", "UV")
-        for solver in ("vcs", "auto")])
-    def test_unsupported_solver_or_constraints_preserve_state(self, pair, solver):
+        (pair, solver) for pair in ("HP", "SP") for solver in ("auto", "gibbs")
+    ] + [
+        (pair, solver) for pair in ("TV", "HV", "UV", "SV")
+        for solver in ("vcs", "auto", "gibbs")])
+    @pytest.mark.parametrize("surface_only", [False, True])
+    def test_unsupported_solver_or_constraints_preserve_state(self, pair, solver,
+                                                             surface_only):
         gas, surf = self.make_phases()
-        mix = ct.Mixture([(surf, 1), (gas, 1)])
-        self.check_rejected(mix, pair, solver, "only at fixed TP")
+        mix = ct.Mixture([(surf, 1)] if surface_only else [(surf, 1), (gas, 1)])
+        message = ("unknown property pair HV" if pair == "HV"
+                   else "Surface equilibrium is supported only")
+        self.check_rejected(mix, pair, solver, message)
+
+    @pytest.mark.parametrize("pair", ["HP", "SP"])
+    def test_fixed_pressure_rejects_unequal_site_sizes(self, pair):
+        gas, surf = self.make_phases(sizes=(1, 2))
+        mix = ct.Mixture([(gas, 1), (surf, 1)])
+        self.check_rejected(mix, pair, "vcs", "neutral species with equal positive site sizes")
 
     def test_failed_vcs_does_not_fall_back_to_gibbs(self):
         gas, surf = self.make_phases()

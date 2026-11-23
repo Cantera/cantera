@@ -19,11 +19,11 @@ namespace {
 
 void checkSurfaceMode(MultiPhase* mix, int XY)
 {
-    if (XY != TP) {
+    if (XY != TP && XY != HP && XY != SP) {
         for (size_t i = 0; i < mix->nPhases(); i++) {
             if (mix->phase(i).nDim() != 3) {
                 throw CanteraError("vcs_MultiPhaseEquil::equilibrate",
-                    "Surface equilibrium is supported only at fixed TP.");
+                    "Surface VCS equilibrium is supported only at fixed TP, HP, or SP.");
             }
         }
     }

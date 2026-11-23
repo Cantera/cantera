@@ -61,7 +61,8 @@ class Mixture:
        for more information.
 
     Neutral ideal surface phases whose species all occupy the same number of sites
-    can be equilibrated at fixed TP using the VCS solver (or solver='auto').
+    can be equilibrated at fixed TP using the VCS solver (or solver='auto'),
+    or at fixed HP or SP using only the explicit choice solver='vcs'.
     Their initial site inventories, and therefore their areas at fixed site density,
     are conserved independently. The supplied phase amounts count kmol of surface
     species; the site inventory is this amount times the common species site size.
