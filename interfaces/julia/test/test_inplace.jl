@@ -225,5 +225,13 @@ end
     @test allocations(hp!, out, gas) == 0
     @test heat_production_rates!(zeros(nr), gas) == ref
     @test sum(ref) ≈ heat_release_rate(gas) rtol=1e-10
+
+    # A workspace sharing memory with `out` would overwrite the rates of progress.
+    @test_throws ArgumentError heat_production_rates!(out, gas; work=out)
+    buf = zeros(nr + 1)
+    @test_throws ArgumentError heat_production_rates!(view(buf, 1:nr), gas;
+                                                      work=view(buf, 2:nr+1))
+    M = zeros(nr, 2)
+    @test heat_production_rates!(view(M, :, 1), gas; work=view(M, :, 2)) == ref
     close!(gas)
 end

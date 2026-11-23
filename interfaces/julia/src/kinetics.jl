@@ -321,10 +321,13 @@ heat_production_rates(g::KineticsLike) =
 
 In-place [`heat_production_rates`](@ref): fill `out` and return it.  The
 reaction enthalpies are computed into `work`, so pass a preallocated `work`
-vector of the same length as `out` to avoid allocating.
+vector of the same length as `out` to avoid allocating.  `work` must not share
+memory with `out`; an `ArgumentError` is thrown if it might.
 """
 function heat_production_rates!(out, g::KineticsLike;
                                 work=Vector{Float64}(undef, length(out)))
+    Base.mightalias(out, work) &&
+        throw(ArgumentError("`work` must not share memory with `out`"))
     net_rates_of_progress!(out, g)
     delta_enthalpy!(work, g)
     out .*= .-work
