@@ -225,11 +225,15 @@ CLib string getters are called twice: once with a null buffer to obtain the requ
 length, and again with a buffer of that size. `get_string` encapsulates this, taking a
 closure so that any getter's leading arguments can be bound at the call site.
 
-Array getters take a caller-allocated buffer, filled by `get_array!` or by `get_array`,
-which allocates first. Most array properties expose both a normal and an in-place
-`foo!(out, gas)` variant, the latter to avoid an allocation per call in loops.
-Non-`Float64` input vectors are converted at the boundary by `as_f64`, since a `ccall`
-needs a contiguous `Vector{Float64}`.
+Array getters fill a caller-allocated buffer through `get_array!`, or through
+`get_array`, which allocates it first. Most array properties expose both a normal and
+an in-place `foo!(out, gas)` variant, the latter to avoid allocating in loops. `out`
+must have exactly the expected size (otherwise a `DimensionMismatch` is thrown) and may
+be any contiguous array, such as `view(M, :, j)`; strided views are rejected, since the
+CLib reads a plain pointer. Input vectors go through `as_f64`, which passes contiguous
+`Float64` storage as is and converts anything else. Arrays are passed to the generated
+wrappers directly rather than as `pointer(x)`, so that `ccall` keeps them alive for the
+duration of the call.
 
 ### Handle lifetime is the interface's main hazard
 
@@ -239,7 +243,7 @@ collector knows nothing about the object it refers to. Each wrapper is therefore
 idempotent `close!`, guarded by a `closed` flag. These `close!` methods deliberately
 swallow exceptions: they run on the finalizer path, where throwing is not useful.
 
-Two consequences shape the type definitions:
+Three consequences shape the type definitions:
 
 - The `ThermoPhase`, `Kinetics` and `Transport` views do not own their handles — they
   borrow them from a `Solution`. Each is parametrized on the type of its owner and
@@ -252,6 +256,9 @@ Two consequences shape the type definitions:
   its constructor — that object keeps its original state. The reactor's own phase is
   reached with `reactor_phase`, and scalar reactor state has direct accessors such as
   `temperature(reactor)`.
+- `Wall` only stores raw pointers to its heat-flux and velocity functions. Connectors
+  therefore keep the `Func1` objects they are given, so that Julia's garbage collector
+  cannot free a function that is still in use.
 
 Not every phase has a kinetics or transport manager. `Solution` records a `-1` for a
 manager that could not be created and raises a descriptive `CanteraError` when one is
