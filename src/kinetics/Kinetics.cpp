@@ -16,6 +16,7 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/utilities.h"
 #include "cantera/base/global.h"
+#include <algorithm>
 #include <unordered_set>
 #include <boost/algorithm/string.hpp>
 
@@ -252,45 +253,42 @@ pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err, bool fix)
 
 double Kinetics::checkDuplicateStoich(map<int, double>& r1, map<int, double>& r2) const
 {
-    std::unordered_set<int> keys; // species keys (k+1 or -k-1)
-    for (auto& [speciesKey, stoich] : r1) {
-        keys.insert(speciesKey);
-    }
-    for (auto& [speciesKey, stoich] : r2) {
-        keys.insert(speciesKey);
-    }
-    int k1 = r1.begin()->first;
-    // check for duplicate written in the same direction
-    double ratio = 0.0;
-    if (r1[k1] && r2[k1]) {
-        ratio = r2[k1]/r1[k1];
-        bool different = false;
-        for (int k : keys) {
-            if ((r1[k] && !r2[k]) ||
-                (!r1[k] && r2[k]) ||
-                (r1[k] && fabs(r2[k]/r1[k] - ratio) > 1.e-8)) {
-                different = true;
-                break;
-            }
-        }
-        if (!different) {
-            return ratio;
-        }
-    }
-
-    // check for duplicate written in the reverse direction
-    if (r1[k1] == 0.0 || r2[-k1] == 0.0) {
+    auto ref = std::find_if(r1.cbegin(), r1.cend(),
+        [](const auto& entry) { return entry.second != 0.0; });
+    if (ref == r1.cend()) {
         return 0.0;
     }
-    ratio = r2[-k1]/r1[k1];
-    for (int k : keys) {
-        if ((r1[k] && !r2[-k]) ||
-            (!r1[k] && r2[-k]) ||
-            (r1[k] && fabs(r2[-k]/r1[k] - ratio) > 1.e-8)) {
+
+    auto coefficient = [](const auto& stoich, int k) {
+        auto it = stoich.find(k);
+        return it == stoich.end() ? 0.0 : it->second;
+    };
+
+    auto match = [&](int direction) {
+        double ratio = coefficient(r2, direction * ref->first) / ref->second;
+        if (ratio == 0.0) {
             return 0.0;
         }
-    }
-    return ratio;
+        // Compare the full nonzero support in both reactions. A reversed
+        // reaction swaps the reactant and product keys.
+        for (const auto& [k, v] : r1) {
+            if (v != 0.0) {
+                double w = coefficient(r2, direction * k);
+                if (w == 0.0 || fabs(w / v - ratio) > 1.e-8) {
+                    return 0.0;
+                }
+            }
+        }
+        for (const auto& [k, v] : r2) {
+            if (v != 0.0 && coefficient(r1, direction * k) == 0.0) {
+                return 0.0;
+            }
+        }
+        return ratio;
+    };
+
+    double ratio = match(1);
+    return ratio != 0.0 ? ratio : match(-1);
 }
 
 string Kinetics::kineticsSpeciesName(size_t k) const
