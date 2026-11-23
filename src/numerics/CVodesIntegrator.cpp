@@ -511,13 +511,9 @@ void CVodesIntegrator::integrate(double tout)
                 flag, m_error_message, f_errs, getErrorInfo(10));
         }
         if (flag == CV_ROOT_RETURN) {
-            // A root (e.g., advance limit) was located within the last internal
-            // step. In CV_ONE_STEP mode that step may extend past the requested
-            // output time, so only stop early if the root lies before tout;
-            // otherwise the requested time is reached without hitting the limit.
-            if (m_tInteg < tout) {
-                tout = m_tInteg;
-            }
+            // Stop at the root (e.g., advance limit reached), or at tout if the root
+            // lies beyond it
+            tout = std::min(tout, m_tInteg);
             break;
         }
         nsteps++;
