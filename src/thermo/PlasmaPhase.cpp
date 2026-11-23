@@ -304,19 +304,6 @@ void PlasmaPhase::setElectronEnergyDistributionParameters(const AnyMap& eedf)
     }
 }
 
-const AnyMap& PlasmaPhase::electronCollisionDefinition(
-    const string& name) const
-{
-    auto iter = m_electronCollisionDefinitions.find(name);
-
-    if (iter == m_electronCollisionDefinitions.end()) {
-        throw CanteraError("PlasmaPhase::electronCollisionDefinition",
-            "Unknown electron-collision definition '{}'.", name);
-    }
-
-    return iter->second;
-}
-
 void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
 {
     IdealGasPhase::setParameters(phaseNode, rootNode);
@@ -331,67 +318,55 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
             phaseNode["vibrational-reservoir-species-mapping"].asMap<string>();
     }
 
-    m_electronCollisionDefinitions.clear();
+    m_inputCollisionHasEquation.clear();
 
     if (rootNode.hasKey("electron-collisions")) {
-        const auto definitions =
-            rootNode["electron-collisions"].asVector<AnyMap>();
 
-        // Store all definitions before constructing standalone EEDF
-        // collisions, so reaction references can be resolved independently
-        // of declaration order.
-        for (const auto& item : definitions) {
-            if (!item.hasKey("name")) {
-                throw InputFileError("PlasmaPhase::setParameters", item,
-                    "Every entry in 'electron-collisions' requires a unique "
-                    "'name'.");
-            }
+        // Register every collision before the Kinetics object exists.
+        for (const auto& item :
+            rootNode["electron-collisions"].asVector<AnyMap>()) {
 
-            const string name = item["name"].asString();
+            auto rate = make_shared<ElectronCollisionPlasmaRate>(item);
 
-            if (name.empty()) {
-                throw InputFileError("PlasmaPhase::setParameters", item,
-                    "Electron-collision definition names cannot be empty.");
-            }
+            shared_ptr<Reaction> collision;
+            const bool hasEquation = item.hasKey("equation");
 
-            if (m_electronCollisionDefinitions.count(name)) {
-                throw InputFileError("PlasmaPhase::setParameters", item,
-                    "Duplicate electron-collision definition '{}'.", name);
-            }
+            if (hasEquation) {
 
-            m_electronCollisionDefinitions.emplace(name, item);
-        }
+                // Reactive entry: construct an internal reaction. Species validation is deferred to Kinetics.
+                collision = make_shared<Reaction>(item["equation"].asString(), rate);
+                rate->setReactionContext(*collision, electronSpeciesName());
 
-        // Every definition contributes to the EEDF, even if no chemical
-        // reaction references it.
-        for (const auto& item : definitions) {
-            auto rate = make_shared<ElectronCollisionPlasmaRate>();
-            rate->applyCollisionData(item);
+                // This synthetic object is not added to Kinetics.
+                collision->setValid(false);
 
-            Composition reactants;
-            Composition products;
-
-            reactants[rate->target()] = 1.0;
-            reactants[electronSpeciesName()] = 1.0;
-
-            if (!rate->product().empty()) {
-                products[rate->product()] = 1.0;
             } else {
-                products[rate->target()] = 1.0;
+
+                // Collision-only entry: target and kind are mandatory.
+                if (!item.hasKey("target") || !item.hasKey("kind")) {
+                    throw InputFileError(
+                        "PlasmaPhase::setParameters", item,
+                        "An electron collision without an equation requires both 'target' and 'kind'.");
+                }
+
+                Composition reactants, products;
+
+                reactants[rate->target()] = 1.0;
+                reactants[electronSpeciesName()] = 1.0;
+
+                // The product may be an excited-state label that is not declared as a phase species.
+                products[rate->product().empty() ? rate->target() : rate->product()] = 1.0;
+
+                if (rate->kind() != "attachment") {
+                    products[electronSpeciesName()] = (rate->kind() == "ionization") ? 2.0 : 1.0;
+                }
+
+                collision = make_shared<Reaction>(reactants, products, rate);
+                collision->setValid(false);
             }
-
-            products[electronSpeciesName()] = 1.0;
-
-            if (rate->kind() == "ionization") {
-                products[electronSpeciesName()] += 1.0;
-            } else if (rate->kind() == "attachment") {
-                products.erase(electronSpeciesName());
-            }
-
-            auto collision =
-                make_shared<Reaction>(reactants, products, rate);
 
             addCollision(collision);
+            m_inputCollisionHasEquation.push_back(hasEquation);
         }
     }
 }
@@ -637,9 +612,9 @@ void PlasmaPhase::setCollisions()
     }
 }
 
+
 void PlasmaPhase::addCollision(shared_ptr<Reaction> collision)
 {
-    // avoid duplications
     auto rate = std::dynamic_pointer_cast<ElectronCollisionPlasmaRate>(
         collision->rate());
 
@@ -652,86 +627,120 @@ void PlasmaPhase::addCollision(shared_ptr<Reaction> collision)
     if (!rate->hasCrossSectionData()) {
         throw CanteraError("PlasmaPhase::addCollision",
             "Electron collision '{}' has no tabulated cross-section data.",
-            rate->collisionName());
+            collision->equation());
     }
 
-    // Root definitions are registered first. A chemical reaction referencing
-    // the same definition must not add a duplicate EEDF collision.
-    if (m_registeredElectronCollisionNames.count(rate->collisionName())) {
+    // Check whether this rate has already been registered.
+    // Reactive entries in electron-collisions are first registered by
+    // PlasmaPhase using a synthetic Reaction. Kinetics later constructs
+    // its own Reaction, which shares the same rate object.
+    for (size_t i = 0; i < m_collisionRates.size(); i++) {
+        if (m_collisionRates[i] != rate) {
+            continue;
+        }
+
+        // The exact same Reaction is already registered.
+        // Nothing needs to be updated.
+        if (m_collisions[i] == collision) {
+            return;
+        }
+
+        // Replace the synthetic Reaction with the actual Kinetics Reaction without registering the collision a second time.
+        m_collisions[i]->removeSetRateCallback(this);
+        m_collisions[i] = collision;
+
+        // Keep the rate pointer and interpolation cache synchronized
+        // if the Reaction's rate object is subsequently replaced.
+        collision->registerSetRateCallback(this, [this, i]() {
+            m_interp_cs_ready[i] = false;
+            m_collisionRates[i] = std::dynamic_pointer_cast<ElectronCollisionPlasmaRate>(m_collisions[i]->rate());
+        });
+
+        // The existing cross-section data and solver registration
+        // are preserved. No additional collision is created.
         return;
     }
 
-    // Count the number of collisions
-    size_t i = nCollisions();
-
-    // setup callback to signal updating the cross-section-related
-    // parameters
-    collision->registerSetRateCallback(this, [this, i, collision]() {
-        m_interp_cs_ready[i] = false;
-        m_collisionRates[i] =
-            std::dynamic_pointer_cast<ElectronCollisionPlasmaRate>(collision->rate());
-    });
-
-    // Identify target species for electron-collision reactions
+    // Identify the target species from the reaction's reactants.
+    // The electron species is excluded from the target search.
     string target;
-    for (const auto& [name, _] : collision->reactants) {
-        // Reactants are expected to be electrons and the target species
+    for (const auto& [name, coefficient] : collision->reactants) {
         if (name != electronSpeciesName()) {
-            m_targetSpeciesIndices.emplace_back(speciesIndex(name, true));
             target = name;
             break;
         }
     }
+
     if (target.empty()) {
-        throw CanteraError("PlasmaPhase::addCollision", "Error identifying target for"
-            " collision with equation '{}'", collision->equation());
-    }
-
-    // Check that the target species in the "synthetic" reaction matches the target species
-    if (target != rate->target()) {
         throw CanteraError("PlasmaPhase::addCollision",
-            "Electron collision '{}' targets '{}', but reaction '{}' uses '{}'.",
-            rate->collisionName(), rate->target(),
-            collision->equation(), target);
+            "Error identifying target for collision with equation '{}'.",
+            collision->equation());
     }
 
+    // Determine the collision category before modifying the
+    // internal state of PlasmaPhase.
+    string kind = rate->kind();
+
+    // Only one effective or elastic cross section is normally
+    // allowed for a given target, unless explicitly marked
+    // as a duplicate.
+    if (kind == "effective" || kind == "elastic") {
+        for (size_t k = 0; k < m_collisions.size(); k++) {
+            if (m_collisions[k]->reactants == collision->reactants &&
+                (m_collisionRates[k]->kind() == "elastic" ||
+                 m_collisionRates[k]->kind() == "effective") &&
+                !collision->duplicate) {
+                throw CanteraError("PlasmaPhase::addCollision",
+                    "Phase already contains an effective/elastic cross section for '{}'.", target);
+            }
+        }
+    }
+
+    // Resolve the target species index before modifying the collision vectors.
+    size_t targetIndex = speciesIndex(target, true);
+
+    // Index of the new collision in PlasmaPhase.
+    size_t i = nCollisions();
+
+    // Register the collision and its associated rate object.
+    m_targetSpeciesIndices.emplace_back(targetIndex);
     m_collisions.emplace_back(collision);
     m_collisionRates.emplace_back(rate);
     m_interp_cs_ready.emplace_back(false);
 
-    // resize parameters
+    // Register a callback to invalidate interpolated cross sections
+    // and update the stored rate pointer when setRate() is called.
+    collision->registerSetRateCallback(this, [this, i]() {
+        m_interp_cs_ready[i] = false;
+        m_collisionRates[i] = std::dynamic_pointer_cast<ElectronCollisionPlasmaRate>(m_collisions[i]->rate());
+    });
+
+    // Resize the elastic energy-loss coefficient storage and
+    // initialize the interpolated cross section for this collision.
     m_elasticElectronEnergyLossCoefficients.resize(nCollisions());
     updateInterpolatedCrossSection(i);
 
-    // Set up data used by Boltzmann solver
-    string kind = rate->kind();
-
-    if ((kind == "effective" || kind == "elastic")) {
-        for (size_t k = 0; k < m_collisions.size() - 1; k++) {
-            if (m_collisions[k]->reactants == collision->reactants &&
-                (m_collisionRates[k]->kind() == "elastic" ||
-                 m_collisionRates[k]->kind() == "effective") && !collision->duplicate)
-            {
-                throw CanteraError("PlasmaPhase::addCollision", "Phase already contains"
-                    " an effective/elastic cross section for '{}'.", target);
-            }
-        }
+    // Register the collision with the appropriate category used
+    // by the two-term Boltzmann solver.
+    if (kind == "effective" || kind == "elastic") {
         m_kElastic.push_back(i);
     } else {
         m_kInelastic.push_back(i);
     }
 
+    // Store the original tabulated energy levels and cross sections.
+    // These arrays are used by the EEDF solver.
     auto levels = rate->energyLevels();
     m_energyLevels.emplace_back(levels.begin(), levels.end());
+
     auto sections = rate->crossSections();
     m_crossSections.emplace_back(sections.begin(), sections.end());
 
-    m_registeredElectronCollisionNames.insert(rate->collisionName());
-    m_eedfSolver->setGridCache();
-
-    m_crossSections.emplace_back(sections.begin(), sections.end());
+    // Invalidate the EEDF solver grid cache once, after all
+    // collision data have been registered.
     m_eedfSolver->setGridCache();
 }
+
 
 bool PlasmaPhase::updateInterpolatedCrossSection(size_t i)
 {
