@@ -6,7 +6,8 @@ function load(mode)
     %   ct.load('inprocess')   % load in-process
     %   ct.load('outofprocess')% load out-of-process
     %
-    % After installing the toolbox, run :func:`ct.install` once before loading.
+    % The data files shipped with Cantera are added to the data file search path,
+    % so input files such as ``gri30.yaml`` are found without further setup.
 
     arguments
         mode (1,1) string {mustBeMember(mode, ...
@@ -29,7 +30,7 @@ function load(mode)
         end
     end
 
-    libDir = toolboxPaths();
+    [libDir, toolboxDir] = toolboxPaths();
     if ~hasInterface(libDir)
         error("ct:load:NotInstalled", ...
               ("The Cantera MATLAB interface for this platform was not found " + ...
@@ -60,7 +61,7 @@ function load(mode)
     end
 
     ctVersion = ct.version;
-    addInstalledDataDirectory();
+    addBundledDataDirectory(toolboxDir);
 
     fprintf('Cantera %s is ready for use (%s mode).\n', ctVersion, mode);
 end
@@ -118,26 +119,17 @@ function applyLoaderEnvInProcess(pathVar)
     end
 end
 
-function addInstalledDataDirectory()
-    % Data directories live in the loaded library, so the one registered by
-    % ct.install has to be re-added on every load.
-    GROUP = "Cantera";
-    if ~ispref(GROUP, "DataDirectory")
-        return
-    end
-
-    dataDir = string(getpref(GROUP, "DataDirectory"));
-    dataDir = reshape(dataDir, 1, []);
-    missing = dataDir(~arrayfun(@isfolder, dataDir));
-    if ~isempty(missing)
-        warning("ct:load:MissingDataDir", ...
-                ("Cantera data directory no longer exists: %s\n" + ...
-                 "Run ct.install(Force=true) to reconfigure."), ...
-                strjoin(missing, ", "));
-    end
-
-    dataDir = dataDir(arrayfun(@isfolder, dataDir));
-    if ~isempty(dataDir)
-        ct.addDataDirectories(dataDir);
+function addBundledDataDirectory(toolboxDir)
+    % Add the data files shipped with Cantera, found relative to the toolbox:
+    % <root>/data in the packaged toolbox, or <cantera>/data in a source checkout,
+    % where the toolbox is interfaces/matlab. As in the Python module, the current
+    % folder is then moved back to the front of the search path.
+    candidates = [fullfile(fileparts(toolboxDir), "data")
+                  fullfile(fileparts(fileparts(toolboxDir)), "data")];
+    for dataDir = candidates'
+        if ~isempty(dir(fullfile(dataDir, "*.yaml")))
+            ct.addDataDirectories([dataDir, "."]);
+            return
+        end
     end
 end
