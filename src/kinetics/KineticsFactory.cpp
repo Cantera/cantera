@@ -13,6 +13,8 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/Solution.h"
+#include "cantera/thermo/PlasmaPhase.h"
+#include "cantera/kinetics/ElectronCollisionPlasmaRate.h"
 #include <boost/algorithm/string.hpp>
 
 namespace Cantera
@@ -105,12 +107,17 @@ shared_ptr<Kinetics> newKinetics(const vector<shared_ptr<ThermoPhase>>& phases,
     return newKinetics(phases, phaseNode, root);
 }
 
+
 void addReactions(Kinetics& kin, const AnyMap& phaseNode, const AnyMap& rootNode)
 {
     loadExtensions(rootNode);
 
     // Find sections containing reactions to add
     vector<string> sections, rules;
+
+    // Electron-collision reactions are loaded only for plasma phases.
+    auto* plasma = dynamic_cast<PlasmaPhase*>(&kin.thermo());
+    bool hasElectronCollisions = plasma && rootNode.hasKey("electron-collisions");
 
     if (phaseNode.hasKey("reactions")) {
         const auto& reactionsNode = phaseNode.at("reactions");
@@ -120,10 +127,15 @@ void addReactions(Kinetics& kin, const AnyMap& phaseNode, const AnyMap& rootNode
                 // 'reactions' section, if it exists
                 sections.push_back("reactions");
                 rules.push_back(reactionsNode.asString());
-            } else if (reactionsNode.asString() != "none") {
+            } else if (reactionsNode.asString() != "none" && !hasElectronCollisions) {
                 throw InputFileError("addReactions", reactionsNode,
                     "Phase entry implies existence of 'reactions' section "
                     "which does not exist in the current input file.");
+            }
+            if (hasElectronCollisions && reactionsNode.asString() != "none") {
+                // Apply the same rule to reactive electron-collision entries.
+                sections.push_back("electron-collisions");
+                rules.push_back(reactionsNode.asString());
             }
         } else if (reactionsNode.is<vector<string>>()) {
             // List of sections from which all species should be added
@@ -143,11 +155,18 @@ void addReactions(Kinetics& kin, const AnyMap& phaseNode, const AnyMap& rootNode
         if (!phaseNode.hasKey("kinetics")) {
             // Do nothing - default surface or edge kinetics require separate detection
             // while not adding reactions
-        } else if (rootNode.hasKey("reactions")) {
-            // Default behavior is to add all reactions from the 'reactions'
-            // section, if a 'kinetics' model has been specified
-            sections.push_back("reactions");
-            rules.push_back("all");
+        } else if (rootNode.hasKey("reactions") || hasElectronCollisions) {
+            if (rootNode.hasKey("reactions")) {
+                // Default behavior is to add all reactions from the 'reactions'
+                // section, if a 'kinetics' model has been specified
+                sections.push_back("reactions");
+                rules.push_back("all");
+            }
+            if (hasElectronCollisions) {
+                // Also add reactive electron collisions by default for plasmas.
+                sections.push_back("electron-collisions");
+                rules.push_back("all");
+            }
         } else {
             throw InputFileError("addReactions", phaseNode,
                 "Phase entry implies existence of 'reactions' section which "
@@ -192,15 +211,33 @@ void addReactions(Kinetics& kin, const AnyMap& phaseNode, const AnyMap& rootNode
             }
         } else {
             // specified section is in the current file
-            for (const auto& R : rootNode.at(sections[i]).asVector<AnyMap>()) {
+            const auto& entries = rootNode.at(sections[i]).asVector<AnyMap>();
+            bool electronSection = plasma && sections[i] == "electron-collisions";
+            if (electronSection && entries.size() > plasma->nCollisions()) {
+                throw InputFileError("addReactions", rootNode.at(sections[i]),
+                    "PlasmaPhase has fewer registered collisions than YAML entries.");
+            }
+            for (size_t j = 0; j < entries.size(); j++) {
+                const auto& R = entries[j];
+                // Collision-only entries contribute to EEDF, but not Kinetics.
+                if (electronSection && !R.hasKey("equation")) {
+                    continue;
+                }
                 #ifdef NDEBUG
                     try {
-                        kin.addReaction(newReaction(R, kin), false);
+                #endif
+                        if (electronSection) {
+                            auto reaction = newReaction(R, kin);
+                            // Reuse the rate registered by PlasmaPhase.
+                            reaction->setRate(plasma->collisionRate(j));
+                            kin.addReaction(std::move(reaction), false);
+                        } else {
+                            kin.addReaction(newReaction(R, kin), false);
+                        }
+                #ifdef NDEBUG
                     } catch (CanteraError& err) {
                         fmt_append(add_rxn_err, "{}", err.what());
                     }
-                #else
-                    kin.addReaction(newReaction(R, kin), false);
                 #endif
             }
         }
