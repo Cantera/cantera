@@ -704,4 +704,16 @@ void ElectronCollisionPlasmaRate::setCrossSectionExtrapolation(bool enabled)
 
     invalidateRateIntegrationCaches();
 }
+
+void ElectronCollisionPlasmaRate::updateInterpolatedCrossSection(
+    span<const double> sharedLevels)
+{
+    m_crossSectionsInterpolated.clear();
+    m_crossSectionsInterpolated.reserve(sharedLevels.size());
+
+    for (double level : sharedLevels) {
+        m_crossSectionsInterpolated.push_back(
+            linearInterp(level, m_energyLevels, m_crossSections));
+    }
+}
 }
