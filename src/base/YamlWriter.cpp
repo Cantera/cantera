@@ -10,6 +10,7 @@
 #include "cantera/thermo/Species.h"
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/kinetics/Reaction.h"
+#include "cantera/kinetics/ElectronCollisionPlasmaRate.h"
 #include "cantera/transport/Transport.h"
 
 #include <fstream>
@@ -87,6 +88,8 @@ string YamlWriter::toYamlString() const
     size_t nspecies_total = 0;
     for (size_t i = 0; i < m_phases.size(); i++) {
         phaseDefs[i] = m_phases[i]->parameters(!m_skip_user_defined);
+    for (size_t i = 0; i < m_phases.size(); i++) {
+        phaseDefs[i] = m_phases[i]->parameters(!m_skip_user_defined);
         if (m_phases[i]->nAdjacent()) {
             vector<string> adj_names;
             for (size_t j = 0; j < m_phases[i]->nAdjacent(); j++) {
@@ -146,6 +149,7 @@ string YamlWriter::toYamlString() const
 
     // build reaction definitions for all phases
     map<string, vector<AnyMap>> allReactions;
+    set<string> plasmaPhasesWithCollisions;
     for (const auto& phase : m_phases) {
         const auto kin = phase->kinetics();
         if (!kin || !kin->nReactions()) {
@@ -154,8 +158,28 @@ string YamlWriter::toYamlString() const
         // Update duplicate reaction labels in case of a dynamically-built mechanism
         kin->checkDuplicates(false, true);
         vector<AnyMap> reactions;
+        auto plasma = std::dynamic_pointer_cast<PlasmaPhase>(phase->thermo());
+
         for (size_t i = 0; i < kin->nReactions(); i++) {
-            reactions.push_back(kin->reaction(i)->parameters(!m_skip_user_defined));
+            const auto& reaction = kin->reaction(i);
+            bool fromElectronCollisions = false;
+
+            // Check whether this reaction shares a rate with an entry
+            // already defined in the electron-collisions section.
+            for (size_t j = 0; plasma && j < plasma->nInputElectronCollisions(); j++) {
+                if (plasma->inputCollisionHasEquation(j) &&
+                    reaction->rate() == plasma->collisionRate(j)) {
+                    fromElectronCollisions = true;
+                    break;
+                }
+            }
+
+            // Shared reactions are serialized in electron-collisions only.
+            if (fromElectronCollisions) {
+                plasmaPhasesWithCollisions.insert(phase->name());
+            } else {
+                reactions.push_back(reaction->parameters(!m_skip_user_defined));
+            }
         }
         allReactions[phase->name()] = std::move(reactions);
     }
@@ -206,9 +230,98 @@ string YamlWriter::toYamlString() const
         }
     }
 
+    // Preserve the kinetic reaction selection for plasma phases.
+    for (const auto& phase : m_phases) {
+        auto plasma = std::dynamic_pointer_cast<PlasmaPhase>(phase->thermo());
+        if (!plasma) {
+            continue;
+        }
+
+        const auto kin = phase->kinetics();
+        if (!kin || kin->kineticsType() == "none") {
+            continue;
+        }
+
+        AnyMap& phaseDef = output["phases"].getMapWhere("name", phase->name());
+
+        // Identify the section containing ordinary kinetic reactions.
+        // Its name depends on whether reactions are shared by phases.
+        string reactionSection;
+        if (kin->nReactions()) {
+            if (phaseGroups.size() == 1) {
+                reactionSection = "reactions";
+            } else {
+                reactionSection = phaseDef["reactions"].asVector<string>().front();
+            }
+        }
+
+        // Preserve the declared-species rule for electron collisions.
+        // The rule may be specified globally or for an individual section.
+        bool declaredSpecies = false;
+        const auto& input = plasma->input();
+
+        if (input.hasKey("reactions")) {
+            const auto& node = input["reactions"];
+
+            if (node.is<string>()) {
+                declaredSpecies = node.asString() == "declared-species";
+            } else if (node.is<vector<AnyMap>>()) {
+                for (const auto& item : node.as<vector<AnyMap>>()) {
+                    if (item.hasKey("electron-collisions") &&
+                        item.at("electron-collisions").asString() == "declared-species") {
+                        declaredSpecies = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Electron collisions participate in Kinetics if their rates
+        // are shared, or if declared-species explicitly selects them.
+        bool includeElectronCollisions = plasma->nInputElectronCollisions() &&
+            (plasmaPhasesWithCollisions.count(phase->name()) || declaredSpecies);
+
+        if (includeElectronCollisions && declaredSpecies) {
+            // Use explicit rules to preserve undeclared-species filtering.
+            vector<AnyMap> reactionSections;
+
+            if (!reactionSection.empty()) {
+                AnyMap section;
+                section[reactionSection] = "all";
+                reactionSections.push_back(std::move(section));
+            }
+
+            AnyMap section;
+            section["electron-collisions"] = "declared-species";
+            reactionSections.push_back(std::move(section));
+
+            phaseDef["reactions"] = std::move(reactionSections);
+
+        } else if (includeElectronCollisions) {
+            // Load ordinary reactions and reactive electron collisions.
+            vector<string> reactionSections;
+
+            if (!reactionSection.empty()) {
+                reactionSections.push_back(reactionSection);
+            }
+
+            reactionSections.push_back("electron-collisions");
+            phaseDef["reactions"] = std::move(reactionSections);
+
+        } else if (!reactionSection.empty()) {
+            // Only ordinary reactions contribute to Kinetics.
+            phaseDef["reactions"] = vector<string>{reactionSection};
+
+        } else {
+            // No kinetic reactions, while retaining EEDF collisions.
+            phaseDef["reactions"] = "none";
+        }
+    }
+
+
     // Build electron-collision definitions used by plasma phases
     vector<AnyMap> electronCollisionDefs;
-    std::unordered_map<string, size_t> electronCollisionDefIndex;
+    bool haveElectronCollisionDefs = false;
 
     for (const auto& phase : m_phases) {
         auto plasma = std::dynamic_pointer_cast<PlasmaPhase>(phase->thermo());
@@ -216,20 +329,35 @@ string YamlWriter::toYamlString() const
             continue;
         }
 
-        for (const auto& [name, collisionDef] :
-                plasma->electronCollisionDefinitions()) {
-            auto iter = electronCollisionDefIndex.find(name);
-            if (iter == electronCollisionDefIndex.end()) {
-                electronCollisionDefs.emplace_back(collisionDef);
-                electronCollisionDefIndex[name] =
-                    electronCollisionDefs.size() - 1;
-            } else if (electronCollisionDefs[iter->second] != collisionDef) {
-                throw CanteraError("YamlWriter::toYamlString",
-                    "Multiple electron collisions with name '{}' and different "
-                    "definitions are not supported:\n>>>>>>\n{}\n======\n{}\n<<<<<<\n",
-                    name, collisionDef.toYamlString(),
-                    electronCollisionDefs[iter->second].toYamlString());
+        vector<AnyMap> phaseCollisions;
+
+        for (size_t j = 0; j < plasma->nInputElectronCollisions(); j++) {
+            auto rate = plasma->collisionRate(j);
+            AnyMap collisionDef;
+
+            if (plasma->inputCollisionHasEquation(j)) {
+                // Serialize complete reactive entries using the Reaction API.
+                collisionDef = plasma->collision(j)->parameters(!m_skip_user_defined);
+                collisionDef.exclude("target");
+
+            } else {
+                // Collision-only entries have no kinetic reaction.
+                rate->getParameters(collisionDef);
+                collisionDef.exclude("type");
+                collisionDef["target"] = rate->target();
             }
+
+            phaseCollisions.push_back(std::move(collisionDef));
+        }
+
+        if (!haveElectronCollisionDefs) {
+            electronCollisionDefs = std::move(phaseCollisions);
+            haveElectronCollisionDefs = true;
+        } else if (electronCollisionDefs != phaseCollisions) {
+            // All plasma phases must use the same root collision dataset.
+            throw CanteraError("YamlWriter::toYamlString",
+                "Plasma phases with different electron-collision datasets "
+                "cannot be serialized into one YAML section.");
         }
     }
 
