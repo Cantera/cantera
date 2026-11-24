@@ -578,7 +578,9 @@ void ElectronCollisionPlasmaRate::setDefaultThreshold()
 
     for (size_t i = 0; i < m_crossSections.size(); i++) {
         if (m_crossSections[i] > 0.0) {
-            m_threshold = m_energyLevels[i];
+            // Use the last zero cross-section point before the first positive one.
+            m_threshold = (i > 0 && m_crossSections[i - 1] == 0.0)
+                ? m_energyLevels[i - 1] : m_energyLevels[i];
             return;
         }
     }
