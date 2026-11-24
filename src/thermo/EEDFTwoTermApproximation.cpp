@@ -247,8 +247,9 @@ double EEDFTwoTermApproximation::interpolateCrossSection(
     double energy, span<const double> energyLevels,
     span<const double> crossSections)
 {
-    return linearInterpBounded(
-        energy, energyLevels, crossSections, 0.0, 0.0);
+    // Use constant extrapolation outside the tabulated range,
+    // consistent with the default BOLSIG+ convention.
+    return linearInterp(energy, energyLevels, crossSections);
 }
 
 void EEDFTwoTermApproximation::projectPreviousEEDFOnCurrentGrid(
