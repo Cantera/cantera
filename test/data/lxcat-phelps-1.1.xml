@@ -1,0 +1,124 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<lxcat version="1.1" created="2026-11-24 16:56:20" message="ATTENTION: downloading in xml format in under development. Do not use this file.">
+  <References>
+    <Source>LXCat, www.lxcat.net. Generated on 24 Nov 2026. All rights reserved.</Source>
+    <Reference>- Phelps database, www.lxcat.net, retrieved on November 24, 2026.</Reference>
+    <Reference>Be aware that some databases and solvers can additionally have instructions how to reference corresponding data. Please check below in the headers of databases.</Reference>
+  </References>
+  <Database name="Phelps database" id="Phelps">
+    <Permlink>www.lxcat.net/Phelps</Permlink>
+    <Description>A compilation of atomic and molecular data, assembled and evaluated by A.V. Phelps and collaborators. Please refer to these data using the sources cited for each gas. We make no claims for these cross sections beyond those stated in the papers where they are published or cited. In most cases these cross sections were assembled in the 1970's and 1980's. In only a few cases have they been modified or tested since that time. I do not plan any updates. Additions have been made when cross sections have been assembled for other purposes. Since the JILA information center was closed by NIST, there is no one there to help you. Opinions expressed are those of AV Phelps and do not imply JILA, CU, or NIST approval.</Description>
+    <Contact>A.V. Phelps, Fellow Adjoint of JILA University of Colorado Boulder, CO 80309-0440 e-mail: avp@@jila.colorado.edu</Contact>
+    <HowToReference>http://jilawww.colorado.edu/~avp/</HowToReference>
+    <LXCatUrl>http://www.lxcat.net/contributors/#d19</LXCatUrl>
+    <Groups>
+      <Group id="Ar">
+        <Description>Based on Yamabe, Buckman, and Phelps, Phys. Rev. 27, 1345 (1983) but with revisions in Oct 1997.</Description>
+        <Processes>
+          <Process class="Scattering Cross Sections" type="Effective">
+            <Species>
+              <Reactant>e</Reactant>
+              <Reactant>Ar</Reactant>
+              <Product> E</Product>
+              <Product>Ar</Product>
+            </Species>
+            <Reaction>E + Ar -&gt; E + Ar</Reaction>
+            <Parameters>
+              <mM>1.360000e-5</mM>
+              <Parameter>complete set</Parameter>
+            </Parameters>
+            <Comment>EFFECTIVE Momentum transfer CROSS SECTION.</Comment>
+            <Updated>2011-06-06 18:19:56</Updated>
+            <DataX type="Energy" units="eV" size="66">
+              0.000000e+0 1.000000e-3 2.000000e-3 3.000000e-3 5.000000e-3 7.000000e-3
+              8.500000e-3 1.000000e-2 1.500000e-2 2.000000e-2 3.000000e-2 4.000000e-2
+              5.000000e-2 7.000000e-2 1.000000e-1 1.200000e-1 1.500000e-1 1.700000e-1
+              2.000000e-1 2.500000e-1 3.000000e-1 3.500000e-1 4.000000e-1 5.000000e-1
+              7.000000e-1 1.000000e+0 1.200000e+0 1.300000e+0 1.500000e+0 1.700000e+0
+              1.900000e+0 2.100000e+0 2.200000e+0 2.500000e+0 2.800000e+0 3.000000e+0
+              3.300000e+0 3.600000e+0 4.000000e+0 4.500000e+0 5.000000e+0 6.000000e+0
+              7.000000e+0 8.000000e+0 1.000000e+1 1.200000e+1 1.500000e+1 1.700000e+1
+              2.000000e+1 2.500000e+1 3.000000e+1 5.000000e+1 7.500000e+1 1.000000e+2
+              1.500000e+2 2.000000e+2 3.000000e+2 5.000000e+2 7.000000e+2 1.000000e+3
+              1.500000e+3 2.000000e+3 3.000000e+3 5.000000e+3 7.000000e+3 1.000000e+4
+            </DataX>
+            <DataY type="Cross section" units="m2" size="66">
+              7.500000e-20 7.500000e-20 7.100000e-20 6.700000e-20 6.100000e-20 5.400000e-20
+              5.050000e-20 4.600000e-20 3.750000e-20 3.250000e-20 2.500000e-20 2.050000e-20
+              1.730000e-20 1.130000e-20 5.900000e-21 4.000000e-21 2.300000e-21 1.600000e-21
+              1.030000e-21 9.100000e-22 1.530000e-21 2.350000e-21 3.300000e-21 5.100000e-21
+              8.600000e-21 1.380000e-20 1.660000e-20 1.820000e-20 2.100000e-20 2.300000e-20
+              2.500000e-20 2.800000e-20 2.900000e-20 3.300000e-20 3.800000e-20 4.100000e-20
+              4.500000e-20 4.900000e-20 5.400000e-20 6.100000e-20 6.700000e-20 8.100000e-20
+              9.600000e-20 1.170000e-19 1.500000e-19 1.520000e-19 1.410000e-19 1.310000e-19
+              1.100000e-19 9.450000e-20 8.740000e-20 6.900000e-20 5.850000e-20 5.250000e-20
+              4.240000e-20 3.760000e-20 3.020000e-20 2.100000e-20 1.640000e-20 1.210000e-20
+              8.800000e-21 6.600000e-21 4.500000e-21 3.100000e-21 2.300000e-21 1.750000e-21
+            </DataY>
+          </Process>
+          <Process class="Scattering Cross Sections" type="Excitation">
+            <Species>
+              <Reactant>e</Reactant>
+              <Reactant>Ar</Reactant>
+              <Product> E</Product>
+              <Product>Ar*(11.5eV)</Product>
+            </Species>
+            <Reaction>E + Ar -&gt; E + Ar*(11.5eV)</Reaction>
+            <Parameters>
+              <E units="eV">1.150000e+1</E>
+              <Parameter>complete set</Parameter>
+            </Parameters>
+            <Comment>TOTAL Excitation LOW E SCHAPERT-SCHEIBNER, HI E UNKNOWN.</Comment>
+            <Updated>2010-10-01 14:49:42</Updated>
+            <DataX type="Energy" units="eV" size="32">
+              1.150000e+1 1.270000e+1 1.370000e+1 1.470000e+1 1.590000e+1 1.650000e+1
+              1.750000e+1 1.850000e+1 1.990000e+1 2.220000e+1 2.470000e+1 2.700000e+1
+              3.000000e+1 3.300000e+1 3.530000e+1 4.200000e+1 4.800000e+1 5.200000e+1
+              7.000000e+1 1.000000e+2 1.500000e+2 2.000000e+2 3.000000e+2 5.000000e+2
+              7.000000e+2 1.000000e+3 1.500000e+3 2.000000e+3 3.000000e+3 5.000000e+3
+              7.000000e+3 1.000000e+4
+            </DataX>
+            <DataY type="Cross section" units="m2" size="32">
+              0.000000e+0 7.000000e-22 1.410000e-21 2.280000e-21 3.800000e-21 4.800000e-21
+              6.100000e-21 7.500000e-21 9.200000e-21 1.170000e-20 1.330000e-20 1.420000e-20
+              1.440000e-20 1.410000e-20 1.340000e-20 1.250000e-20 1.160000e-20 1.110000e-20
+              9.400000e-21 7.600000e-21 6.000000e-21 5.050000e-21 3.950000e-21 2.800000e-21
+              2.250000e-21 1.770000e-21 1.360000e-21 1.100000e-21 8.300000e-22 5.800000e-22
+              4.500000e-22 3.500000e-22
+            </DataY>
+          </Process>
+          <Process class="Scattering Cross Sections" type="Ionization">
+            <Species>
+              <Reactant>e</Reactant>
+              <Reactant>Ar</Reactant>
+              <Product> E</Product>
+              <Product>E</Product>
+              <Product>Ar^+</Product>
+            </Species>
+            <Reaction>E + Ar -&gt; E + E + Ar^+</Reaction>
+            <Parameters>
+              <E units="eV">1.580000e+1</E>
+              <Parameter>complete set</Parameter>
+            </Parameters>
+            <Comment>Ionization - RAPP-SCHRAM.</Comment>
+            <Updated>2010-10-01 14:49:50</Updated>
+            <DataX type="Energy" units="eV" size="29">
+              1.580000e+1 1.600000e+1 1.700000e+1 1.800000e+1 2.000000e+1 2.200000e+1
+              2.375000e+1 2.500000e+1 2.650000e+1 3.000000e+1 3.250000e+1 3.500000e+1
+              3.750000e+1 4.000000e+1 5.000000e+1 5.500000e+1 1.000000e+2 1.500000e+2
+              2.000000e+2 3.000000e+2 5.000000e+2 7.000000e+2 1.000000e+3 1.500000e+3
+              2.000000e+3 3.000000e+3 5.000000e+3 7.000000e+3 1.000000e+4
+            </DataX>
+            <DataY type="Cross section" units="m2" size="29">
+              0.000000e+0 2.020000e-22 1.340000e-21 2.940000e-21 6.300000e-21 9.300000e-21
+              1.150000e-20 1.300000e-20 1.450000e-20 1.800000e-20 1.990000e-20 2.170000e-20
+              2.310000e-20 2.390000e-20 2.530000e-20 2.600000e-20 2.850000e-20 2.520000e-20
+              2.390000e-20 2.000000e-20 1.450000e-20 1.150000e-20 8.600000e-21 6.400000e-21
+              5.200000e-21 3.600000e-21 2.400000e-21 1.800000e-21 1.350000e-21
+            </DataY>
+          </Process>
+        </Processes>
+      </Group>
+    </Groups>
+  </Database>
+</lxcat>
