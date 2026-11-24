@@ -88,8 +88,6 @@ string YamlWriter::toYamlString() const
     size_t nspecies_total = 0;
     for (size_t i = 0; i < m_phases.size(); i++) {
         phaseDefs[i] = m_phases[i]->parameters(!m_skip_user_defined);
-    for (size_t i = 0; i < m_phases.size(); i++) {
-        phaseDefs[i] = m_phases[i]->parameters(!m_skip_user_defined);
         if (m_phases[i]->nAdjacent()) {
             vector<string> adj_names;
             for (size_t j = 0; j < m_phases[i]->nAdjacent(); j++) {
