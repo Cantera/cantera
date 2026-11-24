@@ -796,6 +796,12 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r, bool resize)
         callback();
     }
 
+    // Directly replacing the rate would leave the Kinetics evaluator and
+    // PlasmaPhase using different collision rates.
+    if (r->rate()->type() == "electron-collision-plasma") {
+        r->lockRateReplacement();
+    }
+
     return true;
 }
 
@@ -804,10 +810,11 @@ void Kinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
     checkReactionIndex(i);
     shared_ptr<Reaction>& rOld = m_reactions[i];
 
-    if (rNew->rate()->type() == "electron-collision-plasma") {
+    if (rOld->rate()->type() == "electron-collision-plasma" ||
+        rNew->rate()->type() == "electron-collision-plasma") {
         throw CanteraError("Kinetics::modifyReaction",
-            "Type electron-collision-plasma is not supported. "
-            "Use the rate object of the reaction to modify the data.");
+            "Replacing an electron-collision-plasma reaction is not supported. "
+            "Update the input and reload the mechanism.");
     }
 
     if (rNew->type() != rOld->type()) {

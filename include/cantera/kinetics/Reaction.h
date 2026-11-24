@@ -151,6 +151,12 @@ public:
     //! Set reaction rate pointer
     void setRate(shared_ptr<ReactionRate> rate);
 
+    //! Prevent replacement of the rate of a registered electron collision.
+    //! This avoids a mismatch between the Kinetics rate evaluator and PlasmaPhase.
+    void lockRateReplacement() {
+        m_rateReplacementLocked = true;
+    }
+
     //! Get pointer to third-body handler
     shared_ptr<ThirdBody> thirdBody() {
         return m_third_body;
@@ -191,6 +197,9 @@ protected:
 
     //! Reaction rate used by generic reactions
     shared_ptr<ReactionRate> m_rate;
+
+    //! Once registered in Kinetics, an electron-collision rate cannot be replaced.
+    bool m_rateReplacementLocked = false;
 
     //! Relative efficiencies of third-body species in enhancing the reaction rate
     //! (if applicable)
