@@ -205,6 +205,15 @@ public:
         return m_crossSections;
     }
 
+    //! Return the local cross-section extrapolation preference.
+    bool extrapolateCrossSectionsRequested() const {
+        return m_extrapolateCrossSections;
+    }
+
+    //! Enable or disable high-energy cross-section extrapolation.
+    //! The phase determines the effective setting.
+    void setCrossSectionExtrapolation(bool enabled);
+
     //! The value of #m_crossSectionsInterpolated [m2]
     span<const double> crossSectionInterpolated() const {
         return m_crossSectionsInterpolated;
@@ -268,6 +277,10 @@ private:
     //! True when the target was determined from a reaction equation.
     bool m_isReactionRate = false;
 
+    bool m_extrapolateCrossSections = false;
+    size_t m_tabulatedPointCount = 0;
+    bool m_crossSectionsExtrapolated = false;
+
     //! Validate the contents of a named electron-collision definition.
     void validateCollisionData(const AnyMap& node) const;
 
@@ -276,6 +289,9 @@ private:
 
     //! Normalize excitation and ionization cross sections at the threshold.
     void enforceThresholdCrossSections();
+
+    //! Extend tabulated cross sections using a high-energy logarithmic tail.
+    void extrapolateCrossSections();
 };
 
 }

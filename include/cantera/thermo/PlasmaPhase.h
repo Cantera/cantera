@@ -1009,6 +1009,10 @@ private:
     //! #m_electronEnergyLevels changes, this int is incremented.
     int m_levelNum = -1;
 
+    //! Phase-wide policy for high-energy cross-section extrapolation.
+    //! Valid values are "all", "none", and "selected".
+    string m_crossSectionExtrapolationMode = "none";
+
     //! The list of shared pointers of plasma collision reactions
     vector<shared_ptr<Reaction>> m_collisions;
 

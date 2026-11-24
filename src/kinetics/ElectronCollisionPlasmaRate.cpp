@@ -84,9 +84,17 @@ void ElectronCollisionPlasmaRate::setParameters(
     m_threshold = node.getDouble("threshold", 0.0);
     m_isReactionRate = false;
 
+    // Store the local preference without applying extrapolation yet.
+    m_extrapolateCrossSections = node.getBool("extrapolate-cross-sections", false);
+
+    m_crossSectionsExtrapolated = false;
+
     validateCollisionData(node);
     setDefaultThreshold();
     enforceThresholdCrossSections();
+
+    // Keep track of the table before optional high-energy extrapolation.
+    m_tabulatedPointCount = m_energyLevels.size();
 
     // Invalidate interpolation caches after loading new data.
     m_levelNumber = -3;
@@ -106,8 +114,16 @@ void ElectronCollisionPlasmaRate::getParameters(
         return;
     }
 
-    node["energy-levels"] = m_energyLevels;
-    node["cross-sections"] = m_crossSections;
+    // Serialize the original (possibly threshold-normalized) table,
+    // without the high-energy points generated at runtime if any extrapolation is present.
+    node["energy-levels"] = vector<double>(m_energyLevels.begin(), m_energyLevels.begin() + m_tabulatedPointCount);
+
+    node["cross-sections"] = vector<double>(m_crossSections.begin(), m_crossSections.begin() + m_tabulatedPointCount);
+
+    // Preserve the opt-in setting across YAML round-trips.
+    if (m_extrapolateCrossSections) {
+        node["extrapolate-cross-sections"] = true;
+    }
 
     if (!m_kind.empty()) {
         node["kind"] = m_kind;
@@ -310,6 +326,10 @@ void ElectronCollisionPlasmaRate::setReactionContext(
     m_isReactionRate = true;
     setDefaultThreshold();
     enforceThresholdCrossSections();
+    // Update the original table size before phase-level extrapolation.
+    if (!m_crossSectionsExtrapolated) {
+        m_tabulatedPointCount = m_energyLevels.size();
+    }
 
     // Validate superelastic reverse-reaction requirements.
     if (rxn.reversible && (rxn.products.size() != 2 ||
@@ -389,7 +409,6 @@ void ElectronCollisionPlasmaRate::setDefaultThreshold()
     }
 }
 
-
 void ElectronCollisionPlasmaRate::enforceThresholdCrossSections()
 {
     // Only excitation and ionization have an onset threshold in the current collision model.
@@ -424,6 +443,75 @@ void ElectronCollisionPlasmaRate::enforceThresholdCrossSections()
     m_crossSections = std::move(sections);
 
     // Invalidate interpolation caches after modifying the table.
+    m_levelNumber = -3;
+    m_levelNumberSuperelastic = -2;
+    m_crossSectionsInterpolated.clear();
+    m_crossSectionsOffset.resize(0);
+}
+
+void ElectronCollisionPlasmaRate::extrapolateCrossSections()
+{
+    if (m_crossSectionsExtrapolated) {
+        return;
+    }
+
+    // Remember the original table size for YAML serialization.
+    m_tabulatedPointCount = m_energyLevels.size();
+    m_crossSectionsExtrapolated = true;
+
+    const double lastEnergy = m_energyLevels.back();
+    const double lastCrossSection = m_crossSections.back();
+
+    // Extend the table up to an energy above 10 keV. A zero endpoint already gives a zero high-energy tail.
+    if (lastEnergy >= 1.0e4 || lastCrossSection == 0.0) {
+        return;
+    }
+
+    // Add logarithmically spaced energy points above the original table, using a factor of 1.5 between points.
+    double energy = lastEnergy;
+
+    do {
+        energy *= 1.5;
+
+        // Continuous high-energy tail with asymptotic behavior proportional to log(E) / E.
+        const double crossSection = lastCrossSection * (lastEnergy / energy)
+            * (1.0 + std::log(energy / lastEnergy));
+
+        m_energyLevels.push_back(energy);
+        m_crossSections.push_back(crossSection);
+
+    } while (energy <= 1.0e4);
+
+    // Invalidate cached interpolations after extending the table.
+    m_levelNumber = -3;
+    m_levelNumberSuperelastic = -2;
+    m_crossSectionsInterpolated.clear();
+    m_crossSectionsOffset.resize(0);
+}
+
+void ElectronCollisionPlasmaRate::setCrossSectionExtrapolation(bool enabled)
+{
+    if (!m_hasCrossSectionData) {
+        return;
+    }
+
+    if (enabled) {
+        extrapolateCrossSections();
+        return;
+    }
+
+    if (!m_crossSectionsExtrapolated) {
+        return;
+    }
+
+    // Restore the table before high-energy extrapolation.
+    // Keep any threshold normalization already performed.
+    m_energyLevels.resize(m_tabulatedPointCount);
+    m_crossSections.resize(m_tabulatedPointCount);
+
+    m_crossSectionsExtrapolated = false;
+
+    // Invalidate interpolated data after changing the table.
     m_levelNumber = -3;
     m_levelNumberSuperelastic = -2;
     m_crossSectionsInterpolated.clear();

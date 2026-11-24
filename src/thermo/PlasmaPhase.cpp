@@ -135,6 +135,14 @@ void PlasmaPhase::setSolution(std::weak_ptr<Solution> soln) {
 void PlasmaPhase::getParameters(AnyMap& phaseNode) const
 {
     IdealGasPhase::getParameters(phaseNode);
+
+    // Preserve the phase-wide extrapolation policy in YAML.
+    // The default "none" does not need to be written explicitly.
+    if (m_crossSectionExtrapolationMode != "none") {
+        phaseNode["cross-sections-extrapolation"] =
+            m_crossSectionExtrapolationMode;
+    }
+
     if (!m_vibrationalReservoirSpeciesMapping.empty()) {
         phaseNode["vibrational-reservoir-species-mapping"] =
             m_vibrationalReservoirSpeciesMapping;
@@ -307,6 +315,18 @@ void PlasmaPhase::setElectronEnergyDistributionParameters(const AnyMap& eedf)
 void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
 {
     IdealGasPhase::setParameters(phaseNode, rootNode);
+
+    // Read the phase-wide cross-section extrapolation policy.
+    m_crossSectionExtrapolationMode = phaseNode.getString("cross-sections-extrapolation", "none");
+
+    if (m_crossSectionExtrapolationMode != "all" &&
+        m_crossSectionExtrapolationMode != "none" &&
+        m_crossSectionExtrapolationMode != "selected") {
+        throw InputFileError("PlasmaPhase::setParameters", phaseNode,
+            "Invalid 'cross-sections-extrapolation' value '{}'. Expected 'all', 'none', or 'selected'.",
+            m_crossSectionExtrapolationMode);
+    }
+
     if (phaseNode.hasKey("electron-energy-distribution")) {
         const AnyMap eedf = phaseNode["electron-energy-distribution"].as<AnyMap>();
         setElectronEnergyDistributionParameters(eedf);
@@ -629,6 +649,13 @@ void PlasmaPhase::addCollision(shared_ptr<Reaction> collision)
             "Electron collision '{}' has no tabulated cross-section data.",
             collision->equation());
     }
+
+    // Apply the phase-wide policy to this collision.
+    bool extrapolate = m_crossSectionExtrapolationMode == "all" ||
+        (m_crossSectionExtrapolationMode == "selected" &&
+        rate->extrapolateCrossSectionsRequested());
+
+    rate->setCrossSectionExtrapolation(extrapolate);
 
     // Check whether this rate has already been registered.
     // Reactive entries in electron-collisions are first registered by
