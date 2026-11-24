@@ -262,6 +262,26 @@ private:
     //! collision cross sections [m2] after interpolation
     vector<double> m_crossSectionsInterpolated;
 
+    //! Energy grid used for forward-rate integration.
+    //! Contains both EEDF and native cross-section breakpoints.
+    vector<double> m_rateIntegrationEnergy;
+
+    //! Cross sections evaluated on the forward integration grid.
+    vector<double> m_rateIntegrationCrossSection;
+
+    //! EEDF grid revision used to build the forward integration cache.
+    int m_rateIntegrationLevelNumber = -4;
+
+    //! Energy grid used for super-elastic rate integration.
+    //! Cross-section breakpoints are shifted by the threshold.
+    vector<double> m_superElasticRateIntegrationEnergy;
+
+    //! Excitation cross sections evaluated on the reverse grid.
+    vector<double> m_superElasticRateIntegrationCrossSection;
+
+    //! EEDF grid revision used to build the reverse integration cache.
+    int m_superElasticRateIntegrationLevelNumber = -5;
+
     //! collision cross section [m2] interpolated on #m_energyLevels offset by the
     //! threshold energy (the first energy level).
     //! This is used for the calculation of the super-elastic collision reaction
@@ -292,6 +312,9 @@ private:
 
     //! Extend tabulated cross sections using a high-energy logarithmic tail.
     void extrapolateCrossSections();
+
+    //! Invalidate rate-integration grids after cross-section changes.
+    void invalidateRateIntegrationCaches();
 };
 
 }

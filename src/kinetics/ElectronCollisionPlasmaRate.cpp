@@ -12,6 +12,166 @@
 namespace Cantera
 {
 
+
+namespace {
+
+// Build a rate-integration grid containing every breakpoint of both
+// the EEDF and the tabulated cross section.
+//
+// The cross section is evaluated as sigma(energy + sigmaArgumentShift).
+// For super-elastic collisions, sigmaArgumentShift is the threshold U.
+void buildMergedRateIntegrationGrid(
+    const vector<double>& eedfEnergyLevels,
+    const vector<double>& crossSectionEnergyLevels,
+    const vector<double>& crossSections,
+    double sigmaArgumentShift,
+    vector<double>& integrationEnergy,
+    vector<double>& integrationCrossSection)
+{
+    if (eedfEnergyLevels.size() < 2 ||
+        !(eedfEnergyLevels.back() > eedfEnergyLevels.front())) {
+        throw CanteraError("buildMergedRateIntegrationGrid",
+            "Invalid EEDF energy grid.");
+    }
+
+    if (crossSectionEnergyLevels.size() < 2 ||
+        crossSectionEnergyLevels.size() != crossSections.size()) {
+        throw CanteraError("buildMergedRateIntegrationGrid",
+            "Invalid cross-section tabulation.");
+    }
+
+    integrationEnergy.clear();
+    integrationCrossSection.clear();
+
+    // Integrate over the complete EEDF domain.
+    // Cross sections use the extended table when enabled, and linearInterp()
+    // applies constant extrapolation beyond the current table endpoints.
+    const double lower = eedfEnergyLevels.front();
+    const double upper = eedfEnergyLevels.back();
+
+    integrationEnergy.reserve(eedfEnergyLevels.size() + crossSectionEnergyLevels.size() + 2);
+
+    integrationEnergy.push_back(lower);
+    integrationEnergy.push_back(upper);
+
+    // Add every EEDF breakpoint inside the integration domain.
+    for (double eps : eedfEnergyLevels) {
+        if (eps > lower && eps < upper) {
+            integrationEnergy.push_back(eps);
+        }
+    }
+
+    // Add every cross-section breakpoint, shifted into the
+    // electron-energy coordinates used by the EEDF.
+    for (double epsSigma : crossSectionEnergyLevels) {
+        const double eps = epsSigma - sigmaArgumentShift;
+
+        if (eps > lower && eps < upper) {
+            integrationEnergy.push_back(eps);
+        }
+    }
+
+    std::sort(integrationEnergy.begin(), integrationEnergy.end());
+
+    auto last = std::unique(
+        integrationEnergy.begin(), integrationEnergy.end());
+
+    integrationEnergy.erase(last, integrationEnergy.end());
+
+    integrationCrossSection.resize(integrationEnergy.size());
+
+    // linearInterp applies constant extrapolation outside the table.
+    for (size_t i = 0; i < integrationEnergy.size(); i++) {
+        integrationCrossSection[i] = linearInterp(
+            integrationEnergy[i] + sigmaArgumentShift,
+            crossSectionEnergyLevels,
+            crossSections);
+    }
+}
+
+// Integrate (eps + energyFactorShift) * F(eps) * sigma(eps)
+// over a grid containing all EEDF and cross-section breakpoints.
+//
+// Within each interval, the EEDF and cross section are linear.
+// Their product with the energy factor is a cubic polynomial.
+// Two-point Gauss-Legendre quadrature is therefore exact for
+// these piecewise-linear representations.
+double integrateRateOnMergedGrid(
+    const vector<double>& integrationEnergy,
+    const vector<double>& integrationCrossSection,
+    const vector<double>& eedfEnergyLevels,
+    const vector<double>& eedfDistribution,
+    double energyFactorShift)
+{
+    if (integrationEnergy.size() < 2) {
+        return 0.0;
+    }
+
+    if (integrationEnergy.size() != integrationCrossSection.size()) {
+        throw CanteraError("integrateRateOnMergedGrid",
+            "Integration energy and cross-section arrays have "
+            "different sizes.");
+    }
+
+    if (eedfEnergyLevels.size() != eedfDistribution.size() ||
+        eedfEnergyLevels.size() < 2) {
+        throw CanteraError("integrateRateOnMergedGrid",
+            "Invalid EEDF arrays.");
+    }
+
+    // Two Gauss-Legendre nodes mapped from [-1, 1] to [0, 1].
+    constexpr double invSqrt3 = 0.577350269189625764509148780501957456;
+    constexpr double t1 = 0.5 * (1.0 - invSqrt3);
+    constexpr double t2 = 0.5 * (1.0 + invSqrt3);
+
+    double integral = 0.0;
+
+    double fLeft = linearInterp(integrationEnergy.front(),
+        eedfEnergyLevels, eedfDistribution);
+
+    for (size_t i = 0; i + 1 < integrationEnergy.size(); i++) {
+        const double a = integrationEnergy[i];
+        const double b = integrationEnergy[i + 1];
+        const double h = b - a;
+
+        if (!(h > 0.0)) {
+            throw CanteraError("integrateRateOnMergedGrid",
+                "Integration grid is not strictly increasing.");
+        }
+
+        const double sigmaLeft = integrationCrossSection[i];
+        const double sigmaRight = integrationCrossSection[i + 1];
+
+        const double fRight = linearInterp(b, eedfEnergyLevels, eedfDistribution);
+
+        // Both functions are linear throughout [a, b].
+        const double f1 = fLeft + t1 * (fRight - fLeft);
+        const double f2 = fLeft + t2 * (fRight - fLeft);
+
+        const double sigma1 = sigmaLeft + t1 * (sigmaRight - sigmaLeft);
+        const double sigma2 = sigmaLeft + t2 * (sigmaRight - sigmaLeft);
+
+        const double eps1 = a + t1 * h;
+        const double eps2 = a + t2 * h;
+
+        const double integrand1 = (eps1 + energyFactorShift) * f1 * sigma1;
+        const double integrand2 = (eps2 + energyFactorShift) * f2 * sigma2;
+
+        integral += 0.5 * h * (integrand1 + integrand2);
+
+        fLeft = fRight;
+    }
+
+    if (!std::isfinite(integral) || integral < 0.0) {
+        throw CanteraError("integrateRateOnMergedGrid",
+            "Invalid rate integral: {}.", integral);
+    }
+
+    return integral;
+}
+
+} // namespace
+
 ElectronCollisionPlasmaData::ElectronCollisionPlasmaData()
 {
     energyLevels.assign(1, 0.0);
@@ -43,6 +203,19 @@ bool ElectronCollisionPlasmaData::update(const ThermoPhase& phase, const Kinetic
         pp.getElectronEnergyLevels(energyLevels);
     }
     return true;
+}
+
+void ElectronCollisionPlasmaRate::invalidateRateIntegrationCaches()
+{
+    // Forward-rate integration cache.
+    m_rateIntegrationEnergy.clear();
+    m_rateIntegrationCrossSection.clear();
+    m_rateIntegrationLevelNumber = -4;
+
+    // Super-elastic integration cache.
+    m_superElasticRateIntegrationEnergy.clear();
+    m_superElasticRateIntegrationCrossSection.clear();
+    m_superElasticRateIntegrationLevelNumber = -5;
 }
 
 void ElectronCollisionPlasmaRate::setParameters(
@@ -101,6 +274,7 @@ void ElectronCollisionPlasmaRate::setParameters(
     m_levelNumberSuperelastic = -2;
     m_crossSectionsInterpolated.clear();
     m_crossSectionsOffset.resize(0);
+    invalidateRateIntegrationCaches();
 
     m_hasCrossSectionData = true;
 }
@@ -161,24 +335,25 @@ double ElectronCollisionPlasmaRate::evalFromStruct(
         "ECPR:evalFromStruct", "Size mismatch: len(interp) = {}, len(distrib) = {}",
         m_crossSectionsInterpolated.size(), shared_data.distribution.size());
 
-    // Map cross sections to Eigen::ArrayXd
-    auto cs_array = Eigen::Map<const Eigen::ArrayXd>(
-        m_crossSectionsInterpolated.data(), m_crossSectionsInterpolated.size()
-    );
+    // Rebuild the integration grid only when the EEDF grid changes.
+    // Changes in the EEDF values do not affect this geometric cache.
+    if (m_rateIntegrationLevelNumber != shared_data.levelNumber) {
+        buildMergedRateIntegrationGrid(shared_data.energyLevels,
+            m_energyLevels, m_crossSections, 0.0,
+            m_rateIntegrationEnergy, m_rateIntegrationCrossSection);
 
-    // Map energyLevels in Eigen::ArrayXd
-    auto eps = Eigen::Map<const Eigen::ArrayXd>(
-        shared_data.energyLevels.data(), shared_data.energyLevels.size()
-    );
+        m_rateIntegrationLevelNumber = shared_data.levelNumber;
+    }
 
-    // Map energyLevels in Eigen::ArrayXd
-    auto distribution = Eigen::Map<const Eigen::ArrayXd>(
-        shared_data.distribution.data(), shared_data.distribution.size()
-    );
+    // Integrate eps * F0(eps) * sigma(eps) using all breakpoints.
+    const double integral = integrateRateOnMergedGrid(
+        m_rateIntegrationEnergy, m_rateIntegrationCrossSection,
+        shared_data.energyLevels, shared_data.distribution, 0.0);
 
-    // unit in kmol/m3/s
-    return pow(2.0 * ElectronCharge / ElectronMass, 0.5) * Avogadro *
-           simpson(eps.cwiseProduct(distribution.cwiseProduct(cs_array)), eps);
+    // Unit: m3/kmol/s
+    return pow(2.0 * ElectronCharge / ElectronMass, 0.5)
+        * Avogadro * integral;
+
 }
 
 void ElectronCollisionPlasmaRate::modifyRateConstants(
@@ -190,40 +365,40 @@ void ElectronCollisionPlasmaRate::modifyRateConstants(
         return;
     }
 
-    // Interpolate cross-sections data to the energy levels of
-    // the electron energy distribution function
-    if (m_levelNumberSuperelastic != shared_data.levelNumber) {
-        // super elastic collision energy levels and cross-sections
-        vector<double> superElasticEnergyLevels{0.0};
-        m_crossSectionsOffset.resize(shared_data.energyLevels.size());
-        for (size_t i = 1; i < m_energyLevels.size(); i++) {
-            // The energy levels are offset by the first energy level (threshold)
-            superElasticEnergyLevels.push_back(m_energyLevels[i] - m_energyLevels[0]);
-        }
-        for (size_t i = 0; i < shared_data.energyLevels.size(); i++) {
-            // The interpolated super-elastic cross section is evaluated
-            // at the shared energy grid
-            m_crossSectionsOffset[i] = linearInterp(shared_data.energyLevels[i],
-                                                        superElasticEnergyLevels,
-                                                        m_crossSections);
-        }
-        m_levelNumberSuperelastic = shared_data.levelNumber;
+    // Use the physical excitation threshold for the energy shift.
+    const double U = m_threshold;
+
+    // Rebuild the super-elastic integration grid only when the
+    // EEDF energy grid changes.
+    //
+    // The reverse integral samples sigma_exc(eps + U).
+    // Native cross-section energies are therefore shifted by -U.
+    if (m_superElasticRateIntegrationLevelNumber != shared_data.levelNumber) {
+        buildMergedRateIntegrationGrid(shared_data.energyLevels,
+            m_energyLevels, m_crossSections,
+            U, m_superElasticRateIntegrationEnergy,
+            m_superElasticRateIntegrationCrossSection);
+
+        m_superElasticRateIntegrationLevelNumber =
+            shared_data.levelNumber;
     }
 
-    // Map energyLevels in Eigen::ArrayXd
-    auto eps = Eigen::Map<const Eigen::ArrayXd>(
-        shared_data.energyLevels.data(), shared_data.energyLevels.size()
-    );
+    // Detailed balance gives:
+    //
+    // eps * sigma_super(eps)
+    //     = (eps + U) * sigma_exc(eps + U).
+    //
+    // Integrate (eps + U) * F0(eps) * sigma_exc(eps + U).
+    const double integral = integrateRateOnMergedGrid(
+        m_superElasticRateIntegrationEnergy,
+        m_superElasticRateIntegrationCrossSection,
+        shared_data.energyLevels,
+        shared_data.distribution,
+        U);
 
-    // Map energyLevels in Eigen::ArrayXd
-    auto distribution = Eigen::Map<const Eigen::ArrayXd>(
-        shared_data.distribution.data(), shared_data.distribution.size()
-    );
-
-    // unit in kmol/m3/s
-    kr = pow(2.0 * ElectronCharge / ElectronMass, 0.5) * Avogadro *
-         simpson((eps + m_energyLevels[0]).cwiseProduct(
-         distribution.cwiseProduct(m_crossSectionsOffset)), eps);
+    // Unit: m3/kmol/s
+    kr = pow(2.0 * ElectronCharge / ElectronMass, 0.5)
+        * Avogadro * integral;
 }
 
 void ElectronCollisionPlasmaRate::setContext(
@@ -441,6 +616,7 @@ void ElectronCollisionPlasmaRate::enforceThresholdCrossSections()
 
     m_energyLevels = std::move(levels);
     m_crossSections = std::move(sections);
+    invalidateRateIntegrationCaches();
 
     // Invalidate interpolation caches after modifying the table.
     m_levelNumber = -3;
@@ -487,6 +663,8 @@ void ElectronCollisionPlasmaRate::extrapolateCrossSections()
     m_levelNumberSuperelastic = -2;
     m_crossSectionsInterpolated.clear();
     m_crossSectionsOffset.resize(0);
+
+    invalidateRateIntegrationCaches();
 }
 
 void ElectronCollisionPlasmaRate::setCrossSectionExtrapolation(bool enabled)
@@ -516,5 +694,7 @@ void ElectronCollisionPlasmaRate::setCrossSectionExtrapolation(bool enabled)
     m_levelNumberSuperelastic = -2;
     m_crossSectionsInterpolated.clear();
     m_crossSectionsOffset.resize(0);
+
+    invalidateRateIntegrationCaches();
 }
 }
