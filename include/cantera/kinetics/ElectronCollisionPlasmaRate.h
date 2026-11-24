@@ -273,6 +273,9 @@ private:
 
     //! Infer the collision threshold when it is not specified explicitly.
     void setDefaultThreshold();
+
+    //! Normalize excitation and ionization cross sections at the threshold.
+    void enforceThresholdCrossSections();
 };
 
 }

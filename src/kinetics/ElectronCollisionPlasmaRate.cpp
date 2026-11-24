@@ -86,6 +86,7 @@ void ElectronCollisionPlasmaRate::setParameters(
 
     validateCollisionData(node);
     setDefaultThreshold();
+    enforceThresholdCrossSections();
 
     // Invalidate interpolation caches after loading new data.
     m_levelNumber = -3;
@@ -308,6 +309,7 @@ void ElectronCollisionPlasmaRate::setReactionContext(
     // again by Kinetics without changing the result.
     m_isReactionRate = true;
     setDefaultThreshold();
+    enforceThresholdCrossSections();
 
     // Validate superelastic reverse-reaction requirements.
     if (rxn.reversible && (rxn.products.size() != 2 ||
@@ -385,5 +387,46 @@ void ElectronCollisionPlasmaRate::setDefaultThreshold()
             return;
         }
     }
+}
+
+
+void ElectronCollisionPlasmaRate::enforceThresholdCrossSections()
+{
+    // Only excitation and ionization have an onset threshold in the current collision model.
+    if (m_kind != "excitation" && m_kind != "ionization") {
+        return;
+    }
+
+    // Remove all data points below the threshold and insert a zero cross section at the threshold itself.
+    vector<double> levels{m_threshold};
+    vector<double> sections{0.0};
+
+    for (size_t i = 0; i < m_energyLevels.size(); i++) {
+        if (m_energyLevels[i] > m_threshold) {
+            levels.push_back(m_energyLevels[i]);
+            sections.push_back(m_crossSections[i]);
+        }
+    }
+
+    // A valid normalized table must contain at least one energy point strictly above the threshold.
+    if (levels.size() < 2) {
+        throw CanteraError("ElectronCollisionPlasmaRate::enforceThresholdCrossSections",
+            "Collision '{}' requires a tabulated energy above its threshold ({} eV).",
+            m_kind, m_threshold);
+    }
+
+    // Avoid modifying an already normalized table. This makes the operation idempotent.
+    if (m_energyLevels == levels && m_crossSections == sections) {
+        return;
+    }
+
+    m_energyLevels = std::move(levels);
+    m_crossSections = std::move(sections);
+
+    // Invalidate interpolation caches after modifying the table.
+    m_levelNumber = -3;
+    m_levelNumberSuperelastic = -2;
+    m_crossSectionsInterpolated.clear();
+    m_crossSectionsOffset.resize(0);
 }
 }
