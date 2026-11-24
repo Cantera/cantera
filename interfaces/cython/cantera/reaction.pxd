@@ -116,7 +116,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         CxxUnits rate_units
 
         shared_ptr[CxxReactionRate] rate()
-        void setRate(shared_ptr[CxxReactionRate])
+        void setRate(shared_ptr[CxxReactionRate]) except +translate_exception
 
 
 cdef extern from "cantera/kinetics/Falloff.h" namespace "Cantera":
