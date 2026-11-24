@@ -72,6 +72,9 @@ Cantera objects and functions.
 
 1. **Load the toolbox**
 
+   Load Cantera at the start of each session. The data files shipped with Cantera
+   are found automatically:
+
    ```matlab
    ct.load()
    ```

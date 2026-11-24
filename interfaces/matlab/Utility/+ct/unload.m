@@ -7,12 +7,12 @@ function unload()
     try
         ct.cleanUp;
     catch ME
-        warning("ct.unload:CleanupFailed", ...
+        warning("ct:unload:CleanupFailed", ...
                 "cleanUp failed (%s).", ME.message);
     end
 
     if ct.executionMode() == "inprocess"
-        warning("ct.unload:UnloadFailed", ...
+        warning("ct:unload:UnloadFailed", ...
                 ("Unloading of `ctMatlab` library is not supported for " + ...
                  "'inprocess' execution mode. Restart MATLAB to unload."));
         return
@@ -26,7 +26,7 @@ function unload()
             ctMatlab.unload;
             disp("Cantera has been unloaded");
         catch ME
-            warning("ct.unload:UnloadFailed", ...
+            warning("ct:unload:UnloadFailed", ...
                     "ctMatlab.unload failed (%s). Attempting fallback.", ME.message);
         end
         clear global ctMatlab
@@ -36,7 +36,7 @@ function unload()
             unload(cfg);
             disp("Cantera has been unloaded");
         catch ME
-            warning("ct.unload:UnloadFailed", ...
+            warning("ct:unload:UnloadFailed", ...
                 "unload(clibConfiguration) failed (%s).", ME.message);
         end
     end

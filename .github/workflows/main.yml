@@ -1254,136 +1254,142 @@ jobs:
     - name: Test YAML output generation
       run: sourcegen --api=yaml --output=build/yaml -v
 
+  matlab-library:
+    # Builds a self-contained Cantera library for MATLAB, as shipped with the MATLAB
+    # toolbox: all dependencies are vendored and linked statically.
+    name: MATLAB bundled library on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        os: [ubuntu-24.04, macos-15, macos-26, windows-2025]
+      fail-fast: false
+    env:
+      BOOST_ROOT: ${{ github.workspace }}/3rdparty/boost
+      BOOST_URL: https://github.com/boostorg/boost/releases/download/boost-1.87.0/boost-1.87.0-b2-nodocs.7z
+    defaults:
+      run:
+        shell: bash
+    steps:
+    - uses: actions/checkout@v7
+      name: Checkout the repository
+      with:
+        submodules: recursive
+        persist-credentials: false
+    - name: Set up Python
+      uses: actions/setup-python@v7
+      with:
+        python-version: "3.12"
+    - name: Install SCons and Cantera build dependencies
+      run: python -m pip install --upgrade 'scons>=4.0' packaging jinja2 ruamel.yaml
+    - name: Install Boost and Doxygen (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libboost-dev doxygen
+    - name: Install Boost and Doxygen (macOS)
+      if: runner.os == 'macOS'
+      run: |
+        brew install --display-times boost doxygen
+        echo "BOOST_INC_DIR=$(brew --prefix)/include" >> "$GITHUB_ENV"
+    - name: Restore Boost cache (Windows)
+      if: runner.os == 'Windows'
+      uses: actions/cache@v6
+      id: cache-boost
+      with:
+        path: ${{ env.BOOST_ROOT }}
+        key: boost-187-win
+    - name: Install Boost headers (Windows)
+      if: runner.os == 'Windows' && steps.cache-boost.outputs.cache-hit != 'true'
+      run: |
+        BOOST_ROOT=$(echo "$BOOST_ROOT" | sed 's/\\/\//g')
+        mkdir -p "$BOOST_ROOT"
+        curl --progress-bar --location --output "$BOOST_ROOT/download.7z" "$BOOST_URL"
+        7z -o"$BOOST_ROOT" x "$BOOST_ROOT/download.7z" -y -bd boost-1.87.0/boost
+        mv "$BOOST_ROOT/boost-1.87.0/boost" "$BOOST_ROOT/boost"
+        rm "$BOOST_ROOT/download.7z"
+    - name: Set Boost include directory and install Doxygen (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        echo "BOOST_INC_DIR=$(echo "$BOOST_ROOT" | sed 's/\\/\//g')" >> "$GITHUB_ENV"
+        choco install doxygen.install -y --no-progress
+        echo "C:/Program Files/doxygen/bin" >> "$GITHUB_PATH"
+    - name: Build the Cantera library
+      run: |
+        options=(system_eigen=n system_fmt=n system_yamlcpp=n system_sundials=n
+                 system_highfive=n system_blas_lapack=n hdf_support=n
+                 python_package=n f90_interface=n googletest=none optimize=y debug=n
+                 renamed_shared_libraries=y versioned_shared_library=y)
+        case "$RUNNER_OS" in
+          Linux)
+            options+=("no_debug_linker_flags=-static-libstdc++ -static-libgcc -Wl,--exclude-libs,ALL") ;;
+          macOS)
+            options+=("boost_inc_dir=$BOOST_INC_DIR") ;;
+          Windows)
+            options+=(toolchain=msvc "boost_inc_dir=$BOOST_INC_DIR") ;;
+        esac
+        python -m SCons build -j4 "${options[@]}"
+    - name: Archive the Cantera library
+      # tar keeps the versioned library symlinks, which upload-artifact does not
+      run: tar -czf canteraLib.tar.gz interfaces/clib/include build/lib/*cantera_shared*
+    - name: Upload the Cantera library
+      uses: actions/upload-artifact@v7
+      with:
+        name: matlab-canteraLib-${{ matrix.os }}
+        path: canteraLib.tar.gz
+
   matlab:
     name: MATLAB ${{ matrix.release }} on ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-24.04, windows-2025, macos-15]
-        release: [R2024a, latest]
+        release: [R2024b, latest]
         include:
-        - os: 'macos-15'
-          release: 'R2024b'
-        - os: 'macos-15'
+        - os: 'macos-26'
           release: 'latest'
-        - os: 'windows-2022'
-          release: 'R2024a'
-        exclude:
-        - os: 'ubuntu-24.04'
-          release: 'R2024a'
-          # excluded due to glibc compatility issues; see #2035
-        - os: 'windows-2025'
-          release: 'R2024a'
-          # excluded due to Visual Studio 2026 incompatibility; see #2152
       fail-fast: false
     env:
       CANTERA_ROOT: ${{ github.workspace }}
-      CANTERA_DATA: ${{ github.workspace }}/data
     runs-on: ${{ matrix.os }}
-    needs: [ubuntu-multiple-pythons, macos-multiple-pythons, windows-2022, windows]
+    needs: [matlab-library]
     timeout-minutes: 60
+    defaults:
+      run:
+        shell: bash
     steps:
     - uses: actions/checkout@v7
       name: Checkout the repository
       with:
         persist-credentials: false
-    - name: Set Python version
-      # Python version does not matter as it is only used to run sourcegen
-      uses: actions/setup-python@v7
-      with:
-        python-version: "3.12"
-    - name: Install library dependencies with micromamba (Windows)
-      uses: mamba-org/setup-micromamba@f457c30a868e4760d3a6fcea5f25dc655b8edf39 # v3.2.1
-      with:
-        environment-name: test-env
-        create-args: >-
-          yaml-cpp openblas highfive fmt=12.0
-        init-shell: powershell
-        post-cleanup: none
-      if: matrix.os == 'windows-2022'
-    - name: Install Brew dependencies (macOS)
-      run: |
-        echo "Running on `sysctl -n machdep.cpu.brand_string`"
-        brew install --display-times libomp hdf5
-      if: runner.os == 'macOS'
-    - name: Install Apt dependencies (Ubuntu)
-      run: |
-        echo "Running on `cat /proc/cpuinfo | grep 'model name' | head -n 1 | cut -d ':' -f 2`"
-        sudo apt update
-        sudo apt install libhdf5-dev libfmt-dev libopenblas0-openmp
-      if: runner.os == 'Linux'
-    - name: Install Python dependencies
-      # Install Python dependencies, which are used by sourcegen
-      run: |
-        python3 -m pip install --upgrade pip setuptools wheel build
-        python3 -m pip install ruamel.yaml Jinja2
-    - name: Download the Cantera shared library (Linux)
+    - name: Download the Cantera library
       uses: actions/download-artifact@v8
       with:
-        name: libcantera_shared-${{ matrix.os }}.so
-        path: build/lib
-      if: runner.os == 'Linux'
-    - name: Create library symlinks (Linux)
-      working-directory: build/lib
-      # MATLAB requires a specific library name: libcantera_shared.so.X
-      # Recreating all symlinks to replicate status after build process
-      run: |
-        ln -s libcantera_shared.so libcantera_shared.so.4.0.0
-        ln -s libcantera_shared.so.4.0.0 libcantera_shared.so.4
-      if: runner.os == 'Linux'
-    - name: Download the Cantera shared library (macOS)
-      uses: actions/download-artifact@v8
-      with:
-        name: libcantera_shared-${{ matrix.os }}.dylib
-        path: build/lib
-      if: runner.os == 'macOS'
-    - name: Create library symlinks (macOS)
-      working-directory: build/lib
-      # MATLAB requires a specific library name: libcantera_shared.X.Y.Z.dylib
-      # Recreating all symlinks to replicate status after build process
-      run: |
-        ln -s libcantera_shared.dylib libcantera_shared.4.0.0.dylib
-        ln -s libcantera_shared.4.0.0.dylib libcantera_shared.4.dylib
-      if: runner.os == 'macOS'
-    - name: Download the Cantera shared library (Windows)
-      uses: actions/download-artifact@v8
-      with:
-        name: cantera_shared-${{ matrix.os }}.dll
-        path: build/lib
-      if: runner.os == 'Windows'
-    - name: Download the Doxygen artifacts
-      uses: actions/download-artifact@v8
-      with:
-        name: doxygen-tree
-        path: build/doc
-    - name: Extract Doxygen artifacts
-      run: tar -xzf doxygen.tar.gz
-      working-directory: build/doc
-    - name: Install sourcegen
-      run: python -m pip install -e interfaces/sourcegen
-    - name: Generage CLib headers
-      run: sourcegen --api=clib --output=interfaces/clib
-    - name: Set LD_PRELOAD environment variable for MATLAB (Linux)
-      run: |
-        LIB_STDCXX=$(ldconfig -p | grep libstdc++.so.6 | awk '{print $4}' | head -n 1)
-        LIB_OPENBLAS=$(ldconfig -p | grep libopenblas.so.0 | awk '{print $4}' | head -n 1)
-        LIB_LAPACK=$(ldconfig -p | grep liblapack.so.3 | awk '{print $4}' | head -n 1)
-        echo "LD_PRELOAD=$LIB_STDCXX:$LIB_OPENBLAS:$LIB_LAPACK" >> $GITHUB_ENV
-      if: runner.os == 'Linux'
+        name: matlab-canteraLib-${{ matrix.os }}
+    - name: Extract the Cantera library
+      run: tar -xzf canteraLib.tar.gz
     - name: Add Cantera library directory to PATH (Windows)
-      run: |
-        echo "${{ github.workspace }}/build/lib" >> $env:GITHUB_PATH
-        echo "${{ github.workspace }}/interfaces/matlab/+ct/+impl/ctMatlab" >> $env:GITHUB_PATH
       if: runner.os == 'Windows'
-    - name: Add Micromamba library directory to PATH (Windows 2022)
       run: |
-        echo "C:\Users\runneradmin\micromamba\envs\test-env\Library\bin" >> $env:GITHUB_PATH
-      if: matrix.os == 'windows-2022'
+        echo "$GITHUB_WORKSPACE/build/lib" >> "$GITHUB_PATH"
+        echo "$GITHUB_WORKSPACE/interfaces/matlab/+ct/+impl/ctMatlab" >> "$GITHUB_PATH"
+    - name: Install Visual C++ 2022 build tools (Windows, R2024b)
+      # R2024b supports Visual C++ 2022 at newest, but windows-2025 ships a newer
+      # Visual Studio, so mex finds no supported compiler; see #2152.
+      run: |
+        choco install visualstudio2022buildtools -y --no-progress
+        choco install visualstudio2022-workload-vctools -y --no-progress
+      if: runner.os == 'Windows' && matrix.release == 'R2024b'
     - name: Set up MATLAB
       uses: matlab-actions/setup-matlab@f9e43010f1ae678f7cfa0542fe2a4f60f7d1ad8d # v3.1.0
       with:
         release: ${{ matrix.release }}
     - name: Build MATLAB C++ Interface
       uses: matlab-actions/run-command@bfa857648f4895aa98a446fe41c85e0788421ed5 # v3.3.0
+      env:
+        # On Linux, MATLAB R2024b crashes while generating the interface unless the
+        # system libstdc++ is preloaded. Only the build needs it: the interface and the
+        # Cantera library link libstdc++ statically, so the tests run without it.
+        LD_PRELOAD: ${{ runner.os == 'Linux' && '/lib/x86_64-linux-gnu/libstdc++.so.6' || '' }}
       with:
         command: |
           disp("MATLAB version: " + version);
@@ -1394,6 +1400,15 @@ jobs:
           addpath(genpath(ctToolboxDir));
           ct.buildInterface(ctToolboxDir, ctIncludeDir, ctLibDir);
     - name: Run tests
-      uses: matlab-actions/run-tests@214a16e600ef2c705a4b2dd6c0794dc6957682a9 # v3.3.0
+      # The library has no third-party dependencies, so it loads in-process on every
+      # platform without LD_PRELOAD. The tests use the library loaded here instead of
+      # loading it.
+      uses: matlab-actions/run-command@bfa857648f4895aa98a446fe41c85e0788421ed5 # v3.3.0
       with:
-        select-by-folder: test/matlab
+        command: |
+          ctDir = getenv('CANTERA_ROOT');
+          addpath(genpath(fullfile(ctDir, 'interfaces', 'matlab')));
+          ct.load("inprocess");
+          results = runtests(fullfile(ctDir, 'test', 'matlab'));
+          disp(table(results));
+          assertSuccess(results);
