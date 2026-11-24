@@ -75,7 +75,7 @@ classdef ReactorNet < handle
         %% ReactorNet Class Destructor
 
         function delete(obj)
-            % Delete the :mat:class:`ct.zeroD.ReactorNet` object object.
+            % Delete the :mat:class:`ct.zeroD.ReactorNet` object.
             if obj.id >= 0
                 ct.impl.call('mReactornet_del', obj.id);
             end
@@ -139,7 +139,7 @@ classdef ReactorNet < handle
         function setSensitivityTolerances(obj, rerr, aerr)
             % Set the error tolerance for sensitivity analysis. ::
             %
-            %     >> n.setSensitivityTOlerances(nerr, aerr)
+            %     >> n.setSensitivityTolerances(rerr, aerr)
             %
             % :param rerr:
             %    Scalar relative error tolerance.

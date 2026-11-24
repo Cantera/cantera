@@ -77,9 +77,9 @@ classdef (Abstract) Domain < handle
         end
 
         function info(obj, rows, width)
-            % Print a concise summary of a Domain.
+            % Print a concise summary of a Domain. ::
             %
-            %     >> d.info()
+            %     >> d.info(rows, width)
             %
             % :param rows:
             %       Maximum number of rendered rows; defaults to 10.
@@ -123,7 +123,7 @@ classdef (Abstract) Domain < handle
         function n = componentIndex(obj, name)
             % Index of a component given its name. ::
             %
-            %     >>n = d.componentIndex(name)
+            %     >> n = d.componentIndex(name)
             %
             % :param name:
             %     String name of the component to look up. If a numeric value
@@ -174,7 +174,7 @@ classdef (Abstract) Domain < handle
         end
 
         function str = get.domainType(obj)
-            str = ct.impl.getString('mDomain_type', obj.domainID);
+            str = ct.impl.getString('mDomain_domainType', obj.domainID);
         end
 
         function n = get.nComponents(obj)
@@ -192,7 +192,7 @@ classdef (Abstract) Domain < handle
             %     >> tol = d.tolerances(component)
             %
             % :param component:
-            %    String name of the component for which the bounds are returned.
+            %    String name of the component for which the tolerances are returned.
             % :return:
             %    :math:`1\times 2` vector of the relative and absolute error tolerances.
 
@@ -214,6 +214,7 @@ classdef (Abstract) Domain < handle
             % :param lower:
             %    Lower bound.
             % :param upper:
+            %    Upper bound.
 
             n = obj.componentIndex(component);
             ct.impl.call('mDomain_setBounds', obj.domainID, n - 1, lower, upper);
@@ -222,7 +223,7 @@ classdef (Abstract) Domain < handle
         function setSteadyTolerances(obj, rtol, atol, component)
             % Set the steady-state tolerances. ::
             %
-            %     >>d.setSteadyTolerances(rtol, atol, component)
+            %     >> d.setSteadyTolerances(rtol, atol, component)
             %
             % :param rtol:
             %     Relative tolerance.
