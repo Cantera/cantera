@@ -243,6 +243,9 @@ private:
     //! The product of electron collision
     string m_product;
 
+    //! Original note attached to the collision cross section
+    string m_note;
+
     //! The energy threshold of electron collision
     double m_threshold = 0.0;
 

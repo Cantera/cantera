@@ -249,6 +249,7 @@ void ElectronCollisionPlasmaRate::setParameters(
     m_kind = node.getString("kind", "");
     m_target = node.getString("target", "");
     m_product = node.getString("product", "");
+    m_note = node.getString("note", "");
 
     m_energyLevels = node["energy-levels"].asVector<double>();
     m_crossSections = node["cross-sections"].asVector<double>(m_energyLevels.size());
@@ -312,22 +313,14 @@ void ElectronCollisionPlasmaRate::getParameters(
         node["product"] = m_product;
     }
 
+    if (!m_note.empty()) {
+        node["note"] = m_note;
+    }
+
     if (m_hasExplicitThreshold || m_threshold != 0.0) {
         node["threshold"] = m_threshold;
     }
 }
-
-void ElectronCollisionPlasmaRate::updateInterpolatedCrossSection(
-    span<const double> levels)
-{
-    m_crossSectionsInterpolated.resize(levels.size());
-
-    for (size_t i = 0; i < levels.size(); i++) {
-        m_crossSectionsInterpolated[i] =
-            linearInterp(levels[i], m_energyLevels, m_crossSections);
-    }
-}
-
 
 double ElectronCollisionPlasmaRate::evalFromStruct(
     const ElectronCollisionPlasmaData& shared_data)
@@ -583,8 +576,8 @@ void ElectronCollisionPlasmaRate::setDefaultThreshold()
 {
     if (m_hasExplicitThreshold || m_threshold != 0.0 ||
         (m_kind != "excitation" &&
-        m_kind != "ionization" &&
-        m_kind != "attachment")) {
+         m_kind != "ionization" &&
+         m_kind != "attachment")) {
         return;
     }
 
