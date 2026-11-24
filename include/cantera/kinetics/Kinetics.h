@@ -1465,8 +1465,8 @@ protected:
     //! one another, and 0.0 otherwise.
     /*!
      *  `r1` and `r2` are maps of species key to stoichiometric coefficient, one
-     *  for each reaction, where the species key is `1+k` for reactants and
-     *  `-1-k` for products and `k` is the species index.
+     *  for each reaction, where the species key is `-1-k` for reactants and
+     *  `1+k` for products and `k` is the species index.
      *
      *  @return 0.0 if the stoichiometries are not multiples of one another
      *    Otherwise, it returns the ratio of the stoichiometric coefficients.

@@ -1156,6 +1156,36 @@ class TestDuplicateReactions:
         gas = ct.Solution(self.infile, 'E')
         assert gas.n_reactions == 2
 
+    @pytest.mark.parametrize("order", ["A1, A2, A3, A4", "A3, A4, A1, A2"])
+    def test_opposite_direction_before_forward_duplicate(self, order):
+        # The first two reactions are intentionally distinct (both are
+        # irreversible). Comparing them must not change later comparisons.
+        species = "\n".join(
+            f"- name: {name}\n"
+            "  composition: {Ar: 1}\n"
+            "  thermo: {model: constant-cp, T0: 300 K, h0: 0, s0: 0, cp0: 0}"
+            for name in ("A1", "A2", "A3", "A4")
+        )
+        mechanism = f"""
+phases:
+- name: gas
+  thermo: ideal-gas
+  elements: [Ar]
+  species: [{order}]
+  kinetics: gas
+species:
+{species}
+reactions:
+- equation: A3 + A4 => A1 + A2
+  rate-constant: {{A: 1.0e+10, b: 0, Ea: 0}}
+- equation: A1 + A2 => A3 + A4
+  rate-constant: {{A: 1.0e+10, b: 0, Ea: 0}}
+- equation: A1 + A2 => A3 + A4
+  rate-constant: {{A: 2.0e+10, b: 0, Ea: 0}}
+"""
+        with pytest.raises(ct.CanteraError, match="Undeclared duplicate reactions"):
+            ct.Solution(yaml=mechanism)
+
     def test_common_efficiencies(self):
         self.check('F')
 
