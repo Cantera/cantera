@@ -1,0 +1,23 @@
+description: |-
+  This file is for testing purpose. The species data is needed to construct the
+  reactions in the generated list of the plasma collision reactions from the lxcat file.
+  Reactions which contains species not in the species list will be ignored.
+
+units: {length: cm, quantity: molec, activation-energy: K}
+
+phases:
+- name: isotropic-electron-energy-plasma
+  thermo: plasma
+  elements: [O, C, E]
+  species:
+  - nasa_gas.yaml/species: [O2, O2-, CO2]
+  - lxcat-test-convert.yaml/species: [E, O2(Total-Ionization)+]
+
+  kinetics: gas
+  reactions: none
+  transport: Ion
+  electron-energy-distribution:
+    type: isotropic
+    shape-factor: 2.0
+    mean-electron-energy: 1.0 eV
+    energy-levels: [0.0, 0.1, 1.0, 10.0]
