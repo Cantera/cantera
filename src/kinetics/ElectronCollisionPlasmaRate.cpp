@@ -265,7 +265,8 @@ void ElectronCollisionPlasmaRate::setReactionContext(
     m_target = target;
 
     // Determine the number of electrons in the products.
-    const double productElectrons = (electron == rxn.products.end()) ? 0.0 : electron->second;
+    auto productElectron = rxn.products.find(electronName);
+    const double productElectrons = (productElectron == rxn.products.end()) ? 0.0 : productElectron->second;
 
     string inferredKind;
 
@@ -309,8 +310,8 @@ void ElectronCollisionPlasmaRate::setReactionContext(
     setDefaultThreshold();
 
     // Validate superelastic reverse-reaction requirements.
-    if (rxn.reversible &&
-        (rxn.products.size() != 2 || electron == rxn.products.end() || electron->second != 1.0)) {
+    if (rxn.reversible && (rxn.products.size() != 2 ||
+        productElectron == rxn.products.end() || productElectron->second != 1.0)) {
         throw InputFileError(routine, rxn.input,
             "A reversible electron-collision reaction requires exactly one electron and one other product species.");
     }
