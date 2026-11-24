@@ -581,10 +581,10 @@ void ElectronCollisionPlasmaRate::validateCollisionData(
 
 void ElectronCollisionPlasmaRate::setDefaultThreshold()
 {
-    if (m_threshold != 0.0 ||
+    if (m_hasExplicitThreshold || m_threshold != 0.0 ||
         (m_kind != "excitation" &&
-         m_kind != "ionization" &&
-         m_kind != "attachment")) {
+        m_kind != "ionization" &&
+        m_kind != "attachment")) {
         return;
     }
 
