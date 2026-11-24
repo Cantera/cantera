@@ -317,6 +317,18 @@ void ElectronCollisionPlasmaRate::getParameters(
     }
 }
 
+void ElectronCollisionPlasmaRate::updateInterpolatedCrossSection(
+    span<const double> levels)
+{
+    m_crossSectionsInterpolated.resize(levels.size());
+
+    for (size_t i = 0; i < levels.size(); i++) {
+        m_crossSectionsInterpolated[i] =
+            linearInterp(levels[i], m_energyLevels, m_crossSections);
+    }
+}
+
+
 double ElectronCollisionPlasmaRate::evalFromStruct(
     const ElectronCollisionPlasmaData& shared_data)
 {
