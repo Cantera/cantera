@@ -2509,6 +2509,7 @@ class TestElectronCollisionPlasmaReaction(ReactionTests):
     _rate = {
         "equation": "O2 + E <=> E + O2",
         "type": "electron-collision-plasma",
+        "kind": "effective",
         "energy-levels": [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0],
         "cross-sections": [0.0, 5.97e-20, 6.45e-20, 6.74e-20, 6.93e-20, 7.2e-20,
                           7.52e-20, 7.86e-20, 8.21e-20, 8.49e-20, 8.8e-20]
@@ -2518,6 +2519,7 @@ class TestElectronCollisionPlasmaReaction(ReactionTests):
     _yaml = """
         equation: O2 + E <=> E + O2
         type: electron-collision-plasma
+        kind: effective
         energy-levels: [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
         cross-sections: [0.0, 5.97e-20, 6.45e-20, 6.74e-20, 6.93e-20, 7.2e-20,
                         7.52e-20, 7.86e-20, 8.21e-20, 8.49e-20, 8.8e-20]
