@@ -204,6 +204,45 @@ int EEDFTwoTermApproximation::calculateDistributionFunction()
         }
     }
 
+    // Project small negative EEDF components onto the non-negative cone.
+    // The correction is accepted only if its weighted L1 bound is below
+    // the convergence tolerance of the EEDF solver.
+    if (!m_f0.allFinite() || m_f0.maxCoeff() <= 0.0) {
+        throw CanteraError(
+            "EEDFTwoTermApproximation::calculateDistributionFunction",
+            "Invalid EEDF.");
+    }
+
+    if (m_f0.minCoeff() < 0.0) {
+        const Eigen::VectorXd negativePart = (-m_f0).cwiseMax(0.0);
+        const double negativeMass = norm(negativePart, m_gridCenter);
+        const double currentNorm = norm(m_f0, m_gridCenter);
+
+        // The weighted L1 change from clipping and renormalization is
+        // bounded by 2 * negativeMass + abs(currentNorm - 1).
+        const double correction = 2.0 * negativeMass
+            + std::abs(currentNorm - 1.0);
+
+        if (!std::isfinite(correction) || correction >= m_rtol) {
+            throw CanteraError(
+                "EEDFTwoTermApproximation::calculateDistributionFunction",
+                "EEDF positivity correction exceeds convergence tolerance: "
+                "negative mass = {}, normalization = {}, tolerance = {}.",
+                negativeMass, currentNorm, m_rtol);
+        }
+
+        m_f0 = m_f0.cwiseMax(0.0);
+
+        const double fNorm = norm(m_f0, m_gridCenter);
+        if (!std::isfinite(fNorm) || fNorm <= 0.0) {
+            throw CanteraError(
+                "EEDFTwoTermApproximation::calculateDistributionFunction",
+                "Invalid EEDF normalization after positivity projection.");
+        }
+
+        m_f0 /= fNorm;
+    }
+
     // write the EEDF at grid edges
     vector<double> f(m_f0.data(), m_f0.data() + m_f0.rows() * m_f0.cols());
     vector<double> x(m_gridCenter.data(), m_gridCenter.data() + m_gridCenter.rows() * m_gridCenter.cols());
