@@ -1978,3 +1978,198 @@ species:
         assert {reaction.reaction_type for reaction in gas.reactions()} == {
             "electron-collision-plasma"
         }
+
+    def test_lxcat_11_one_point_elastic_and_missing_product(self):
+        # Synthetic XML avoids redistributing an additional LXCat dataset.
+        xml = """<?xml version="1.0"?>
+<lxcat version="1.1"><Database id="unit-test"><Groups><Group id="Ar">
+<Processes><Process type="Elastic"><Species>
+<Reactant>e</Reactant><Reactant>Ar</Reactant><Product>E</Product>
+</Species><Comment>Single measured cross section.</Comment>
+<DataX units="eV">2.0</DataX><DataY units="m2">3e-20</DataY>
+</Process></Processes></Group></Groups></Database></lxcat>"""
+        input_file = self.test_work_path / "lxcat-one-point.xml"
+        input_file.write_text(xml)
+        output = self.test_work_path / "lxcat-one-point.yaml"
+        lxcat2yaml.convert(inpfile=input_file, insert=False, outfile=output)
+        collision = load_yaml(output)["electron-collisions"][0]
+        assert collision["kind"] == "elastic"
+        assert collision["target"] == "Ar"
+        assert collision["product"] == "none"
+        assert collision["note"] == "Single measured cross section."
+        assert collision["energy-levels"] == approx([0.0, 2.0])
+        assert collision["cross-sections"] == approx([3e-20, 3e-20])
+        assert "equation" not in collision
+
+    @pytest.mark.parametrize("energy_values, sections, message", [
+        ("1.0 1.0", "1e-20 2e-20", "strictly increasing"),
+        ("0.0 1.0", "1e-20 -2e-20", "non-negative"),
+        ("0.0 1.0", "1e-20", "same non-zero length"),
+    ])
+    def test_lxcat_11_invalid_cross_sections(self, energy_values, sections,
+                                             message):
+        xml = ("<lxcat version='1.1'><Database id='test'><Groups><Group>"
+               "<Processes><Process type='Effective'>"
+               "<Species><Reactant>e</Reactant><Reactant>Ar</Reactant>"
+               "<Product>E</Product><Product>Ar</Product></Species>"
+               f"<DataX units='eV'>{energy_values}</DataX>"
+               f"<DataY units='m2'>{sections}</DataY>"
+               "</Process></Processes></Group></Groups></Database></lxcat>")
+        infile = self.test_work_path / "invalid-lxcat.xml"
+        infile.write_text(xml)
+        with pytest.raises(lxcat2yaml.IncorrectXMLNode, match=message):
+            lxcat2yaml.convert(inpfile=infile, insert=False,
+                               outfile=self.test_work_path / "invalid-lxcat.yaml")
+
+    def test_lxcat_11_original_charge_label_and_note(self):
+        # Preserve the original LXCat charge notation and process comment.
+        xml = """<lxcat version="1.1"><Database id="test"><Groups><Group>
+<Processes><Process type="Ionization"><Species><Reactant>e</Reactant>
+<Reactant>Ar</Reactant><Product>E</Product><Product>E</Product>
+<Product>Ar^+</Product></Species><Parameters><E units="eV">15.8</E>
+</Parameters><Comment>Test ionization comment.</Comment>
+<DataX units="eV">15.8 16.0</DataX>
+<DataY units="m2">0 2e-22</DataY>
+</Process></Processes></Group></Groups></Database></lxcat>"""
+        infile = self.test_work_path / "lxcat-original-product.xml"
+        infile.write_text(xml)
+        outfile = self.test_work_path / "lxcat-original-product.yaml"
+        lxcat2yaml.convert(inpfile=infile, insert=False, outfile=outfile)
+        collision = load_yaml(outfile)["electron-collisions"][0]
+        assert collision["product"] == "Ar^+"
+        assert collision["note"] == "Test ionization comment."
+        assert "equation" not in collision
+
+
+
+    @staticmethod
+    def _lxcat11_xml(kind="Excitation", *, target="Ar", products="<Product>E</Product>",
+                     threshold="", x="1.0 2.0", y="0 1e-20",
+                     xunit="eV", yunit="m2", namespace=""):
+        return (f'<lxcat version="1.1" {namespace}><Database id="test">'
+                '<Groups><Group><Processes>'
+                f'<Process type="{kind}"><Species><Reactant>e</Reactant>'
+                f'<Reactant>{target}</Reactant>{products}</Species>'
+                f'<Parameters>{threshold}</Parameters>'
+                f'<DataX units="{xunit}">{x}</DataX>'
+                f'<DataY units="{yunit}">{y}</DataY>'
+                '</Process></Processes></Group></Groups></Database></lxcat>')
+
+    @pytest.mark.parametrize("kind, threshold", [
+        ("Excitation", 1.5), ("Ionization", 1.5),
+    ])
+    def test_lxcat_11_one_point_inelastic_threshold(self, kind, threshold):
+        # A single measured point becomes two points with zero sigma at onset.
+        infile = self.test_work_path / f"one-point-{kind}.xml"
+        infile.write_text(self._lxcat11_xml(
+            kind, threshold='<E units="eV">1.5</E>',
+            x="2.0", y="3e-21"))
+        outfile = self.test_work_path / f"one-point-{kind}.yaml"
+        lxcat2yaml.convert(inpfile=infile, insert=False, outfile=outfile)
+        collision = load_yaml(outfile)["electron-collisions"][0]
+        assert collision["kind"] == kind.lower()
+        assert collision["product"] == "none"
+        assert collision["threshold"] == approx(threshold)
+        assert collision["energy-levels"] == approx([1.5, 2.0])
+        assert collision["cross-sections"] == approx([0.0, 3e-21])
+
+    @pytest.mark.parametrize("field, units", [
+        ("energy", "keV"), ("section", "cm2"), ("threshold", "K"),
+    ])
+    def test_lxcat_11_rejects_invalid_units(self, field, units):
+        kwargs = {}
+        if field == "energy":
+            kwargs["xunit"] = units
+        elif field == "section":
+            kwargs["yunit"] = units
+        else:
+            kwargs["threshold"] = f'<E units="{units}">1.0</E>'
+        infile = self.test_work_path / f"invalid-units-{field}.xml"
+        infile.write_text(self._lxcat11_xml(**kwargs))
+        with pytest.raises(lxcat2yaml.IncorrectXMLNode, match="Expected units"):
+            lxcat2yaml.convert(
+                inpfile=infile, insert=False,
+                outfile=self.test_work_path / "invalid-units.yaml")
+
+    def test_lxcat_11_multiple_original_heavy_products(self):
+        # A dissociation can have multiple heavy products. Keep all original
+        # LXCat labels, even for collision-only conversion.
+        infile = self.test_work_path / "multiple-lxcat-products.xml"
+        infile.write_text(self._lxcat11_xml(
+            "Excitation", target="Ar2",
+            products="<Product>E</Product><Product>Ar</Product><Product>Ar</Product>",
+            threshold='<E units="eV">1.0</E>',
+            x="1.0 2.0", y="0 1e-20"))
+        outfile = self.test_work_path / "multiple-lxcat-products.yaml"
+        lxcat2yaml.convert(inpfile=infile, insert=False, outfile=outfile)
+        collision = load_yaml(outfile)["electron-collisions"][0]
+        assert collision["target"] == "Ar2"
+        assert collision["product"] == "Ar + Ar"
+        assert "equation" not in collision
+
+    def test_lxcat_11_xml_default_namespace(self):
+        # Namespaced LXCat exports need the same tags as the unqualified XML.
+        infile = self.test_work_path / "namespaced-lxcat.xml"
+        infile.write_text(self._lxcat11_xml(
+            "Effective", products="<Product>E</Product><Product>Ar</Product>",
+            namespace='xmlns="urn:lxcat:test"'))
+        outfile = self.test_work_path / "namespaced-lxcat.yaml"
+        lxcat2yaml.convert(inpfile=infile, insert=False, outfile=outfile)
+        collision = load_yaml(outfile)["electron-collisions"][0]
+        assert collision["target"] == "Ar"
+        assert collision["kind"] == "effective"
+        assert collision["product"] == "Ar"
+
+    def test_lxcat_11_database_id_filter(self):
+        # An absent --database imports both; selecting one uses its XML id.
+        first = self._lxcat11_xml("Elastic", target="Ar")
+        second = self._lxcat11_xml("Elastic", target="N2")
+        first = first.replace('id="test"', 'id="argon"')
+        second = second.replace('id="test"', 'id="nitrogen"')
+        # The XML container may hold several database nodes.
+        from xml.etree import ElementTree as ET
+        root = ET.Element("lxcat", {"version": "1.1"})
+        for document in (first, second):
+            root.append(ET.fromstring(document).find("Database"))
+        infile = self.test_work_path / "two-databases.xml"
+        infile.write_text(ET.tostring(root, encoding="unicode"))
+        all_out = self.test_work_path / "all-databases.yaml"
+        one_out = self.test_work_path / "one-database.yaml"
+        lxcat2yaml.convert(inpfile=infile, insert=False, outfile=all_out)
+        lxcat2yaml.convert(inpfile=infile, database="nitrogen", insert=False,
+                           outfile=one_out)
+        assert len(load_yaml(all_out)["electron-collisions"]) == 2
+        selected = load_yaml(one_out)["electron-collisions"]
+        assert len(selected) == 1
+        assert selected[0]["target"] == "N2"
+
+    def test_lxcat_11_one_point_at_zero_is_rejected(self):
+        infile = self.test_work_path / "zero-one-point.xml"
+        infile.write_text(self._lxcat11_xml(
+            "Elastic", x="0.0", y="3e-20"))
+        with pytest.raises(lxcat2yaml.IncorrectXMLNode, match="one-point"):
+            lxcat2yaml.convert(inpfile=infile, insert=False,
+                               outfile=self.test_work_path / "zero-one-point.yaml")
+
+    def test_lxcat_11_multiple_notes_are_preserved(self):
+        xml = self._lxcat11_xml("Effective", products="<Product>E</Product><Product>Ar</Product>")
+        xml = xml.replace('<DataX units="eV">',
+                          '<Comment>First scientific note.</Comment>'
+                          '<Notes>Second scientific note.</Notes><DataX units="eV">')
+        infile = self.test_work_path / "multiple-notes.xml"
+        infile.write_text(xml)
+        outfile = self.test_work_path / "multiple-notes.yaml"
+        lxcat2yaml.convert(inpfile=infile, insert=False, outfile=outfile)
+        collision = load_yaml(outfile)["electron-collisions"][0]
+        assert collision["note"] == "First scientific note.\nSecond scientific note."
+
+    @pytest.mark.parametrize("x, y", [
+        ("0.0 nan", "0 1e-20"),
+        ("0.0 1.0", "0 inf"),
+    ])
+    def test_lxcat_11_nonfinite_cross_sections_rejected(self, x, y):
+        infile = self.test_work_path / "nonfinite-lxcat.xml"
+        infile.write_text(self._lxcat11_xml("Effective", x=x, y=y))
+        with pytest.raises(lxcat2yaml.IncorrectXMLNode, match="finite"):
+            lxcat2yaml.convert(inpfile=infile, insert=False,
+                               outfile=self.test_work_path / "nonfinite.yaml")

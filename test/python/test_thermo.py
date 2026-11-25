@@ -1458,14 +1458,13 @@ class TestPlasmaPhase:
 
     def test_elastic_power_loss_replace_rate(self, phase):
         phase.TPX = 1000, ct.one_atm, "O2:1, E:1e-5"
+        old_loss = phase.elastic_power_loss
+        old_rates = phase.forward_rate_constants.copy()
         rate = ct.ReactionRate.from_dict(self.collision_data)
-        phase.reaction(1).rate = rate
-        # Since `elasticPowerLoss` involves two multiplications with the concentration
-        # of species, and since now it is computed as C=P/(R * <T>), we need to apply a
-        # correction factor to get back the value that was obtained with C=P/(R * T),
-        # i.e. C_old = C_new * (<T>/T), and q_ela_old = q_ela_new * (C_old/C_new)^2.
-        corr_factor = (phase.mean_temperature / phase.T )**2
-        assert phase.elastic_power_loss * corr_factor == approx(11765800095)
+        with pytest.raises(ct.CanteraError, match="not supported"):
+            phase.reaction(1).rate = rate
+        assert phase.elastic_power_loss == approx(old_loss)
+        assert phase.forward_rate_constants == approx(old_rates)
 
     def test_elastic_power_loss_add_reaction(self, phase):
         phase2 = ct.Solution(thermo="plasma", kinetics="bulk",
@@ -1699,6 +1698,311 @@ class TestPlasmaPhase:
         with pytest.raises(ct.CanteraError, match=message):
             ct.Solution("vibrational-relaxation.yaml", phase_name)
 
+
+    @staticmethod
+    def _collision_test_phase(collisions, *, reactions=None, rule="all",
+                              extrapolation=None, eedf=None):
+        """Build a small plasma from inline YAML, independent of test/data."""
+        from io import StringIO
+        from ruamel.yaml import YAML
+
+        def species(name, composition):
+            return {"name": name, "composition": composition,
+                    "thermo": {"model": "constant-cp", "T0": "300 K",
+                               "cp0": "20.786 J/mol/K"}}
+
+        data = {
+            "phases": [{
+                "name": "test-plasma", "thermo": "plasma",
+                "elements": ["Ar", "E"],
+                "species": ["E", "Ar", "Ar+", "Ar_excited"],
+                "kinetics": "gas", "reactions": rule,
+                "electron-energy-distribution": {
+                    "type": "discretized",
+                    "energy-levels": [0.0, 1.0, 3.0, 6.0],
+                    "distribution": [0.9, 0.6, 0.25, 0.001],
+                    "normalize": False}},
+            ],
+            "species": [species("E", {"E": 1}),
+                        species("Ar", {"Ar": 1}),
+                        species("Ar+", {"Ar": 1, "E": -1}),
+                        species("Ar_excited", {"Ar": 1})],
+        }
+        if extrapolation is not None:
+            data["phases"][0]["cross-sections-extrapolation"] = extrapolation
+        if eedf is not None:
+            data["phases"][0]["electron-energy-distribution"] = eedf
+        if collisions:
+            data["electron-collisions"] = collisions
+        if reactions:
+            data["reactions"] = reactions
+        stream = StringIO()
+        YAML().dump(data, stream)
+        gas = ct.Solution(yaml=stream.getvalue(), name="test-plasma",
+                          transport_model=None)
+        gas.TPX = 300.0, ct.one_atm, "Ar:0.999999, E:1e-6"
+        return gas
+
+    def test_electron_collision_only_does_not_create_reactions(self):
+        collisions = [
+            {"target": "Ar", "kind": "effective", "product": "Ar",
+             "energy-levels": [0.0, 2.0, 6.0],
+             "cross-sections": [2e-20, 3e-20, 2e-20]},
+            {"target": "Ar", "kind": "excitation", "product": "Ar*(1eV)",
+             "threshold": 1.0, "energy-levels": [1.0, 3.0, 6.0],
+             "cross-sections": [0.0, 1e-21, 2e-21]},
+        ]
+        gas = self._collision_test_phase(collisions)
+        assert gas.n_reactions == 0
+        assert len(gas.electron_energy_levels) == 4
+
+    def test_electron_collision_reactive_and_standalone(self):
+        collisions = [
+            {"target": "Ar", "kind": "effective", "product": "Ar",
+             "energy-levels": [0.0, 2.0, 6.0],
+             "cross-sections": [2e-20, 3e-20, 2e-20]},
+            {"equation": "Ar + E => Ar_excited + E",
+             "type": "electron-collision-plasma", "kind": "excitation",
+             "product": "Ar*(1eV)", "threshold": 1.0,
+             "energy-levels": [1.0, 3.0, 6.0],
+             "cross-sections": [0.0, 1e-21, 2e-21]},
+        ]
+        gas = self._collision_test_phase(collisions)
+        assert gas.n_reactions == 1
+        assert gas.reaction(0).reaction_type == "electron-collision-plasma"
+        assert gas.forward_rate_constants[0] > 0.0
+        assert gas.reaction(0).rate.input_data["product"] == "Ar*(1eV)"
+
+    def test_electron_collision_reactions_none_keeps_eedf_data(self):
+        collision = {
+            "equation": "Ar + E => Ar_excited + E",
+            "type": "electron-collision-plasma", "kind": "excitation",
+            "energy-levels": [0.0, 1.0, 3.0, 6.0],
+            "cross-sections": [0.0, 0.0, 1e-20, 1e-20],
+        }
+        gas = self._collision_test_phase([collision], rule="none")
+        assert gas.n_reactions == 0
+        # The root-level collision is registered even when Kinetics is disabled.
+        assert len(gas.electron_energy_levels) == 4
+
+    def test_electron_collision_explicit_reaction_section(self):
+        collision = {
+            "equation": "Ar + E => Ar_excited + E",
+            "type": "electron-collision-plasma", "kind": "excitation",
+            "energy-levels": [0.0, 1.0, 3.0, 6.0],
+            "cross-sections": [0.0, 0.0, 1e-20, 1e-20],
+        }
+        gas = self._collision_test_phase(
+            [collision], rule=[{"electron-collisions": "all"}])
+        assert gas.n_reactions == 1
+
+    def test_electron_collision_inline_compatibility(self):
+        collision = {
+            "equation": "Ar + E => Ar_excited + E",
+            "type": "electron-collision-plasma", "kind": "excitation",
+            "energy-levels": [0.0, 1.0, 3.0, 6.0],
+            "cross-sections": [0.0, 0.0, 1e-20, 1e-20],
+        }
+        gas_inline = self._collision_test_phase([], reactions=[collision])
+        gas_section = self._collision_test_phase([collision])
+        assert gas_inline.n_reactions == gas_section.n_reactions == 1
+        assert gas_inline.forward_rate_constants == approx(
+            gas_section.forward_rate_constants, rel=1e-10)
+
+    @pytest.mark.parametrize("field, values, message", [
+        ("energy-levels", [0.0, 0.0, 2.0], "strictly increasing"),
+        ("energy-levels", [-1.0, 1.0, 2.0], "Energy levels must be finite and non-negative"),
+        ("cross-sections", [-1e-20, 2e-20, 3e-20], "Cross sections must be finite and non-negative"),
+        ("energy-levels", [0.0], "at least two energy levels"),
+    ])
+    def test_electron_collision_invalid_tables(self, field, values, message):
+        collision = {
+            "target": "Ar", "kind": "elastic",
+            "energy-levels": [0.0, 1.0, 2.0],
+            "cross-sections": [1e-20, 2e-20, 3e-20],
+        }
+        collision[field] = values
+        if len(values) == 1:
+            collision["cross-sections"] = [1e-20]
+        with pytest.raises(ct.CanteraError, match=message):
+            self._collision_test_phase([collision])
+
+    @pytest.mark.parametrize("missing", ["target", "kind"])
+    def test_electron_collision_requires_target_and_kind(self, missing):
+        collision = {"target": "Ar", "kind": "effective",
+                     "energy-levels": [0.0, 1.0],
+                     "cross-sections": [1e-20, 2e-20]}
+        del collision[missing]
+        with pytest.raises(ct.CanteraError, match="requires both 'target' and 'kind'"):
+            self._collision_test_phase([collision])
+
+    def test_electron_collision_reactive_target_is_inferred(self):
+        collision = {"equation": "Ar + E => Ar_excited + E",
+                     "target": "Ar", "kind": "excitation",
+                     "type": "electron-collision-plasma",
+                     "energy-levels": [0.0, 1.0, 2.0],
+                     "cross-sections": [0.0, 1e-20, 2e-20]}
+        with pytest.raises(ct.CanteraError, match="infer its target"):
+            self._collision_test_phase([collision])
+
+    def test_electron_collision_reaction_requires_electron_reactant(self):
+        collision = {"equation": "Ar => Ar_excited",
+                     "type": "electron-collision-plasma", "kind": "excitation",
+                     "energy-levels": [0.0, 1.0, 2.0],
+                     "cross-sections": [0.0, 1e-20, 2e-20]}
+        with pytest.raises(ct.CanteraError, match="exactly two reactant species"):
+            self._collision_test_phase([collision])
+
+    def test_electron_collision_duplicate_elastic_rejected(self):
+        base = {"target": "Ar", "product": "Ar",
+                "energy-levels": [0.0, 1.0, 3.0],
+                "cross-sections": [2e-20, 3e-20, 2e-20]}
+        with pytest.raises(ct.CanteraError, match="effective/elastic cross section"):
+            self._collision_test_phase([
+                {**base, "kind": "effective"}, {**base, "kind": "elastic"}])
+
+    def test_electron_collision_reactive_kind_must_match_equation(self):
+        collision = {"equation": "Ar + E => Ar_excited + E",
+                     "kind": "ionization", "type": "electron-collision-plasma",
+                     "energy-levels": [0.0, 1.0, 2.0],
+                     "cross-sections": [0.0, 1e-20, 2e-20]}
+        with pytest.raises(ct.CanteraError, match="kind"):
+            self._collision_test_phase([collision])
+
+    def test_electron_collision_declared_species_skips_unknown_product(self):
+        collision = {"equation": "Ar + E => Unknown_Ar + E",
+                     "type": "electron-collision-plasma", "kind": "excitation",
+                     "energy-levels": [0.0, 1.0, 2.0],
+                     "cross-sections": [0.0, 1e-20, 2e-20]}
+        gas = self._collision_test_phase(
+            [collision], rule=[{"electron-collisions": "declared-species"}])
+        assert gas.n_reactions == 0
+
+    def test_electron_collision_declared_species_rule(self):
+        collision = {"equation": "Ar + E => Ar_excited + E",
+                     "kind": "excitation", "type": "electron-collision-plasma",
+                     "energy-levels": [0.0, 1.0, 2.0],
+                     "cross-sections": [0.0, 1e-20, 2e-20]}
+        gas = self._collision_test_phase(
+            [collision], rule=[{"electron-collisions": "declared-species"}])
+        assert gas.n_reactions == 1
+        assert gas.reaction(0).reaction_type == "electron-collision-plasma"
+
+    @pytest.mark.parametrize("policy, local, extended", [
+        ("none", False, False), ("none", True, False),
+        ("selected", False, False), ("selected", True, True),
+        ("all", False, True), ("all", True, True),
+    ])
+    def test_electron_collision_extrapolation_policy(self, policy, local, extended):
+        collision = {"equation": "Ar + E => Ar_excited + E",
+                     "type": "electron-collision-plasma", "kind": "excitation",
+                     "product": "Ar*(0eV)",
+                     "energy-levels": [0.0, 1.0, 2.0],
+                     "cross-sections": [0.0, 1e-20, 2e-20]}
+        if local:
+            collision["extrapolate-cross-sections"] = True
+        gas = self._collision_test_phase([collision], extrapolation=policy)
+        rate = gas.reaction(0).rate
+        assert (rate.energy_levels[-1] > 1e4) == extended
+        assert (len(rate.energy_levels) > 3) == extended
+
+        # A runtime high-energy extension must not alter the source data.
+        from ruamel.yaml import YAML
+        output = YAML(typ="safe").load(gas.write_yaml())
+        entry = output["electron-collisions"][0]
+        assert entry["energy-levels"] == approx([0.0, 1.0, 2.0])
+        assert entry["cross-sections"] == approx([0.0, 1e-20, 2e-20])
+        assert entry.get("extrapolate-cross-sections", False) is local
+        if policy != "none":
+            assert output["phases"][0]["cross-sections-extrapolation"] == policy
+
+    def test_electron_collision_invalid_extrapolation_policy(self):
+        collision = {"target": "Ar", "kind": "elastic",
+                     "energy-levels": [0.0, 1.0],
+                     "cross-sections": [1e-20, 2e-20]}
+        with pytest.raises(ct.CanteraError,
+                           match="Invalid 'cross-sections-extrapolation'"):
+            self._collision_test_phase([collision], extrapolation="unknown")
+
+    def test_electron_collision_roundtrip_preserves_tables_and_products(self, tmp_path):
+        collisions = [
+            {"target": "Ar", "kind": "effective", "product": "Ar",
+             "energy-levels": [0.0, 1.0, 3.0],
+             "cross-sections": [2e-20, 3e-20, 2e-20]},
+            {"equation": "Ar + E => Ar_excited + E",
+             "type": "electron-collision-plasma", "kind": "excitation",
+             "product": "Ar*(1eV)", "note": "Experimental excitation data.",
+             "threshold": 1.0, "extrapolate-cross-sections": True,
+             "energy-levels": [1.0, 2.0, 3.0],
+             "cross-sections": [0.0, 1e-21, 2e-21]},
+        ]
+        gas = self._collision_test_phase(collisions, extrapolation="selected")
+        output_file = tmp_path / "plasma-collision-roundtrip.yaml"
+        gas.write_yaml(output_file)
+        from ruamel.yaml import YAML
+        data = YAML(typ="safe").load(output_file.read_text())
+        assert len(data["electron-collisions"]) == 2
+        for original, saved in zip(collisions, data["electron-collisions"]):
+            assert saved["product"] == original["product"]
+            assert saved["kind"] == original["kind"]
+            assert saved["energy-levels"] == approx(original["energy-levels"])
+            assert saved["cross-sections"] == approx(original["cross-sections"])
+        assert "equation" not in data["electron-collisions"][0]
+        assert "equation" in data["electron-collisions"][1]
+        assert data["electron-collisions"][1]["note"] == collisions[1]["note"]
+        assert data["electron-collisions"][1]["extrapolate-cross-sections"]
+        restored = ct.Solution(output_file, "test-plasma", transport_model=None)
+        restored.TPX = 300.0, ct.one_atm, "Ar:0.999999, E:1e-6"
+        assert restored.n_reactions == gas.n_reactions == 1
+        assert restored.forward_rate_constants == approx(
+            gas.forward_rate_constants, rel=1e-10)
+
+    def test_electron_collision_roundtrip_preserves_collision_only_note(self):
+        from ruamel.yaml import YAML
+        collision = {"target": "Ar", "kind": "effective", "product": "Ar",
+                     "note": "Measured by Phelps, 2011.",
+                     "energy-levels": [0.0, 1.0, 3.0],
+                     "cross-sections": [2e-20, 3e-20, 2e-20]}
+        gas = self._collision_test_phase([collision])
+        output = YAML(typ="safe").load(gas.write_yaml())
+        assert output["electron-collisions"][0]["note"] == collision["note"]
+        restored = ct.Solution(yaml=gas.write_yaml(), name="test-plasma",
+                               transport_model=None)
+        output2 = YAML(typ="safe").load(restored.write_yaml())
+        assert output2["electron-collisions"][0]["note"] == collision["note"]
+
+    @pytest.mark.slow_test
+    def test_electron_collision_effective_reconstruction_matches_elastic(self):
+        # Effective = elastic + excitation, evaluated on the actual solver grid.
+        # Using a common knot set makes the decomposition exact at any energy.
+        grid = np.linspace(0.0, 40.0, 21).tolist()
+        levels = [0.0, 5.0, 10.0, 40.0]
+        elastic = [2e-20] * 4
+        excitation = [0.0, 0.0, 4e-21, 4e-21]
+        effective = [a + b for a, b in zip(elastic, excitation)]
+        inelastic = {"target": "Ar", "kind": "excitation",
+                     "product": "Ar_excited", "threshold": 5.0,
+                     "energy-levels": levels, "cross-sections": excitation}
+        settings = {"type": "Boltzmann-two-term", "energy-levels": grid}
+        gas_effective = self._collision_test_phase(
+            [{"target": "Ar", "kind": "effective", "product": "Ar",
+              "energy-levels": levels, "cross-sections": effective},
+             inelastic], rule="none", eedf=settings)
+        gas_elastic = self._collision_test_phase(
+            [{"target": "Ar", "kind": "elastic", "product": "Ar",
+              "energy-levels": levels, "cross-sections": elastic},
+             inelastic], rule="none", eedf=settings)
+        for gas in (gas_effective, gas_elastic):
+            gas.reduced_electric_field = 200e-21
+            gas.update_electron_energy_distribution()
+        f_effective = np.asarray(gas_effective.electron_energy_distribution)
+        f_elastic = np.asarray(gas_elastic.electron_energy_distribution)
+        assert np.all(np.isfinite(f_effective))
+        assert np.all(np.isfinite(f_elastic))
+        assert f_effective == approx(f_elastic, rel=1e-5, abs=1e-12)
+
+
+
 class TestImport:
     """
     Tests the various ways of creating a Solution object
@@ -1740,6 +2044,7 @@ class TestImport:
 @pytest.fixture(scope='function')
 def setup_species_tests(request):
     request.cls.gas = ct.Solution('h2o2.yaml', transport_model=None)
+
 
 @pytest.mark.usefixtures("setup_species_tests")
 class TestSpecies:

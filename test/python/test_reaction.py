@@ -2557,3 +2557,316 @@ class TestElectronCollisionPlasmaReaction(ReactionTests):
         rate_obj = rxn.rate.__class__(input_data=rate_input_data)
         rxn2 = self.from_rate(rate_obj)
         self.check_rxn(rxn2)
+
+    @staticmethod
+    def _reference_collision_integral(eedf_levels, distribution,
+                                      section_levels, cross_sections,
+                                      sigma_shift=0.0, energy_shift=0.0):
+        """Analytic integral of (E + shift) * F0(E) * sigma(E + shift).
+
+        Both F0 and sigma are linearly interpolated. Integrate over the
+        complete EEDF domain; outside its table, sigma is held constant at
+        the nearest endpoint (the behavior of Cantera's linearInterp).
+        """
+        lower = eedf_levels[0]
+        upper = eedf_levels[-1]
+        if upper <= lower:
+            return 0.0
+        nodes = {lower, upper}
+        nodes.update(x for x in eedf_levels if lower < x < upper)
+        nodes.update(x - sigma_shift for x in section_levels
+                     if lower < x - sigma_shift < upper)
+        total = 0.0
+        for a, b in zip(sorted(nodes)[:-1], sorted(nodes)[1:]):
+            h = b - a
+            fa, fb = np.interp([a, b], eedf_levels, distribution)
+            sa, sb = np.interp([a + sigma_shift, b + sigma_shift],
+                               section_levels, cross_sections)
+            df, ds = (fb - fa) / h, (sb - sa) / h
+            p0 = fa * sa
+            p1 = fa * ds + df * sa
+            p2 = df * ds
+            total += ((a + energy_shift) *
+                      (p0*h + p1*h*h/2 + p2*h**3/3)
+                      + p0*h*h/2 + p1*h**3/3 + p2*h**4/4)
+        return total
+
+    def _collision_rate_phase(self, levels, sections, *, eedf_levels=None,
+                              eedf_values=None, equation="O2 + E => E + O2",
+                              kind="effective", threshold=None,
+                              degeneracy=None, extrapolation=None):
+        """Create a fresh plasma with one electron-collision reaction."""
+        phase_def = self._phase_def
+        if extrapolation is not None:
+            phase_def = phase_def.replace(
+                "      reactions: none",
+                f"      reactions: none\n      cross-sections-extrapolation: {extrapolation}")
+        gas = ct.Solution(yaml=phase_def)
+        if eedf_levels is None:
+            eedf_levels = [0.0, 1.0, 3.0, 6.0]
+        if eedf_values is None:
+            eedf_values = [0.9, 0.6, 0.25, 0.005]
+        gas.normalize_electron_energy_distribution_enabled = False
+        gas.set_discretized_electron_energy_distribution(
+            eedf_levels, eedf_values)
+        gas.TPX = 300, ct.one_atm, "O2:0.999999, E:1e-6"
+        parameters = {
+            "equation": equation, "type": "electron-collision-plasma",
+            "kind": kind, "energy-levels": levels, "cross-sections": sections,
+        }
+        if threshold is not None:
+            parameters["threshold"] = threshold
+        if degeneracy is not None:
+            parameters["super-elastic-degeneracy-ratio"] = degeneracy
+        gas.add_reaction(ct.Reaction.from_dict(parameters, gas))
+        return gas
+
+    def test_merged_rate_stencil_against_exact_integral(self):
+        levels1 = [0.0, 1.0, 2.5, 4.0, 6.0]
+        sections1 = [0.0, 0.3e-20, 2.2e-20, 0.5e-20, 0.1e-20]
+        levels2 = [0.0, 0.4, 2.0, 3.5, 6.0]
+        sections2 = [0.0, 1.1e-20, 1.6e-20, 0.2e-20, 0.3e-20]
+        gas1 = self._collision_rate_phase(levels1, sections1)
+        gas2 = self._collision_rate_phase(levels2, sections2)
+        expected1 = self._reference_collision_integral(
+            gas1.electron_energy_levels, gas1.electron_energy_distribution,
+            levels1, sections1)
+        expected2 = self._reference_collision_integral(
+            gas2.electron_energy_levels, gas2.electron_energy_distribution,
+            levels2, sections2)
+        assert expected1 > 0 and expected2 > 0
+        assert gas1.forward_rate_constants[0] / gas2.forward_rate_constants[0] == approx(
+            expected1 / expected2, rel=1e-9)
+
+    def test_rate_integration_constant_extrapolation(self):
+        levels1 = [1.0, 2.0, 3.0]
+        sections1 = [2e-20, 3e-20, 1e-20]
+        levels2 = [0.0, 2.0, 6.0]
+        sections2 = [1e-20, 2e-20, 1e-20]
+        gas1 = self._collision_rate_phase(levels1, sections1)
+        gas2 = self._collision_rate_phase(levels2, sections2)
+        i1 = self._reference_collision_integral(
+            gas1.electron_energy_levels, gas1.electron_energy_distribution,
+            levels1, sections1)
+        i2 = self._reference_collision_integral(
+            gas2.electron_energy_levels, gas2.electron_energy_distribution,
+            levels2, sections2)
+        assert gas1.forward_rate_constants[0] / gas2.forward_rate_constants[0] == approx(
+            i1 / i2, rel=1e-9)
+
+    def test_rate_updates_when_electron_distribution_changes(self):
+        levels = [0.0, 0.6, 1.5, 3.5, 6.0]
+        sections = [0.0, 1e-20, 3e-20, 2e-20, 1e-20]
+        gas = self._collision_rate_phase(levels, sections)
+        old_integral = self._reference_collision_integral(
+            gas.electron_energy_levels, gas.electron_energy_distribution,
+            levels, sections)
+        old_rate = gas.forward_rate_constants[0]
+        gas.set_discretized_electron_energy_distribution(
+            [0.0, 1.0, 3.0, 6.0], [0.1, 0.2, 0.7, 0.004])
+        new_integral = self._reference_collision_integral(
+            gas.electron_energy_levels, gas.electron_energy_distribution,
+            levels, sections)
+        new_rate = gas.forward_rate_constants[0]
+        assert new_rate / old_rate == approx(new_integral / old_integral,
+                                             rel=1e-9)
+
+    def test_rate_updates_when_electron_energy_grid_changes(self):
+        levels = [0.0, 1.2, 2.7, 4.1, 6.0]
+        sections = [0.0, 1e-20, 3e-20, 2e-20, 1e-20]
+        gas = self._collision_rate_phase(levels, sections)
+        old_integral = self._reference_collision_integral(
+            gas.electron_energy_levels, gas.electron_energy_distribution,
+            levels, sections)
+        old_rate = gas.forward_rate_constants[0]
+        gas.set_discretized_electron_energy_distribution(
+            [0.0, 0.7, 1.5, 3.0, 5.0, 6.0],
+            [0.9, 0.7, 0.5, 0.2, 0.1, 0.005])
+        new_integral = self._reference_collision_integral(
+            gas.electron_energy_levels, gas.electron_energy_distribution,
+            levels, sections)
+        new_rate = gas.forward_rate_constants[0]
+        assert new_rate / old_rate == approx(new_integral / old_integral,
+                                             rel=1e-9)
+
+    def test_rate_threshold_metadata_is_preserved(self):
+        rate_data = dict(self._rate)
+        rate_data["kind"] = "ionization"
+        rate_data["threshold"] = 15.8
+        rate_data["product"] = "O2^+"
+        rate_data["energy-levels"] = [15.8, 16.0, 17.0]
+        rate_data["cross-sections"] = [0.0, 2.02e-22, 1.34e-21]
+        rate = ct.ReactionRate.from_dict(rate_data)
+        assert rate.input_data["kind"] == "ionization"
+        assert rate.input_data["product"] == "O2^+"
+        assert rate.input_data["threshold"] == approx(15.8)
+        assert rate.energy_levels == approx(rate_data["energy-levels"])
+
+    @pytest.mark.parametrize("levels, sections, error", [
+        ([0.0], [1e-20], "at least two energy levels"),
+        ([0.0, 0.0], [1e-20, 1e-20], "strictly increasing"),
+        ([-1.0, 1.0], [1e-20, 2e-20], "Energy levels must be finite and non-negative"),
+        ([0.0, 1.0], [-1e-20, 2e-20], "Cross sections must be finite and non-negative"),
+    ])
+    def test_invalid_rate_cross_section_tables(self, levels, sections, error):
+        data = dict(self._rate)
+        data["energy-levels"] = levels
+        data["cross-sections"] = sections
+        with pytest.raises(ct.CanteraError, match=error):
+            ct.ReactionRate.from_dict(data)
+
+    def test_reverse_superelastic_uses_shifted_cross_section_grid(self):
+        gas = ct.Solution(yaml=self._phase_def)
+        state = ct.Species.from_dict({
+            "name": "O2_excited", "composition": {"O": 2},
+            "thermo": {"model": "constant-cp", "T0": "300 K",
+                       "cp0": "20.786 J/mol/K"},
+        })
+        gas.add_species(state)
+        energy_grid = [0.0, 1.0, 3.0, 6.0]
+        dist = [0.9, 0.6, 0.25, 0.005]
+        gas.normalize_electron_energy_distribution_enabled = False
+        gas.set_discretized_electron_energy_distribution(energy_grid, dist)
+        gas.TPX = 300, ct.one_atm, "O2:0.9, O2_excited:0.099999, E:1e-6"
+        levels = [1.5, 2.0, 2.7, 4.2, 6.0]
+        sections = [0.0, 0.7e-20, 2.1e-20, 1.1e-20, 0.3e-20]
+        params = {
+            "equation": "O2 + E <=> O2_excited + E",
+            "type": "electron-collision-plasma", "kind": "excitation",
+            "threshold": 1.5, "energy-levels": levels,
+            "cross-sections": sections,
+        }
+        gas.add_reaction(ct.Reaction.from_dict(params, gas))
+
+        # modifyRateConstants() adjusts the reverse *rate of progress*, not
+        # reverse_rate_constants (which uses the thermodynamic equilibrium constant).
+        c = gas.concentrations
+        ce = c[gas.species_index("E")]
+        kf = gas.forward_rates_of_progress[0] / (c[gas.species_index("O2")] * ce)
+        kr = gas.reverse_rates_of_progress[0] / (c[gas.species_index("O2_excited")] * ce)
+        fwd = self._reference_collision_integral(
+            gas.electron_energy_levels, gas.electron_energy_distribution,
+            levels, sections)
+        rev = self._reference_collision_integral(
+            gas.electron_energy_levels, gas.electron_energy_distribution,
+            levels, sections, sigma_shift=1.5, energy_shift=1.5)
+        assert kf > 0 and kr > 0
+        assert kr / kf == approx(rev / fwd, rel=1e-9)
+
+
+    def test_inferred_excitation_threshold_normalizes_table(self):
+        # The threshold is the last zero before the first nonzero value.
+        params = {"type": "electron-collision-plasma", "kind": "excitation",
+                  "product": "O2(v1)",
+                  "energy-levels": [0.0, 1.0, 2.0, 3.0],
+                  "cross-sections": [0.0, 0.0, 2e-21, 3e-21]}
+        rate = ct.ReactionRate.from_dict(params)
+        assert rate.input_data["threshold"] == approx(1.0)
+        assert rate.energy_levels == approx([1.0, 2.0, 3.0])
+        assert rate.cross_sections == approx([0.0, 2e-21, 3e-21])
+
+    def test_explicit_threshold_removes_subthreshold_measurements(self):
+        params = {"type": "electron-collision-plasma", "kind": "ionization",
+                  "threshold": 2.0, "energy-levels": [0.0, 1.0, 2.0, 3.0],
+                  "cross-sections": [9e-22, 8e-22, 7e-22, 6e-22]}
+        rate = ct.ReactionRate.from_dict(params)
+        assert rate.input_data["threshold"] == approx(2.0)
+        assert rate.energy_levels == approx([2.0, 3.0])
+        assert rate.cross_sections == approx([0.0, 6e-22])
+
+    def test_explicit_zero_threshold_is_not_reinferred(self):
+        params = {"type": "electron-collision-plasma", "kind": "excitation",
+                  "threshold": 0.0, "energy-levels": [0.0, 1.0, 2.0],
+                  "cross-sections": [0.0, 0.0, 3e-21]}
+        rate = ct.ReactionRate.from_dict(params)
+        assert rate.input_data["threshold"] == approx(0.0)
+        assert rate.energy_levels == approx([0.0, 1.0, 2.0])
+        assert rate.cross_sections == approx([0.0, 0.0, 3e-21])
+        restored = ct.ReactionRate.from_dict(rate.input_data)
+        assert restored.input_data["threshold"] == approx(0.0)
+        assert restored.energy_levels == approx(rate.energy_levels)
+
+    def test_logarithmic_high_energy_tail_matches_exact_stencil(self):
+        # The phase-level 'all' policy adds knots at 1.5x intervals. The
+        # resulting rate integral must follow those knots, not extrapolate a
+        # constant section beyond the original last measured energy.
+        sections = [0.0, 1e-20, 2e-20]
+        levels = [0.0, 1.0, 2.0]
+        baseline = self._collision_rate_phase(
+            levels, sections, extrapolation="none")
+        extended = self._collision_rate_phase(
+            levels, sections, extrapolation="all")
+        rate = extended.reaction(0).rate
+        actual_levels = list(rate.energy_levels)
+        actual_sections = list(rate.cross_sections)
+        assert len(actual_levels) > len(levels)
+        assert actual_levels[:3] == approx(levels)
+        assert actual_sections[:3] == approx(sections)
+        assert actual_levels[3] == approx(3.0)
+        assert actual_sections[3] == approx(
+            2e-20 * (2.0 / 3.0) * (1.0 + np.log(3.0 / 2.0)))
+        assert actual_levels[-1] > 1e4
+        expected_baseline = self._reference_collision_integral(
+            baseline.electron_energy_levels, baseline.electron_energy_distribution,
+            levels, sections)
+        expected_tail = self._reference_collision_integral(
+            extended.electron_energy_levels, extended.electron_energy_distribution,
+            actual_levels, actual_sections)
+        assert extended.forward_rate_constants[0] / baseline.forward_rate_constants[0] == approx(
+            expected_tail / expected_baseline, rel=1e-9)
+
+    def test_reloading_modified_collision_updates_kinetics_and_plasma(self):
+        # Kinetics::modifyReaction does not support electron-collision-plasma;
+        # changing a detached Python Reaction does not modify the Solution.
+        # Instead, reload revised data and verify both Kinetics and PlasmaPhase.
+        from ruamel.yaml import YAML
+        from io import StringIO
+        # Reuse the stable legacy plasma definition and add the new section.
+        stream = YAML(typ="safe").load(self._phase_def)
+        stream["phases"][0]["reactions"] = "all"
+        entry = {"equation": "O2 + E => E + O2",
+                 "type": "electron-collision-plasma", "kind": "effective",
+                 "product": "O2", "energy-levels": [0.0, 1.0, 3.0, 6.0],
+                 "cross-sections": [2e-20, 3e-20, 2e-20, 1e-20]}
+        stream["electron-collisions"] = [entry]
+        yaml_out = StringIO()
+        YAML().dump(stream, yaml_out)
+        gas = ct.Solution(yaml=yaml_out.getvalue(), name="gas", transport_model=None)
+        gas.normalize_electron_energy_distribution_enabled = False
+        gas.set_discretized_electron_energy_distribution(
+            [0.0, 1.0, 3.0, 6.0], [0.9, 0.6, 0.25, 0.005])
+        gas.TPX = 300, ct.one_atm, "O2:0.999999, E:1e-6"
+        old_rate = gas.forward_rate_constants[0]
+        old_loss = gas.elastic_power_loss
+        new_entry = dict(entry)
+        new_entry["cross-sections"] = [x * 2.0 for x in entry["cross-sections"]]
+        # Replacing a rate on a registered Reaction must fail atomically,
+        # without leaving the Kinetics evaluator and PlasmaPhase desynchronized.
+        replacement_rate = ct.ReactionRate.from_dict(new_entry)
+        with pytest.raises(ct.CanteraError, match="not supported"):
+            gas.reaction(0).rate = replacement_rate
+        assert gas.forward_rate_constants[0] == approx(old_rate, rel=1e-9)
+        assert gas.elastic_power_loss == approx(old_loss, rel=1e-9)
+        assert gas.reaction(0).rate.cross_sections == approx(
+            entry["cross-sections"])
+
+        # Detached reactions can be modified before registration, but
+        # modify_reaction must reject registered electron collisions.
+        rxn = ct.Reaction.from_dict(entry, gas)
+        rxn.rate = replacement_rate
+        with pytest.raises(ct.CanteraError, match="not supported"):
+            gas.modify_reaction(0, rxn)
+        assert gas.forward_rate_constants[0] == approx(old_rate, rel=1e-9)
+        assert gas.elastic_power_loss == approx(old_loss, rel=1e-9)
+
+        stream["electron-collisions"] = [new_entry]
+        updated_yaml = StringIO()
+        YAML().dump(stream, updated_yaml)
+        updated = ct.Solution(yaml=updated_yaml.getvalue(), name="gas",
+                              transport_model=None)
+        updated.normalize_electron_energy_distribution_enabled = False
+        updated.set_discretized_electron_energy_distribution(
+            [0.0, 1.0, 3.0, 6.0], [0.9, 0.6, 0.25, 0.005])
+        updated.TPX = 300, ct.one_atm, "O2:0.999999, E:1e-6"
+        assert updated.forward_rate_constants[0] == approx(2.0 * old_rate, rel=1e-9)
+        assert updated.elastic_power_loss == approx(2.0 * old_loss, rel=1e-9)
