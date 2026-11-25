@@ -57,7 +57,7 @@ export CanteraObject, ThermoPhase, Kinetics, Transport
 """
     get_string(f) -> String
 
-Call a CLib string getter through the closure `f(bufLen::Int32, buf::Ptr{UInt8})`
+Call a CLib string getter through the closure `f(bufLen::Int32, buf)`
 using the size-query protocol: first with a null buffer to obtain the required
 length, then again with a correctly sized buffer.
 """
@@ -65,24 +65,84 @@ function get_string(f)
     n = check(f(Int32(0), Ptr{UInt8}(C_NULL)))
     n <= 0 && return ""
     buf = Vector{UInt8}(undef, n)
-    check(f(Int32(n), pointer(buf)))
-    return unsafe_string(pointer(buf))
+    check(f(Int32(n), buf))
+    return GC.@preserve buf unsafe_string(pointer(buf))
+end
+
+"Whether the elements of `a` are stored contiguously in column-major order."
+is_contiguous(a::Array) = true
+function is_contiguous(a::StridedArray)
+    expected = 1
+    for (st, sz) in zip(strides(a), size(a))
+        sz == 1 || st == expected || return false
+        expected *= sz
+    end
+    return true
 end
 
 """
-    get_array!(out::Vector{Float64}, f) -> out
+    get_array!(out, n, f) -> out
 
-Fill `out` in place through the closure `f(len::Int32, ptr::Ptr{Float64})` and
-return it.  Used by the performance-oriented `foo!(out, gas)` variants.
+Fill `out` in place through the closure `f(len::Int32, buf)`, which hands `buf`
+(`out` itself) to the CLib, and return it.  Used by the performance-oriented
+`foo!(out, gas)` variants.
+
+`out` must hold exactly `n` `Float64` values in contiguous storage: a `Vector`,
+a `Matrix`, or a unit-stride view such as `view(M, :, j)`.  Throws a
+`DimensionMismatch` for any other length, rather than leaving trailing elements
+untouched, and an `ArgumentError` for a non-contiguous view.
 """
-function get_array!(out::Vector{Float64}, f)
-    check(f(Int32(length(out)), pointer(out)))
+function get_array!(out::StridedArray{Float64}, n::Integer, f)
+    length(out) == n || throw(DimensionMismatch(
+        "output array has length $(length(out)), expected $n"))
+    is_contiguous(out) || throw(ArgumentError(
+        "output array must be contiguous in memory, e.g. `view(M, :, j)`"))
+    check(f(Int32(n), out))
     return out
 end
 
-"`get_array(n, f)` allocates a `Vector{Float64}` of length `n` and fills it."
-get_array(n::Integer, f) = get_array!(Vector{Float64}(undef, n), f)
+"""
+    get_matrix!(out, nrows, ncols, f) -> out
 
-"Convert an arbitrary real vector to a contiguous `Vector{Float64}` at the boundary."
+Matrix counterpart of [`get_array!`](@ref): fill the `nrows × ncols` matrix `out`
+from a CLib getter that writes a flat column-major buffer of that size.
+"""
+function get_matrix!(out::StridedMatrix{Float64}, nrows::Integer, ncols::Integer, f)
+    size(out) == (nrows, ncols) || throw(DimensionMismatch(
+        "output matrix has size $(size(out)), expected ($nrows, $ncols)"))
+    return get_array!(out, nrows * ncols, f)
+end
+
+"""
+    inplace_doc(name, arg="gas") -> String
+
+Docstring of the in-place variant `name!(out, arg)` of the allocating getter
+`name`.
+"""
+inplace_doc(name, arg="gas") = """
+        $(name)!(out, $arg) -> out
+
+    In-place [`$name`](@ref): fill `out` and return it, without allocating.
+    `out` must have the same size as the result of `$name`; a contiguous view
+    such as `view(M, :, j)` is accepted.
+    """
+
+"`get_array(n, f)` allocates a `Vector{Float64}` of length `n` and fills it."
+get_array(n::Integer, f) = get_array!(Vector{Float64}(undef, n), n, f)
+
+"`get_matrix(nrows, ncols, f)` allocates a `Matrix{Float64}` and fills it."
+get_matrix(nrows::Integer, ncols::Integer, f) =
+    get_matrix!(Matrix{Float64}(undef, nrows, ncols), nrows, ncols, f)
+
+"""
+    as_f64(x) -> contiguous `Float64` vector
+
+Prepare a real vector for a CLib call.  Contiguous `Float64` storage (a `Vector`
+or a unit-stride view such as `view(M, :, j)`) is passed through without
+copying; anything else is converted to a new `Vector{Float64}`.  Pass the
+result itself to the CLib call, not `pointer(x)`: `ccall` then keeps it alive
+for the duration of the call.
+"""
 as_f64(x::Vector{Float64}) = x
+as_f64(x::StridedVector{Float64}) = is_contiguous(x) ? x : Vector{Float64}(x)
 as_f64(x::AbstractVector{<:Real}) = convert(Vector{Float64}, x)

@@ -23,9 +23,10 @@ Abstract supertype of flow devices that move mass between reactors.
 """
 abstract type FlowDevice <: Connector end
 
-# Resolve a Func1-like object (or raw handle) to its CLib handle.
-_func_handle(f::Integer) = Int32(f)
-_func_handle(f) = Int32(f.handle)
+# A number stands for a constant function, as in the Python interface.
+_func1(f::Func1) = f
+_func1(f::Real) = constant_function(f)
+_func1(f) = throw(ArgumentError("expected a Func1 or a number, got $(typeof(f))"))
 
 # ---- concrete types ---------------------------------------------------------
 
@@ -37,6 +38,9 @@ for T in (:Wall, :MassFlowController, :Valve, :PressureController)
             r0::Reactor      # upstream / left
             r1::Reactor      # downstream / right
             closed::Bool
+            # Functions in use, kept alive here: `Wall` only stores raw pointers
+            # to its heat-flux and velocity functions.
+            funcs::Dict{Symbol,Func1}
         end
     end
 end
@@ -44,7 +48,7 @@ end
 function _new_connector(::Type{T}, model, left::Reactor, right::Reactor,
                         name) where {T<:Connector}
     h = check(LibCantera.connector_new(model, left.handle, right.handle, name))
-    c = T(h, left, right, false)
+    c = T(h, left, right, false, Dict{Symbol,Func1}())
     finalizer(close!, c)
     return c
 end
@@ -80,7 +84,7 @@ end
 
 A wall separating reactors `left` and `right`.  `A` is the wall area [m^2], `U`
 the heat-transfer coefficient [W/m^2/K], `K` the expansion-rate coefficient
-[m/s/Pa].  `Q` (heat flux) and `velocity` may be `Func1` objects; `emissivity`
+[m/s/Pa].  `Q` (heat flux) and `velocity` may be numbers or `Func1` objects; `emissivity`
 enables radiative transfer.
 """
 function Wall(left::Reactor, right::Reactor; A=1.0, U=0.0, K=0.0, Q=nothing,
@@ -137,15 +141,19 @@ function set_emissivity!(w::Wall, epsilon)
     return w
 end
 
-"Set the wall heat flux as a time-dependent `Func1` (or handle) [W/m^2]."
+"Set the wall heat flux [W/m^2]: a constant or a time-dependent `Func1`."
 function set_heat_flux!(w::Wall, q)
-    check(LibCantera.wall_setHeatFlux(w.handle, _func_handle(q)))
+    func = _func1(q)
+    check(LibCantera.wall_setHeatFlux(w.handle, func.handle))
+    w.funcs[:heat_flux] = func
     return w
 end
 
-"Set the wall velocity as a time-dependent `Func1` (or handle) [m/s]."
+"Set the wall velocity [m/s]: a constant or a time-dependent `Func1`."
 function set_velocity!(w::Wall, f)
-    check(LibCantera.wall_setVelocity(w.handle, _func_handle(f)))
+    func = _func1(f)
+    check(LibCantera.wall_setVelocity(w.handle, func.handle))
+    w.funcs[:velocity] = func
     return w
 end
 
@@ -164,15 +172,19 @@ function set_device_coefficient!(d::FlowDevice, c)
     return d
 end
 
-"Set the pressure function of the flow device as a `Func1` (or handle)."
+"Set the pressure function of the flow device: a constant or a `Func1`."
 function set_pressure_function!(d::FlowDevice, f)
-    check(LibCantera.flowdev_setPressureFunction(d.handle, _func_handle(f)))
+    func = _func1(f)
+    check(LibCantera.flowdev_setPressureFunction(d.handle, func.handle))
+    d.funcs[:pressure_function] = func
     return d
 end
 
-"Set the time function of the flow device as a `Func1` (or handle)."
+"Set the time function of the flow device: a constant or a `Func1`."
 function set_time_function!(d::FlowDevice, g)
-    check(LibCantera.flowdev_setTimeFunction(d.handle, _func_handle(g)))
+    func = _func1(g)
+    check(LibCantera.flowdev_setTimeFunction(d.handle, func.handle))
+    d.funcs[:time_function] = func
     return d
 end
 

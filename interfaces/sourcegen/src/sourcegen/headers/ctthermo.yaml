@@ -39,6 +39,9 @@ recipes:
   wraps: setMassFractionsByName(const string&)
 - name: atomicWeights  # Renamed in Cantera 3.2 (previously getAtomicWeights)
   uses: nElements
+- name: atomicWeight
+- name: elementalMassFraction
+- name: elementalMoleFraction
 - name: getMolecularWeights
   uses: nSpecies
 - name: getCharges
@@ -162,6 +165,8 @@ recipes:
   wraps: setCoveragesByName(const string&)
 - name: setEquivalenceRatio
   wraps: setEquivalenceRatio(double, const string&, const string&)
+- name: equivalenceRatio
+  wraps: equivalenceRatio()
 - name: report
 - name: print
   brief: Print a summary of the state of the phase to the logger.

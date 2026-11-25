@@ -53,7 +53,7 @@ Construct an advanced functor parametrized by an array of coefficients, e.g.
 function Func1(type::AbstractString, coeffs::AbstractVector{<:Real})
     c = as_f64(coeffs)
     return Func1(check(
-        LibCantera.func1_newAdvanced(type, Int32(length(c)), pointer(c))))
+        LibCantera.func1_newAdvanced(type, Int32(length(c)), c)))
 end
 
 """
