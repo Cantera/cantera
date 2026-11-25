@@ -138,7 +138,7 @@ class Arrhenius:
         *,
         parser: Parser,
     ) -> None: ...
-    def as_yaml(self, extra: Any = ()) -> CommentedMap: ...
+    def as_yaml(self, extra: Any = (), *, with_A_units: bool = True) -> CommentedMap: ...
 
 class ElementaryRate(KineticsModel):
     pressure_dependent: ClassVar[bool | None] = False
@@ -152,6 +152,7 @@ class SurfaceRate(KineticsModel):
     coverages: list[tuple[str, float, float, float]]
     is_sticking: bool
     motz_wise: bool
+    quantity_units: str
     def __init__(
         self,
         *,
@@ -159,6 +160,7 @@ class SurfaceRate(KineticsModel):
         coverages: list[tuple[str, float, float, float]],
         is_sticking: bool,
         motz_wise: bool,
+        quantity_units: str,
         **kwargs: Any,
     ) -> None: ...
     def reduce(self, output: CommentedMap) -> None: ...  # type: ignore[override]

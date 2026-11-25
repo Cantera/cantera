@@ -637,6 +637,77 @@ class Testck2yaml:
         assert covdeps["OH_Pt"]["m"] == 1.0
         assert covdeps["H_Pt"]["E"] == approx(-6e6) # 6000 J/gmol = 6e6 J/kmol
 
+    @pytest.mark.parametrize("gas_basis,surface_basis,local_basis", [
+        ("MOLES", "MOLECULES", None),
+        ("MOLECULES", "MOLES", None),
+        ("MOLES", "MOLES", None),
+        ("MOLECULES", "MOLECULES", None),
+        ("MOLES", "MOLES", "MOLECULES"),
+        ("MOLECULES", "MOLECULES", "MOLES"),
+    ])
+    def test_surface_quantity_units(self, tmp_path, gas_basis, surface_basis,
+                                    local_basis):
+        # Use the existing surface mechanism without changing the shared files.
+        gas_input = tmp_path / "surface1-gas.inp"
+        gas_text = (self.test_data_path / gas_input.name).read_text()
+        gas_input.write_text(gas_text.replace(
+            "REACTIONS  KJOULES/MOLE", f"REACTIONS  KJOULES/MOLE  {gas_basis}"
+        ))
+
+        surface_input = tmp_path / "surface1.inp"
+        surface_text = (self.test_data_path / surface_input.name).read_text()
+        surface_text = surface_text.replace(
+            "REACTIONS      JOULES/MOLE", f"REACTIONS      JOULES/MOLE      {surface_basis}"
+        ).rstrip()
+        surface_text = surface_text.removesuffix("END") + (
+            " H2O2 + 2 _Pt_ <=> 2 OH_Pt                   4.0E-42  0.0  1300.0\n"
+            "    REV / 3.0E-24  0.0  1900.0 /\n"
+            " O2_Pt + H_Pt => OH_Pt + O_Pt + 2 _Pt_       4.0E-22  0.0  900.0\n"
+            "    FORD / H_Pt 1.5 /\n"
+        )
+        if local_basis:
+            surface_text += f"    UNITS / {local_basis} /\n"
+        surface_input.write_text(surface_text + "END\n")
+
+        output = self.convert(gas_input, surface=surface_input,
+                              output=str(tmp_path / "surface1-quantity-units"))
+        surf = ct.Interface(output, "PT_SURFACE")
+        gas = surf.adjacent["gas"]
+        assert (gas.n_reactions, surf.n_reactions) == (11, 18)
+
+        kmol_per = {"MOLES": 1e-3, "MOLECULES": 1 / ct.avogadro}
+        assert gas.reaction(0).rate.pre_exponential_factor == approx(
+            9.756e13 * 0.01**3 / kmol_per[gas_basis], rel=2e-14
+        )
+
+        sticking = load_yaml(output)["PT_SURFACE-reactions"][2]
+        assert sticking["sticking-coefficient"]["A"] == 1.0
+        assert "units" not in sticking
+        assert (
+            surf.reaction(1).rate.coverage_dependencies["H_Pt"]["E"]
+            == approx(-6e6)
+        )
+        assert surf.reaction(17).orders == {"H_Pt": 1.5}
+
+        # Gas and surface concentrations scale as length**-3 and length**-2.
+        # Obtain the unit conversion from the effective reactant orders.
+        expected = [
+            (4e-42, 1, 2, 1300, surface_basis),
+            (3e-24, 0, 2, 1900, surface_basis),
+            (4e-22, 0, 2.5, 900, local_basis or surface_basis),
+        ]
+        for i, (A, gas_order, surface_order, Ea, basis) in enumerate(expected, 15):
+            factor = (
+                0.01**(3 * gas_order + 2 * surface_order - 2)
+                * kmol_per[basis]**(1 - gas_order - surface_order)
+            )
+            reaction = surf.reaction(i)
+            assert not reaction.reversible
+            assert reaction.rate.pre_exponential_factor == approx(
+                A * factor, rel=2e-14, abs=0
+            )
+            assert reaction.rate.activation_energy == approx(Ea * 1000)
+
     def test_surface_mech2(self):
         output = self.convert('surface1-gas-noreac.inp', surface='surface1.inp',
                               output='surface1-nogasreac')

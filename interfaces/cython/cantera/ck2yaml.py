@@ -353,9 +353,10 @@ class Arrhenius:
         self.Ea = Ea
         self.parser = parser
 
-    def as_yaml(self, extra=()):
+    def as_yaml(self, extra=(), *, with_A_units=True):
         out = FlowMap(extra)
-        if compatible_quantities(self.parser.output_quantity_units, self.A[1]):
+        if (not with_A_units
+                or compatible_quantities(self.parser.output_quantity_units, self.A[1])):
             out['A'] = self.A[0]
         else:
             out['A'] = "{0:e} {1}".format(*self.A)
@@ -402,6 +403,8 @@ class SurfaceRate(KineticsModel):
     :param is_sticking:
         True if the Arrhenius expression is a parameterization of a sticking
         coefficient, rather than the rate constant itself.
+    :param quantity_units:
+        Quantity basis of the input pre-exponential factor.
     :param motz_wise:
         True if the sticking coefficient should be translated into a rate
         coefficient using the correction factor developed by Motz & Wise for
@@ -409,18 +412,24 @@ class SurfaceRate(KineticsModel):
     """
     pressure_dependent = False
 
-    def __init__(self, *, rate, coverages, is_sticking, motz_wise, **kwargs):
+    def __init__(self, *, rate, coverages, is_sticking, motz_wise, quantity_units,
+                 **kwargs):
         KineticsModel.__init__(self, **kwargs)
         self.rate = rate
         self.coverages = coverages
         self.is_sticking = is_sticking
         self.motz_wise = motz_wise
+        self.quantity_units = quantity_units
 
     def reduce(self, output):
         if self.is_sticking:
-            output['sticking-coefficient'] = self.rate.as_yaml()
+            output['sticking-coefficient'] = self.rate.as_yaml(with_A_units=False)
         else:
-            output['rate-constant'] = self.rate.as_yaml()
+            # Infer the dimensions from the adjacent phases and reaction orders
+            # when loading the YAML, rather than using gas-phase rate units.
+            if self.quantity_units != self.rate.parser.output_quantity_units:
+                output['units'] = FlowMap([('quantity', self.quantity_units)])
+            output['rate-constant'] = self.rate.as_yaml(with_A_units=False)
 
         if self.motz_wise is not None:
             output['Motz-Wise'] = self.motz_wise
@@ -1359,6 +1368,10 @@ class Parser:
                     )
                     if third_body:
                         revReaction.kinetics = ThreeBody(rev_rate)
+                    elif surface:
+                        revReaction.kinetics = SurfaceRate(
+                            rate=rev_rate, coverages=[], is_sticking=False,
+                            motz_wise=None, quantity_units=quantity_units)
                     else:
                         revReaction.kinetics = ElementaryRate(rev_rate)
 
@@ -1502,7 +1515,8 @@ class Parser:
             reaction.kinetics = SurfaceRate(rate=arrhenius,
                                             coverages=coverages,
                                             is_sticking=is_sticking,
-                                            motz_wise=motz_wise)
+                                            motz_wise=motz_wise,
+                                            quantity_units=quantity_units)
         else:
             reaction.kinetics = ElementaryRate(arrhenius)
 
