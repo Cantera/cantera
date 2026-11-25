@@ -16,6 +16,27 @@ species.
 : This page describes the different parameterizations available in Cantera for
   calculating forward rate constants.
 
+
+## Plasma Reactions
+
+For electron-impact processes in plasma simulations, forward rate constants
+calculations are done in a more complex way. The following
+sections provide information to the interested user:
+
+- [Electron-collision rates of progress](sec-electron-collision-rates-of-progress):
+  How electron-impact reactions contribute to forward and reverse
+  reaction rates, and how collision-only processes differ from
+  kinetic reactions.
+- [Electron-collision rate coefficients](sec-electron-collision-plasma-rate):
+  Calculation of rate coefficients from the EEDF and tabulated
+  cross sections, including superelastic reactions.
+- [Electron-collision YAML format](sec-yaml-electron-collisions):
+  Definition of collision-only processes and kinetic reactions
+  using the root-level `electron-collisions` section.
+- [Plasma phase configuration](sec-yaml-plasma):
+  Configuration of the EEDF model and cross-section extrapolation.
+
+
 ```{toctree}
 :hidden:
 

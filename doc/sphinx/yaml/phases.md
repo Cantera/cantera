@@ -135,6 +135,25 @@ are:
     for each section name, that rule is either `all` or `declared-species` and is
     applied as described above.
 
+  For plasma phases, the rules `all` and `declared-species` also apply
+  to reactive entries in the root-level `electron-collisions` section.
+  Entries without an `equation` field are never added to `Kinetics`.
+
+  If no explicit reaction selection is provided, reactive
+  `electron-collisions` entries are included by default when a
+  kinetics model is specified.
+
+  When selecting reaction sections explicitly, `electron-collisions`
+  can be included alongside conventional reaction sections, for example:
+
+  ```yaml
+  reactions: [reactions, electron-collisions]
+  ```
+
+  Setting `reactions: none` excludes these entries from `Kinetics`
+  but does not remove their cross sections from the plasma collision
+  model used by the EEDF solver.
+
 `Motz-Wise`
 : Boolean indicating whether the Motz-Wise correction should be applied to sticking
   reactions. Applicable only to interface phases. The default is `false`. The value set
@@ -839,6 +858,43 @@ Additional fields:
   :::{versionadded} 4.0
   :::
 
+`cross-sections-extrapolation`
+: Optional phase-wide criterion controlling high-energy extrapolation of
+  electron collision cross sections. Supported values are:
+
+  - `none`: Do not extrapolate any collision cross sections.
+    This is the default, in which case the cross-sections are
+    considered constant at their edge values outside of their
+    definition ranges.
+  - `selected`: Extrapolate only collision entries specifying
+    `extrapolate-cross-sections: true`.
+  - `all`: Extrapolate all electron collision cross sections.
+
+  When extrapolation is enabled, a cross-section table with a
+  non-zero final value is extended using
+
+  $$
+  \sigma(E) = \sigma(E_0)\frac{E_0}{E}
+  \left[1+\ln\left(\frac{E}{E_0}\right)\right],
+  $$
+
+  where $E_0$ is the last tabulated energy. Additional points are
+  generated until the extended table reaches beyond 10 keV. It is
+  then help constant beyond this range.
+
+  A table ending with zero cross section is not extended. Outside
+  the final tabulated or generated point, the cross section is
+  held constant.
+
+  For example, to enable extrapolation only for selected collisions:
+
+  ```yaml
+  cross-sections-extrapolation: selected
+  ```
+
+  Individual collisions can then opt in using
+  `extrapolate-cross-sections: true`.
+
 `electron-energy-distribution`
 : A mapping with the following fields:
 
@@ -1022,6 +1078,25 @@ Examples:
   thermo: plasma
   kinetics: gas
   transport: ionized-gas
+  electron-energy-distribution:
+    type: Boltzmann-two-term
+    initial-max-energy-level: 60
+    grid-cell-count: 301
+    energy-level-spacing: linear
+    reduced-field-threshold-before-Maxwellian: 1 Td
+    energy-grid-adaptation:
+      enabled: true
+      min-decay-decades: 10
+      max-decay-decades: 12
+      update-factor: 0.1
+      max-iterations: 1000
+      Maxwellian-reset: true
+
+- name: Boltzmann-two-term-electron-energy-plasma-adaptive-linear-grid-extrapolate-cs
+  thermo: plasma
+  kinetics: gas
+  transport: ionized-gas
+  cross-sections-extrapolation: selected
   electron-energy-distribution:
     type: Boltzmann-two-term
     initial-max-energy-level: 60

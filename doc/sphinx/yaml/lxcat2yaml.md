@@ -24,6 +24,14 @@ label independently of any species mapping. When no heavy product is specified,
 contains several heavy products, their LXCat labels are joined with ` + `.
 Cross-section-specific XML comments are copied to the optional `note` field.
 
+:::{versionchanged} 4.0
+Converted cross sections are written directly in the root-level
+`electron-collisions` section. Reactive entries include an `equation`
+and can participate in both kinetic reaction calculations and the
+electron Boltzmann solver. Collision-only entries do not create
+kinetic reactions.
+:::
+
 ## Basic conversion
 
 To convert an LXCat XML file without inserting the results into an existing
@@ -64,6 +72,14 @@ electron-collisions:
   energy-levels: [15.8, 16.0, 17.0]
   cross-sections: [0.0, 2.02e-22, 1.34e-21]
 ```
+
+The generated `electron-collisions` section can be used in a plasma
+mechanism independently of chemical reactions.
+
+For example, a plasma phase with `reactions: none` can still use
+these cross sections to calculate the EEDF. To include reactive
+entries in chemical kinetics, the phase must use a kinetics model
+and select the corresponding reaction entries.
 
 ## Inserting data into a mechanism
 

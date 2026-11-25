@@ -686,8 +686,19 @@ different representations are the responsibility of the mechanism author.
 (sec-electron-collision-plasma-rate)=
 ## Electron Collision Plasma Reactions
 
-The electron collision plasma reaction rate uses the electron collision data and the
-electron energy distribution to calculate the reaction rate.
+Electron-collision-plasma rate coefficients are calculated from
+electron-impact cross sections and the electron energy distribution
+function (EEDF), rather than from a conventional Arrhenius expression.
+
+These coefficients are used to calculate the
+[forward and reverse rates of progress](sec-electron-collision-rates-of-progress)
+of kinetic electron-collision reactions.
+
+Electron-impact cross sections can also be used by the electron
+Boltzmann solver without defining a kinetic reaction. The corresponding
+YAML input format is described in
+[`electron-collisions`](sec-yaml-electron-collisions).
+
 {cite:t}`hagelaar2005` define the reaction rate coefficient (Eqn. 63) as,
 
 $$  k =  \gamma \int_0^{\infty} \epsilon \sigma F_0 d\epsilon  $$
@@ -706,6 +717,54 @@ $$
 
 where $e$ is the elementary charge [C] and $N_A$ is the Avogadro constant
 [$\t{kmol^{-1}}$].
+
+### Numerical integration
+
+The forward rate coefficient is evaluated over the finite EEDF energy
+range. The integration grid combines all EEDF energy levels with all
+cross-section tabulation points (relevant to the precise reaction being
+treated) falling within that range.
+
+Both the EEDF and the cross sections are linearly interpolated on this
+merged grid. On each interval, the integrand is a cubic polynomial in
+electron energy, so Simpson's rule integrates the piecewise-linear
+representation exactly, up to floating-point roundoff.
+
+This approach retains cross-section features that could otherwise be
+missed when cross sections are sampled only at the EEDF energy levels.
+
+### Superelastic reverse reactions
+
+For a supported reversible electron-collision reaction with threshold
+energy $U$, the superelastic cross section is related to the forward
+cross section by
+
+$$
+\sigma_\mathrm{super}(\epsilon)
+=
+\frac{\epsilon+U}{\epsilon}\,
+\sigma(\epsilon+U).
+$$
+
+The reverse rate coefficient is therefore evaluated as
+
+$$
+k_r =
+\sqrt{\frac{2e}{m_e}}\,N_A
+\int_0^{E_\mathrm{max}}
+(\epsilon+U)\,F_0(\epsilon)\,
+\sigma(\epsilon+U)\,d\epsilon,
+$$
+
+where the energies are expressed in eV.
+
+The cross-section tabulation points are shifted by $-U$ when
+constructing the merged integration grid. The reverse coefficient
+is evaluated from the cross sections rather than from the usual
+thermodynamic equilibrium relation.
+
+This rate calculation is distinct from the treatment of superelastic
+collisions within the electron Boltzmann solver.
 
 ### Effective and elastic cross sections
 
@@ -737,29 +796,40 @@ When an effective cross section is available, the individual inelastic cross sec
 are therefore not added again to the total momentum-transfer cross section. This avoids
 counting their contribution twice in the electron energy distribution calculation.
 
-Cross sections are linearly interpolated over their tabulated energy range and are
-taken to be zero outside this range. If the reconstructed elastic cross section is
-negative, its value is retained and a warning identifies the affected target species
-and energy intervals during the first calculation of the electron energy distribution.
-Negative reconstructed values may indicate that the effective and inelastic
-cross-section data are not mutually consistent.
+Cross sections are linearly interpolated within their tabulated energy
+range and held constant outside that range by default. When enabled,
+the optional high-energy extrapolation extends the cross-section table
+using a logarithmic energy dependence.
+
+If an elastic cross section reconstructed from effective and inelastic
+data becomes negative, its value is retained and a warning identifies
+the affected target species and energy intervals during the first
+EEDF calculation. Negative reconstructed values may indicate that the
+effective and inelastic cross-section datasets are not mutually
+consistent.
 
 ```{versionadded} 3.1
 ```
 
 :::{versionchanged} 4.0
-Cross-section data are now stored in the top-level `electron-collisions` section.
-An `electron-collision-plasma` reaction references one of these definitions using
-the `collision` field. Cross-section data can no longer be specified directly in
-the reaction entry.
+The root-level `electron-collisions` section can now contain both
+collision-only processes and electron-collision kinetic reactions,
+with cross-section data stored directly in each entry.
+
+Electron-collision reactions defined in the conventional `reactions`
+section remain supported.
 :::
 
 :::{admonition} YAML Usage
 :class: tip
 
-Electron collision reactions are defined by specifying
-[`electron-collision-plasma`](sec-yaml-electron-collision-plasma) as the reaction
-`type`. The reaction references a named cross-section dataset from the top-level
-[`electron-collisions`](sec-yaml-electron-collisions) section using the `collision`
-field.
+Electron collision cross sections are specified using
+`energy-levels` and `cross-sections`.
+
+Collision-only processes are defined in the root-level
+[`electron-collisions`](sec-yaml-electron-collisions) section.
+Kinetic reactions of type
+[`electron-collision-plasma`](sec-yaml-electron-collision-plasma)
+may be defined either in that section or in the conventional
+`reactions` section.
 :::
