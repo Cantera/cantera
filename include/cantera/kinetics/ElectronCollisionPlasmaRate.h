@@ -93,7 +93,7 @@ protected:
  *
  * where @f$ U @f$ is the collision threshold energy [eV], as returned
  * by #threshold().
- * 
+ *
  * Electron collision cross sections may be specified either as kinetic
  * reactions or as simple collision entries, and are in any case located
  * in the root-level `electron-collisions` section.
