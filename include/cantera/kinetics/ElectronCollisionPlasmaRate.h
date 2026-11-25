@@ -10,7 +10,6 @@
 #include "cantera/kinetics/ReactionData.h"
 #include "ReactionRate.h"
 #include "MultiRate.h"
-#include "cantera/numerics/eigen_dense.h"
 
 namespace Cantera
 {
@@ -92,8 +91,22 @@ protected:
  *        \sigma_{super}(\epsilon) = \frac{\epsilon + U}{\epsilon} \sigma(\epsilon + U),
  *   @f]
  *
- * where @f$ U @f$ is the threshold energy [eV], equal to the first energy level of the cross
- * section (#m_energyLevels).
+ * where @f$ U @f$ is the collision threshold energy [eV], as returned
+ * by #threshold().
+ * 
+ * Electron collision cross sections may be specified either as kinetic
+ * reactions or as simple collision entries, and are in any case located
+ * in the root-level `electron-collisions` section.
+ * Entries without an equation contribute to the plasma collision model
+ * without being registered as kinetic reactions.
+ *
+ * Reaction rate coefficients are integrated over a merged energy grid
+ * containing the EEDF grid points and all cross-section breakpoints
+ * within the EEDF domain. Piecewise-linear interpolation makes the
+ * integrand cubic on each interval, where Simpson's rule is exact.
+ *
+ * Cross sections are held constant outside their tabulated range,
+ * unless the phase enables the optional high-energy extrapolation.
  *
  * @ingroup otherRateGroup
  * @since New in %Cantera 3.1.
@@ -181,16 +194,23 @@ public:
         return m_product;
     }
 
-    //! Get the energy threshold of electron collision [eV]
+    //! Get the electron collision threshold [eV].
     //!
-    //! By default, the threshold is set to the first non-zero energy value
-    //! listed in the tabulated cross section data.
+    //! If explicitly specified, the threshold is preserved, including if
+    //! presenting of value of zero.
     //!
-    //! @note This behavior may be subject to change. A more robust approach
-    //! may use the energy corresponding to the first non-zero cross section
-    //! value, rather than the first non-zero energy point in the data table.
+    //! Otherwise, for excitation, ionization, and attachment collisions,
+    //! the threshold is inferred from the first positive cross-section
+    //! value. If that value is preceded by a zero cross section, the energy
+    //! of the preceding zero is used; otherwise, the energy of the first
+    //! positive value is used.
     //!
-    //! @since New in Cantera 3.2.
+    //! Excitation and ionization cross sections are normalized to have
+    //! a zero value at the threshold, following the convention in BOLSIG +.
+    //!
+    //! @note This behavior may be subject to change.
+    //!
+    //! @since New in Cantera 3.2. Modified in 4.0.
     double threshold() const {
         return m_threshold;
     }
@@ -255,18 +275,14 @@ private:
     //! Counter used to indicate when #m_energyLevels needs to be synced with the phase
     int m_levelNumber = -3;
 
-    //! Counter used to indicate when #m_crossSectionsOffset needs to be synced with the
-    //! phase
-    int m_levelNumberSuperelastic = -2;
-
     //! collision cross sections [m2] at #m_energyLevels
     vector<double> m_crossSections;
 
     //! collision cross sections [m2] after interpolation
     vector<double> m_crossSectionsInterpolated;
 
-    //! Energy grid used for forward-rate integration.
-    //! Contains both EEDF and native cross-section breakpoints.
+    //! Contains all EEDF energy levels and all cross-section tabulation
+    //! points within the EEDF energy range.
     vector<double> m_rateIntegrationEnergy;
 
     //! Cross sections evaluated on the forward integration grid.
@@ -284,12 +300,6 @@ private:
 
     //! EEDF grid revision used to build the reverse integration cache.
     int m_superElasticRateIntegrationLevelNumber = -5;
-
-    //! collision cross section [m2] interpolated on #m_energyLevels offset by the
-    //! threshold energy (the first energy level).
-    //! This is used for the calculation of the super-elastic collision reaction
-    //! rate coefficient.
-    Eigen::ArrayXd m_crossSectionsOffset;
 
     //! Whether this rate contains validated tabulated cross-section data.
     bool m_hasCrossSectionData = false;

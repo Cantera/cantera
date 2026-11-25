@@ -148,7 +148,14 @@ public:
         return m_rate;
     }
 
-    //! Set reaction rate pointer
+    //! Replace the reaction rate.
+    //!
+    //! Rate replacement is not supported for electron-collision-plasma
+    //! reactions registered with Kinetics, since their rate objects are
+    //! shared with PlasmaPhase.
+    //!
+    //! @throws CanteraError If rate replacement is locked.
+    //!
     void setRate(shared_ptr<ReactionRate> rate);
 
     //! Prevent replacement of the rate of a registered electron collision.

@@ -215,6 +215,8 @@ TEST(zerodim, plasma_reactor_energy)
     // (and thus the conductivity driving jouleHeatingPower()) is small, so the
     // temperature rise is negligible here; the quantitative temperature-rise
     // regression is validated in the EEDF-correction branch.
+    // This test also verifies EEDF solver numerical robustness as the user-specified 
+    // energy grid used is very coarse.
     ASSERT_NO_THROW(net.advance(t_end));
     const double T_final = reactor->temperature();
     EXPECT_NEAR(T_final, T0, 1.0);

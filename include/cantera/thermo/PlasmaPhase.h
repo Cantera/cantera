@@ -117,10 +117,34 @@ class ElectronCollisionPlasmaRate;
  * for a fully-consistent implementation are documented in
  * https://github.com/Cantera/enhancements/issues/258#issuecomment-4857093158.
  *
+ * ## Electron collision cross sections
+ *
+ * Electron collision cross sections can be defined in the root-level
+ * `electron-collisions` YAML section. All entries in this section
+ * are registered with PlasmaPhase for use by the electron Boltzmann
+ * solver.
+ *
+ * Entries without an `equation` field define collision processes
+ * only and are not registered with Kinetics. Their `product` field
+ * may refer to an excited state that is not a declared phase species
+ * and has the solde purpose of documentation. The note field is also
+ * used only for bookkeeping.
+ *
+ * Entries with an `equation` field may also be registered as
+ * kinetic reactions, subject to the phase's reaction selection rules.
+ * The corresponding ElectronCollisionPlasmaRate object is shared
+ * between PlasmaPhase and the registered kinetic reaction.
+ *
+ * Electron-collision-plasma reactions may also be defined in the
+ * conventional `reactions` YAML section. These reactions are
+ * registered with PlasmaPhase when added to Kinetics.
+ *
+ * Once an electron-collision reaction is registered with Kinetics,
+ * its rate object cannot be replaced. Reloading the mechanism is
+ * required to change its cross-section data.
+ *
  * @warning  This class is an experimental part of %Cantera and may be
  *           changed or removed without notice.
- * @todo Implement electron Boltzmann equation solver to solve EEDF.
- *       https://github.com/Cantera/enhancements/issues/127
  * @ingroup thermoprops
  */
 class PlasmaPhase: public IdealGasPhase
@@ -130,7 +154,7 @@ public:
     //! The constructor initializes the electron energy distribution to be a
     //! Maxwellian distribution (#m_isotropicShapeFactor = 1.0).
     //! The initial electron energy grid is set to a linear space which starts
-    //! at 0.01 eV and ends at 1 eV with 1000 points.
+    //! at 0 eV and ends at 60 eV with 302 points.
     /*!
      * @param  inputFile Name of the input file containing the phase definition
      *                   to set up the object. If blank, an empty phase will be
@@ -277,7 +301,8 @@ public:
     }
 
     //! Get the ElectronCollisionPlasmaRate object associated with electron collision
-    //! *i*.
+    //! *i*. For collision-only entries, this is a synthetic Reaction object used
+    //! internally by PlasmaPhase, not a reaction registered with Kinetics.
     //! @since New in %Cantera 3.2.
     const shared_ptr<ElectronCollisionPlasmaRate> collisionRate(size_t i) const {
         return m_collisionRates[i];
@@ -352,7 +377,7 @@ public:
      *   @f[
      *     \mu = \nu_d / E,
      *   @f]
-     * where @f$ \nu_d @f$ is the drift velocity (m²/s), and @f$ E @f$ is the electric
+     * where @f$ \nu_d @f$ is the drift velocity (m/s), and @f$ E @f$ is the electric
      * field strength (V/m).
      */
     double electronMobility() const;
@@ -841,12 +866,16 @@ public:
 
     //! @}
 
-    //! Number of collisions loaded from the input YAML section.
+    //! Number of entries loaded from the root-level `electron-collisions` section.
     size_t nInputElectronCollisions() const {
         return m_inputCollisionHasEquation.size();
     }
 
-    //! Whether an input collision also defines a kinetic reaction.
+    //! Whether an entry in the root-level `electron-collisions` section
+    //! contains an `equation` field.
+    //!
+    //! An equation makes the entry eligible for registration with Kinetics,
+    //! subject to the phase's reaction selection rules.
     bool inputCollisionHasEquation(size_t i) const {
         return m_inputCollisionHasEquation.at(i);
     }
@@ -924,7 +953,7 @@ protected:
     //! electron energy levels [ev]. Length: #m_nPoints
     Eigen::ArrayXd m_electronEnergyLevels;
 
-    //! Normalized electron energy distribution vector [-]
+    //! Normalized electron energy distribution vector [eV^(-3/2)].
     //! Length: #m_nPoints
     Eigen::ArrayXd m_electronEnergyDist;
 

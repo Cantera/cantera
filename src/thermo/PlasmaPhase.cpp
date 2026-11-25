@@ -676,8 +676,9 @@ void PlasmaPhase::addCollision(shared_ptr<Reaction> collision)
         m_collisions[i]->removeSetRateCallback(this);
         m_collisions[i] = collision;
 
-        // Keep the rate pointer and interpolation cache synchronized
-        // if the Reaction's rate object is subsequently replaced.
+        // Register the rate-change callback for internal collision objects.
+        // Rate replacement is prohibited once an electron-collision reaction
+        // has been registered with Kinetics.
         collision->registerSetRateCallback(this, [this, i]() {
             m_interp_cs_ready[i] = false;
             m_collisionRates[i] = std::dynamic_pointer_cast<ElectronCollisionPlasmaRate>(m_collisions[i]->rate());
@@ -735,8 +736,9 @@ void PlasmaPhase::addCollision(shared_ptr<Reaction> collision)
     m_collisionRates.emplace_back(rate);
     m_interp_cs_ready.emplace_back(false);
 
-    // Register a callback to invalidate interpolated cross sections
-    // and update the stored rate pointer when setRate() is called.
+    // Register a callback to update the cached rate pointer and invalidate
+    // its interpolation cache if setRate() is called on this object.
+    // Registered kinetic electron-collision reactions are locked.
     collision->registerSetRateCallback(this, [this, i]() {
         m_interp_cs_ready[i] = false;
         m_collisionRates[i] = std::dynamic_pointer_cast<ElectronCollisionPlasmaRate>(m_collisions[i]->rate());
@@ -755,8 +757,8 @@ void PlasmaPhase::addCollision(shared_ptr<Reaction> collision)
         m_kInelastic.push_back(i);
     }
 
-    // Store the original tabulated energy levels and cross sections.
-    // These arrays are used by the EEDF solver.
+    // Store the active cross-section table used by the EEDF solver,
+    // including threshold normalization and optional extrapolation.
     auto levels = rate->energyLevels();
     m_energyLevels.emplace_back(levels.begin(), levels.end());
 

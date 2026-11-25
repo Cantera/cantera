@@ -204,9 +204,10 @@ int EEDFTwoTermApproximation::calculateDistributionFunction()
         }
     }
 
-    // Project small negative EEDF components onto the non-negative cone.
-    // The correction is accepted only if its weighted L1 bound is below
-    // the convergence tolerance of the EEDF solver.
+    // Project small negative EEDF components onto the positive part.
+    // Limit the correction using the quadrature-based convergence metric.
+    // For grids with non-negative quadrature weights, this criterion
+    // bounds the weighted L1 perturbation by the solver tolerance.
     if (!m_f0.allFinite() || m_f0.maxCoeff() <= 0.0) {
         throw CanteraError(
             "EEDFTwoTermApproximation::calculateDistributionFunction",
@@ -218,8 +219,9 @@ int EEDFTwoTermApproximation::calculateDistributionFunction()
         const double negativeMass = norm(negativePart, m_gridCenter);
         const double currentNorm = norm(m_f0, m_gridCenter);
 
-        // The weighted L1 change from clipping and renormalization is
-        // bounded by 2 * negativeMass + abs(currentNorm - 1).
+        // For non-negative quadrature weights, the weighted L1 change
+        // from positivity projection and renormalization is bounded by
+        // 2 * negativeMass + abs(currentNorm - 1).
         const double correction = 2.0 * negativeMass
             + std::abs(currentNorm - 1.0);
 
@@ -897,7 +899,7 @@ void EEDFTwoTermApproximation::calculateTotalElasticCrossSection()
     }
     // the function already performed its main job, the following is to emit
     // readable diagnostics to the user instead of spamming the log
-    // with one warning per negqtive grid point.
+    // with one warning per negative grid point.
     for (size_t target = 0; target < negativeSamples.size(); target++) {
         auto& samples = negativeSamples[target];
         if (samples.empty() || !m_negativeElasticCrossSectionWarningsEnabled

@@ -261,9 +261,7 @@ void ElectronCollisionPlasmaRate::setParameters(
 
     // Invalidate interpolation caches after loading new data.
     m_levelNumber = -3;
-    m_levelNumberSuperelastic = -2;
     m_crossSectionsInterpolated.clear();
-    m_crossSectionsOffset.resize(0);
     invalidateRateIntegrationCaches();
 
     m_hasCrossSectionData = true;
@@ -582,7 +580,8 @@ void ElectronCollisionPlasmaRate::setDefaultThreshold()
 
 void ElectronCollisionPlasmaRate::enforceThresholdCrossSections()
 {
-    // Only excitation and ionization have an onset threshold in the current collision model.
+    // Only excitation and ionization tables are normalized to have a
+    // zero cross section at their threshold. Attachment tables are left unchanged.
     if (m_kind != "excitation" && m_kind != "ionization") {
         return;
     }
@@ -616,9 +615,7 @@ void ElectronCollisionPlasmaRate::enforceThresholdCrossSections()
 
     // Invalidate interpolation caches after modifying the table.
     m_levelNumber = -3;
-    m_levelNumberSuperelastic = -2;
     m_crossSectionsInterpolated.clear();
-    m_crossSectionsOffset.resize(0);
 }
 
 void ElectronCollisionPlasmaRate::extrapolateCrossSections()
@@ -645,7 +642,9 @@ void ElectronCollisionPlasmaRate::extrapolateCrossSections()
     do {
         energy *= 1.5;
 
-        // Continuous high-energy tail with asymptotic behavior proportional to log(E) / E.
+        // Generate a continuous logarithmic high-energy extension with
+        // sigma(E) proportional to log(E) / E at the added grid points.
+        // Beyond the final generated point, interpolation remains constant.
         const double crossSection = lastCrossSection * (lastEnergy / energy)
             * (1.0 + std::log(energy / lastEnergy));
 
@@ -656,9 +655,7 @@ void ElectronCollisionPlasmaRate::extrapolateCrossSections()
 
     // Invalidate cached interpolations after extending the table.
     m_levelNumber = -3;
-    m_levelNumberSuperelastic = -2;
     m_crossSectionsInterpolated.clear();
-    m_crossSectionsOffset.resize(0);
 
     invalidateRateIntegrationCaches();
 }
@@ -687,9 +684,7 @@ void ElectronCollisionPlasmaRate::setCrossSectionExtrapolation(bool enabled)
 
     // Invalidate interpolated data after changing the table.
     m_levelNumber = -3;
-    m_levelNumberSuperelastic = -2;
     m_crossSectionsInterpolated.clear();
-    m_crossSectionsOffset.resize(0);
 
     invalidateRateIntegrationCaches();
 }

@@ -71,23 +71,23 @@ public:
     //! Sets a linear energy grid for the EEDF solver, defined by the maximum energy and
     //! the number of grid cells.
     //! @since New in %Cantera 4.0
-    //! @param kTe_max: maximum grid energy in eV
-    //! @param ncell: number of cell to discretize the grid.
+    //! @param kTe_max maximum grid energy in eV
+    //! @param ncell number of cell to discretize the grid.
     void setLinearGrid(double kTe_max, size_t ncell);
 
     //! Sets a quadratic energy grid for the EEDF solver, defined by the maximum energy
     //! and the number of grid cells.
     //! @since New in %Cantera 4.0
-    //! @param kTe_max: maximum grid energy in eV
-    //! @param ncell: number of cell to discretize the grid.
+    //! @param kTe_max maximum grid energy in eV
+    //! @param ncell number of cell to discretize the grid.
     void setQuadraticGrid(double kTe_max, size_t ncell);
 
     //! Sets a geometric energy grid for the EEDF solver, defined by the maximum energy
     //! and the number of grid cells.
     //! @since New in %Cantera 4.0
-    //! @param kTe_max: maximum grid energy in eV
-    //! @param ncell: number of cell to discretize the grid.
-    //! @param ratio: the geometric growth ratio.
+    //! @param kTe_max maximum grid energy in eV
+    //! @param ncell number of cell to discretize the grid.
+    //! @param ratio the geometric growth ratio.
     void setGeometricGrid(double kTe_max, size_t ncell, double ratio = 1.01);
 
     //! Sets a custom energy grid for the EEDF solver, defined by the user-provided
@@ -426,8 +426,8 @@ protected:
                                span<const double> fpts, double below_value,
                                double above_value);
 
-    //! Linearly interpolate a cross section, returning zero outside its
-    //! tabulated energy range.
+    //! Linearly interpolate a cross section using constant extrapolation
+    //! outside the tabulated energy range.
     double interpolateCrossSection(double energy,
                                 span<const double> energyLevels,
                                 span<const double> crossSections);
