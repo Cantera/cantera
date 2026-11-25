@@ -11,57 +11,6 @@ from cantera import ck2yaml, cti2yaml, ctml2yaml, yaml2ck, lxcat2yaml
 from .utilities import load_yaml
 
 
-@pytest.mark.parametrize("gas_basis,surface_basis,local_basis", [
-    ("MOLES", "MOLECULES", None),
-    ("MOLECULES", "MOLES", None),
-    ("MOLES", "MOLES", None),
-    ("MOLECULES", "MOLECULES", None),
-    ("MOLES", "MOLES", "MOLECULES"),
-    ("MOLECULES", "MOLECULES", "MOLES"),
-])
-def test_ck2yaml_surface_quantity_units(tmp_path, test_data_path,
-                                      gas_basis, surface_basis, local_basis):
-    # This synthetic fixture uses only noble-gas labels and idealized sites.
-    gas_input = tmp_path / "gas.inp"
-    surface_input = tmp_path / "surface.inp"
-    gas_ref = test_data_path / "ck2yaml-inert-surface-gas.inp"
-    surface_ref = test_data_path / "ck2yaml-inert-surface.inp"
-    gas_input.write_text(gas_ref.read_text().replace("REACTIONS MOLES", f"REACTIONS {gas_basis}"))
-    surface_text = surface_ref.read_text().replace("REACTIONS MOLECULES",
-                                                   f"REACTIONS {surface_basis}")
-    if local_basis:
-        surface_text = surface_text.replace("FORD /VAC 1.5/",
-                                            f"FORD /VAC 1.5/\n    UNITS /{local_basis}/")
-    surface_input.write_text(surface_text)
-    out = tmp_path / "mechanism.yaml"
-    ck2yaml.convert(gas_input, surface_file=surface_input, out_name=out, quiet=True)
-
-    gas = ct.Solution(out, "gas")
-    surf = ct.Interface(out, "SURF", adjacent=[gas])
-    assert gas.reaction(0).rate.pre_exponential_factor == approx(17.)
-    assert surf.n_reactions == 7
-    yaml_reactions = load_yaml(out)["SURF-reactions"]
-    assert yaml_reactions[3]["sticking-coefficient"]["A"] == 0.05
-    assert "units" not in yaml_reactions[3]
-    # Effective orders (including the fractional order and explicit reverse)
-    # determine the cm-to-m and particle/mole-to-kmol powers independently.
-    expected = [
-        (5e-24, 1., 1.), (4e-24, 0., 2.), (6e-45, 1., 2.),
-        (0.05, 0., 0.), (4e-22, 0., 2.5), (3e-24, 1., 1.), (2., 0., 1.),
-    ]
-    energies = [1250., 1000., 1700., 2100., 1300., 1900., 900.]
-    for i, ((A, ng, ns), energy) in enumerate(zip(expected, energies)):
-        basis = local_basis if local_basis and i == 4 else surface_basis
-        qty = 1e-3 / (6.02214076e23 if basis == "MOLECULES" else 1)
-        if i != 3:
-            A *= 0.01**(3*ng + 2*ns - 2) * qty**(1 - ng - ns)
-        rate = surf.reaction(i).rate
-        assert rate.pre_exponential_factor == approx(A, rel=2e-14, abs=0)
-        assert rate.activation_energy == approx(energy*1000)
-    assert surf.reaction(4).orders == {"VAC": 1.5}
-    assert surf.reaction(0).rate.coverage_dependencies["VAC"]["E"] == approx(513000.)
-
-
 class Testck2yaml:
     @pytest.fixture(autouse=True)
     def inject_fixtures(self, capsys, test_data_path):
@@ -687,6 +636,77 @@ class Testck2yaml:
         assert "H_Pt" in covdeps
         assert covdeps["OH_Pt"]["m"] == 1.0
         assert covdeps["H_Pt"]["E"] == approx(-6e6) # 6000 J/gmol = 6e6 J/kmol
+
+    @pytest.mark.parametrize("gas_basis,surface_basis,local_basis", [
+        ("MOLES", "MOLECULES", None),
+        ("MOLECULES", "MOLES", None),
+        ("MOLES", "MOLES", None),
+        ("MOLECULES", "MOLECULES", None),
+        ("MOLES", "MOLES", "MOLECULES"),
+        ("MOLECULES", "MOLECULES", "MOLES"),
+    ])
+    def test_surface_quantity_units(self, tmp_path, gas_basis, surface_basis,
+                                    local_basis):
+        # Use the existing surface mechanism without changing the shared files.
+        gas_input = tmp_path / "surface1-gas.inp"
+        gas_text = (self.test_data_path / gas_input.name).read_text()
+        gas_input.write_text(gas_text.replace(
+            "REACTIONS  KJOULES/MOLE", f"REACTIONS  KJOULES/MOLE  {gas_basis}"
+        ))
+
+        surface_input = tmp_path / "surface1.inp"
+        surface_text = (self.test_data_path / surface_input.name).read_text()
+        surface_text = surface_text.replace(
+            "REACTIONS      JOULES/MOLE", f"REACTIONS      JOULES/MOLE      {surface_basis}"
+        ).rstrip()
+        surface_text = surface_text.removesuffix("END") + (
+            " H2O2 + 2 _Pt_ <=> 2 OH_Pt                   4.0E-42  0.0  1300.0\n"
+            "    REV / 3.0E-24  0.0  1900.0 /\n"
+            " O2_Pt + H_Pt => OH_Pt + O_Pt + 2 _Pt_       4.0E-22  0.0  900.0\n"
+            "    FORD / H_Pt 1.5 /\n"
+        )
+        if local_basis:
+            surface_text += f"    UNITS / {local_basis} /\n"
+        surface_input.write_text(surface_text + "END\n")
+
+        output = self.convert(gas_input, surface=surface_input,
+                              output="surface1-quantity-units")
+        surf = ct.Interface(output, "PT_SURFACE")
+        gas = surf.adjacent["gas"]
+        assert (gas.n_reactions, surf.n_reactions) == (11, 18)
+
+        kmol_per = {"MOLES": 1e-3, "MOLECULES": 1 / ct.avogadro}
+        assert gas.reaction(0).rate.pre_exponential_factor == approx(
+            9.756e13 * 0.01**3 / kmol_per[gas_basis], rel=2e-14
+        )
+
+        sticking = load_yaml(output)["PT_SURFACE-reactions"][2]
+        assert sticking["sticking-coefficient"]["A"] == 1.0
+        assert "units" not in sticking
+        assert (
+            surf.reaction(1).rate.coverage_dependencies["H_Pt"]["E"]
+            == approx(-6e6)
+        )
+        assert surf.reaction(17).orders == {"H_Pt": 1.5}
+
+        # Gas and surface concentrations scale as length**-3 and length**-2.
+        # Obtain the unit conversion from the effective reactant orders.
+        expected = [
+            (4e-42, 1, 2, 1300, surface_basis),
+            (3e-24, 0, 2, 1900, surface_basis),
+            (4e-22, 0, 2.5, 900, local_basis or surface_basis),
+        ]
+        for i, (A, gas_order, surface_order, Ea, basis) in enumerate(expected, 15):
+            factor = (
+                0.01**(3 * gas_order + 2 * surface_order - 2)
+                * kmol_per[basis]**(1 - gas_order - surface_order)
+            )
+            reaction = surf.reaction(i)
+            assert not reaction.reversible
+            assert reaction.rate.pre_exponential_factor == approx(
+                A * factor, rel=2e-14, abs=0
+            )
+            assert reaction.rate.activation_energy == approx(Ea * 1000)
 
     def test_surface_mech2(self):
         output = self.convert('surface1-gas-noreac.inp', surface='surface1.inp',
