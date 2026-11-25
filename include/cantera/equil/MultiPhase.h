@@ -314,6 +314,8 @@ public:
      *  Set this mixture to chemical equilibrium by calling one of Cantera's
      *  equilibrium solvers. The XY parameter indicates what two thermodynamic
      *  quantities are to be held constant during the equilibration process.
+     *  Supported neutral ideal surfaces may use TP with 'vcs' or 'auto',
+     *  or HP and SP only with 'vcs'.
      *
      *  @param XY      String representation of what two properties are being
      *                 held constant

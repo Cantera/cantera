@@ -9,6 +9,7 @@
 #include "cantera/equil/vcs_solve.h"
 
 #include "cantera/thermo/ThermoPhase.h"
+#include "cantera/thermo/SurfPhase.h"
 #include "cantera/base/stringUtils.h"
 
 #include <cstdio>
@@ -17,7 +18,8 @@ namespace Cantera
 {
 
 vcs_VolPhase::vcs_VolPhase(VCS_SOLVE* owningSolverObject,
-                           ThermoPhase* thermoPhase, size_t phaseNum)
+                           ThermoPhase* thermoPhase, size_t phaseNum,
+                           const string& siteConstraint)
     : m_owningSolverObject(owningSolverObject)
 {
     if (!m_owningSolverObject) {
@@ -72,7 +74,7 @@ vcs_VolPhase::vcs_VolPhase(VCS_SOLVE* owningSolverObject,
     Pres_ = TP_ptr->pressure();
     m_phi = TP_ptr->electricPotential();
 
-    transferElementsFM(TP_ptr);
+    transferElementsFM(TP_ptr, siteConstraint);
     setTotalMoles(0.0);
 
     // Determine the global index for each of the elements in the phase
@@ -396,7 +398,12 @@ void vcs_VolPhase::_updateVolStar() const
 
 double vcs_VolPhase::_updateVolPM() const
 {
-    TP_ptr->getPartialMolarVolumes(PartialMolarVol);
+    if (TP_ptr->nDim() == 3) {
+        TP_ptr->getPartialMolarVolumes(PartialMolarVol);
+    } else {
+        // Surface phases have no thermodynamic volume.
+        fill(PartialMolarVol.begin(), PartialMolarVol.end(), 0.0);
+    }
     m_totalVol = 0.0;
     for (size_t k = 0; k < m_numSpecies; k++) {
         m_totalVol += PartialMolarVol[k] * Xmol_[k];
@@ -653,7 +660,8 @@ static bool chargeNeutralityElement(const ThermoPhase* const tPhase)
     return false;
 }
 
-size_t vcs_VolPhase::transferElementsFM(const ThermoPhase* const tPhase)
+size_t vcs_VolPhase::transferElementsFM(const ThermoPhase* const tPhase,
+                                      const string& siteConstraint)
 {
     size_t nebase = tPhase->nElements();
     size_t ne = nebase;
@@ -743,6 +751,17 @@ size_t vcs_VolPhase::transferElementsFM(const ThermoPhase* const tPhase)
     if (cne) {
         for (size_t k = 0; k < ns; k++) {
             m_formulaMatrix(k,ChargeNeutralityElement) = tPhase->charge(k);
+        }
+    }
+
+    if (!siteConstraint.empty()) {
+        auto& surface = dynamic_cast<const SurfPhase&>(*tPhase);
+        size_t siteElement = ne++;
+        elemResize(ne);
+        m_elementNames[siteElement] = siteConstraint;
+        m_elementType[siteElement] = VCS_ELEM_TYPE_ABSPOS;
+        for (size_t k = 0; k < ns; k++) {
+            m_formulaMatrix(k, siteElement) = surface.size(k);
         }
     }
 

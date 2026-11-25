@@ -105,8 +105,17 @@ void MultiPhase::init()
     m_moleFractions.resize(m_nsp, 0.0);
     m_elemAbundances.resize(m_nel, 0.0);
 
-    // iterate over the elements
-    //   -> fill in m_atoms(m,k), m_snames(k), m_spphase(k), m_spstart(ip)
+    // Species and phase indexing is also needed for surfaces whose vacant
+    // site states have no chemical elements.
+    for (size_t ip = 0; ip < nPhases(); ip++) {
+        m_spstart.push_back(m_spphase.size());
+        for (size_t kp = 0; kp < m_phase[ip]->nSpecies(); kp++) {
+            m_snames.push_back(m_phase[ip]->speciesName(kp));
+            m_spphase.push_back(ip);
+        }
+    }
+
+    // Fill the chemical composition matrix.
     for (size_t m = 0; m < m_nel; m++) {
         size_t k = 0;
         // iterate over the phases
@@ -117,13 +126,6 @@ void MultiPhase::init()
             for (size_t kp = 0; kp < nsp; kp++) {
                 if (mlocal != npos) {
                     m_atoms(m, k) = p->nAtoms(kp, mlocal);
-                }
-                if (m == 0) {
-                    m_snames.push_back(p->speciesName(kp));
-                    if (kp == 0) {
-                        m_spstart.push_back(m_spphase.size());
-                    }
-                    m_spphase.push_back(ip);
                 }
                 k++;
             }
@@ -409,7 +411,7 @@ double MultiPhase::volume() const
 {
     double sum = 0;
     for (size_t i = 0; i < nPhases(); i++) {
-        double vol = 1.0/m_phase[i]->molarDensity();
+        double vol = m_phase[i]->molarVolume();
         sum += m_moles[i] * vol;
     }
     return sum;
@@ -616,6 +618,15 @@ void MultiPhase::equilibrate(const string& XY, const string& solver,
     double initial_T = m_temp;
     double initial_P = m_press;
     int ixy = _equilflag(XY.c_str());
+    const bool supportsSurface = (ixy == TP && solver != "gibbs")
+        || ((ixy == HP || ixy == SP) && solver == "vcs");
+    for (size_t i = 0; i < nPhases(); i++) {
+        if (m_phase[i]->nDim() != 3 && !supportsSurface) {
+            throw CanteraError("MultiPhase::equilibrate",
+                "Surface equilibrium is supported only at fixed TP with solver='vcs' "
+                "or solver='auto', or at fixed HP or SP with solver='vcs'.");
+        }
+    }
     EquilPhaseGuard phase_guard(*this);
     if (solver == "auto" || solver == "vcs") {
         try {

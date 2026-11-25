@@ -15,6 +15,21 @@
 
 namespace Cantera
 {
+namespace {
+
+void checkSurfaceMode(MultiPhase* mix, int XY)
+{
+    if (XY != TP && XY != HP && XY != SP) {
+        for (size_t i = 0; i < mix->nPhases(); i++) {
+            if (mix->phase(i).nDim() != 3) {
+                throw CanteraError("vcs_MultiPhaseEquil::equilibrate",
+                    "Surface VCS equilibrium is supported only at fixed TP, HP, or SP.");
+            }
+        }
+    }
+}
+
+}
 vcs_MultiPhaseEquil::vcs_MultiPhaseEquil(MultiPhase* mix, int printLvl) :
     m_mix(mix),
     m_printLvl(printLvl),
@@ -26,6 +41,7 @@ int vcs_MultiPhaseEquil::equilibrate_TV(int XY, double xtarget, int estimateEqui
                                         int printLvl, double err,
                                         int maxsteps, int loglevel)
 {
+    checkSurfaceMode(m_mix, XY);
     double Vtarget = m_mix->volume();
     if ((XY != TV) && (XY != HV) && (XY != UV) && (XY != SV)) {
         throw CanteraError("vcs_MultiPhaseEquil::equilibrate_TV",
@@ -122,6 +138,7 @@ int vcs_MultiPhaseEquil::equilibrate_HP(double Htarget, int XY, double Tlow,
     double Thigh, int estimateEquil, int printLvl, double err, int maxsteps,
     int loglevel)
 {
+    checkSurfaceMode(m_mix, XY);
     int maxiter = 100;
     int iSuccess;
     if (XY != HP && XY != UP) {
@@ -235,6 +252,7 @@ int vcs_MultiPhaseEquil::equilibrate_HP(double Htarget, int XY, double Tlow,
 int vcs_MultiPhaseEquil::equilibrate_SP(double Starget, double Tlow, double Thigh,
     int estimateEquil, int printLvl, double err, int maxsteps, int loglevel)
 {
+    checkSurfaceMode(m_mix, SP);
     int maxiter = 100;
     int strt = estimateEquil;
 
@@ -358,6 +376,7 @@ int vcs_MultiPhaseEquil::equilibrate_SP(double Starget, double Tlow, double Thig
 int vcs_MultiPhaseEquil::equilibrate(int XY, int estimateEquil, int printLvl,
                                      double err, int maxsteps, int loglevel)
 {
+    checkSurfaceMode(m_mix, XY);
     double xtarget;
     if (XY == TP) {
         return equilibrate_TP(estimateEquil, printLvl, err, maxsteps, loglevel);

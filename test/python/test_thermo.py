@@ -1352,6 +1352,41 @@ class TestInterfacePhase2:
         surf.coverages = {"Pt(s)": 1.0}  # Pt(s) covers one site
         assert sum(surf.concentrations) == approx(surf.site_density)
 
+    @pytest.mark.parametrize("X", [[0.5, 0.1, 0.1, 0.3],
+                                   [0, 1, 0, 0], [0, 0, 0, 1]])
+    def test_activity_coefficients(self, surf, X):
+        surf.X = X
+        sizes = np.array([sp.size for sp in surf.species()])
+        gamma = sizes / np.dot(surf.X, sizes)
+        assert np.all(np.isfinite(surf.activity_coefficients))
+        assert surf.activity_coefficients == approx(gamma)
+        assert surf.activity_coefficients * surf.X == approx(surf.coverages)
+        assert surf.activities == approx(surf.coverages)
+        present = surf.X > 0
+        assert (surf.chemical_potentials[present] / (ct.gas_constant * surf.T)
+                - surf.standard_gibbs_RT[present]) == approx(
+                    np.log(surf.coverages[present]))
+
+    @pytest.mark.parametrize("setter", ["mole_fractions", "coverages"])
+    @pytest.mark.parametrize("scale", [0.4, 2.0])
+    def test_unnormalized_activity_coefficients(self, surf, setter, scale):
+        surf.coverages = [0.5, 0.1, 0, 0.4]
+        normalized_gamma = surf.activity_coefficients.copy()
+        normalized_activities = surf.activities.copy()
+        fractions = surf.X if setter == "mole_fractions" else surf.coverages
+        getattr(surf, "set_unnormalized_" + setter)(scale * fractions)
+        sizes = np.array([sp.size for sp in surf.species()])
+        gamma = sizes * surf.X.sum() / np.dot(surf.X, sizes)
+        assert surf.X.sum() == approx(scale)
+        assert surf.activity_coefficients == approx(gamma)
+        assert surf.activity_coefficients == approx(normalized_gamma)
+        assert surf.activity_coefficients * surf.X == approx(surf.coverages)
+        assert surf.activities == approx(scale * normalized_activities)
+        present = surf.X > 0
+        assert (surf.chemical_potentials[present] / (ct.gas_constant * surf.T)
+                - surf.standard_gibbs_RT[present]) == approx(
+                    np.log(surf.activities[present]))
+
     def test_finite_difference_derivative(self, surf):
         theta0 = np.array([0.5, 0.1, 0.1, 0.3])
         surf.coverages = theta0

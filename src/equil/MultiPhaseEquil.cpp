@@ -18,6 +18,12 @@ namespace Cantera
 
 MultiPhaseEquil::MultiPhaseEquil(MultiPhase* mix, bool start, int loglevel) : m_mix(mix)
 {
+    for (size_t i = 0; i < mix->nPhases(); i++) {
+        if (mix->phase(i).nDim() != 3) {
+            throw CanteraError("MultiPhaseEquil::MultiPhaseEquil",
+                "Surface equilibrium requires the VCS solver.");
+        }
+    }
     // store some mixture parameters locally
     m_nel_mix = mix->nElements();
     m_nsp_mix = mix->nSpecies();

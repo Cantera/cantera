@@ -60,7 +60,7 @@ class vcs_VolPhase
 {
 public:
     vcs_VolPhase(VCS_SOLVE* owningSolverObject, ThermoPhase* thermoPhase,
-                 size_t phaseNum);
+                 size_t phaseNum, const string& siteConstraint = "");
 
     vcs_VolPhase(const vcs_VolPhase& b) = delete;
     vcs_VolPhase& operator=(const vcs_VolPhase& b) = delete;
@@ -365,7 +365,8 @@ public:
      *
      * @param tPhase Pointer to the ThermoPhase object
      */
-    size_t transferElementsFM(const ThermoPhase* const tPhase);
+    size_t transferElementsFM(const ThermoPhase* const tPhase,
+                              const string& siteConstraint = "");
 
     //! Get a constant form of the Species Formula Matrix
     /*!
