@@ -94,8 +94,7 @@ void buildMergedRateIntegrationGrid(
 //
 // Within each interval, the EEDF and cross section are linear.
 // Their product with the energy factor is a cubic polynomial.
-// Two-point Gauss-Legendre quadrature is therefore exact for
-// these piecewise-linear representations.
+// Simpson's rule is therefore exact on each merged-grid interval.
 double integrateRateOnMergedGrid(
     const vector<double>& integrationEnergy,
     const vector<double>& integrationCrossSection,
@@ -119,15 +118,9 @@ double integrateRateOnMergedGrid(
             "Invalid EEDF arrays.");
     }
 
-    // Two Gauss-Legendre nodes mapped from [-1, 1] to [0, 1].
-    constexpr double invSqrt3 = 0.577350269189625764509148780501957456;
-    constexpr double t1 = 0.5 * (1.0 - invSqrt3);
-    constexpr double t2 = 0.5 * (1.0 + invSqrt3);
-
     double integral = 0.0;
 
-    double fLeft = linearInterp(integrationEnergy.front(),
-        eedfEnergyLevels, eedfDistribution);
+    double fLeft = linearInterp(integrationEnergy.front(), eedfEnergyLevels, eedfDistribution);
 
     for (size_t i = 0; i + 1 < integrationEnergy.size(); i++) {
         const double a = integrationEnergy[i];
@@ -144,20 +137,16 @@ double integrateRateOnMergedGrid(
 
         const double fRight = linearInterp(b, eedfEnergyLevels, eedfDistribution);
 
-        // Both functions are linear throughout [a, b].
-        const double f1 = fLeft + t1 * (fRight - fLeft);
-        const double f2 = fLeft + t2 * (fRight - fLeft);
+        // Simpson's rule is exact for the cubic integrand on [a, b].
+        const double mid = a + 0.5 * h;
+        const double fMid = 0.5 * (fLeft + fRight);
+        const double sigmaMid = 0.5 * (sigmaLeft + sigmaRight);
 
-        const double sigma1 = sigmaLeft + t1 * (sigmaRight - sigmaLeft);
-        const double sigma2 = sigmaLeft + t2 * (sigmaRight - sigmaLeft);
+        const double left = (a + energyFactorShift) * fLeft * sigmaLeft;
+        const double center = (mid + energyFactorShift) * fMid * sigmaMid;
+        const double right = (b + energyFactorShift) * fRight * sigmaRight;
 
-        const double eps1 = a + t1 * h;
-        const double eps2 = a + t2 * h;
-
-        const double integrand1 = (eps1 + energyFactorShift) * f1 * sigma1;
-        const double integrand2 = (eps2 + energyFactorShift) * f2 * sigma2;
-
-        integral += 0.5 * h * (integrand1 + integrand2);
+        integral += (h / 6.0) * (left + 4.0 * center + right);
 
         fLeft = fRight;
     }
