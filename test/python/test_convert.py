@@ -670,7 +670,7 @@ class Testck2yaml:
         surface_input.write_text(surface_text + "END\n")
 
         output = self.convert(gas_input, surface=surface_input,
-                              output="surface1-quantity-units")
+                              output=str(tmp_path / "surface1-quantity-units"))
         surf = ct.Interface(output, "PT_SURFACE")
         gas = surf.adjacent["gas"]
         assert (gas.n_reactions, surf.n_reactions) == (11, 18)
