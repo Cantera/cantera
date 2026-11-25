@@ -463,7 +463,7 @@ public:
     * @param eedf  Mapping using the same keys as the YAML
     *              `electron-energy-distribution` entry.
     *
-    * @since New in Cantera 4.0
+    * //! @since New in %Cantera 4.0.
     */
     void setElectronEnergyDistributionParameters(const AnyMap& eedf);
 
@@ -867,6 +867,7 @@ public:
     //! @}
 
     //! Number of entries loaded from the root-level `electron-collisions` section.
+    //! @since New in %Cantera 4.0.
     size_t nInputElectronCollisions() const {
         return m_inputCollisionHasEquation.size();
     }
@@ -876,6 +877,7 @@ public:
     //!
     //! An equation makes the entry eligible for registration with Kinetics,
     //! subject to the phase's reaction selection rules.
+    //! @since New in %Cantera 4.0.
     bool inputCollisionHasEquation(size_t i) const {
         return m_inputCollisionHasEquation.at(i);
     }

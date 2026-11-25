@@ -160,6 +160,7 @@ public:
 
     //! Prevent replacement of the rate of a registered electron collision.
     //! This avoids a mismatch between the Kinetics rate evaluator and PlasmaPhase.
+    //! @since New in %Cantera 4.0.
     void lockRateReplacement() {
         m_rateReplacementLocked = true;
     }

@@ -226,12 +226,14 @@ public:
     }
 
     //! Return the local cross-section extrapolation preference.
+    //! @since New in %Cantera 4.0.
     bool extrapolateCrossSectionsRequested() const {
         return m_extrapolateCrossSections;
     }
 
     //! Enable or disable high-energy cross-section extrapolation.
     //! The phase determines the effective setting.
+    //! @since New in %Cantera 4.0.
     void setCrossSectionExtrapolation(bool enabled);
 
     //! The value of #m_crossSectionsInterpolated [m2]
@@ -243,15 +245,15 @@ public:
     void updateInterpolatedCrossSection(span<const double>);
 
     //! Return whether tabulated cross-section data have been assigned.
+    //! @since New in %Cantera 4.0.
     bool hasCrossSectionData() const {
         return m_hasCrossSectionData;
     }
 
     //! Infer collision metadata directly from the reaction equation.
     //! Does not require a Kinetics object or a fully initialized phase.
-    void setReactionContext(
-        const Reaction& rxn,
-        const string& electronName);
+    //! @since New in %Cantera 4.0.
+    void setReactionContext(const Reaction& rxn, const string& electronName);
 
 private:
     //! The name of the kind of electron collision
