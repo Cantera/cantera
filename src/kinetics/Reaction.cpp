@@ -325,6 +325,11 @@ void Reaction::setRate(shared_ptr<ReactionRate> rate)
         throw InputFileError("Reaction::setRate", input,
             "Reaction rate for reaction '{}' must not be empty.", equation());
     }
+    if (m_rateReplacementLocked) {
+        throw CanteraError("Reaction::setRate",
+            "Replacing the rate of a registered electron-collision-plasma "
+            "reaction is not supported. Update the input and reload the mechanism.");
+    }
     m_rate = rate;
     for (const auto& [id, callback] : m_setRateCallbacks) {
         callback();

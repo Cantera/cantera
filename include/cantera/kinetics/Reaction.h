@@ -148,8 +148,22 @@ public:
         return m_rate;
     }
 
-    //! Set reaction rate pointer
+    //! Replace the reaction rate.
+    //!
+    //! Rate replacement is not supported for electron-collision-plasma
+    //! reactions registered with Kinetics, since their rate objects are
+    //! shared with PlasmaPhase.
+    //!
+    //! @throws CanteraError If rate replacement is locked.
+    //!
     void setRate(shared_ptr<ReactionRate> rate);
+
+    //! Prevent replacement of the rate of a registered electron collision.
+    //! This avoids a mismatch between the Kinetics rate evaluator and PlasmaPhase.
+    //! @since New in %Cantera 4.0.
+    void lockRateReplacement() {
+        m_rateReplacementLocked = true;
+    }
 
     //! Get pointer to third-body handler
     shared_ptr<ThirdBody> thirdBody() {
@@ -191,6 +205,9 @@ protected:
 
     //! Reaction rate used by generic reactions
     shared_ptr<ReactionRate> m_rate;
+
+    //! Once registered in Kinetics, an electron-collision rate cannot be replaced.
+    bool m_rateReplacementLocked = false;
 
     //! Relative efficiencies of third-body species in enhancing the reaction rate
     //! (if applicable)

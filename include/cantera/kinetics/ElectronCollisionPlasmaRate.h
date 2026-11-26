@@ -10,7 +10,6 @@
 #include "cantera/kinetics/ReactionData.h"
 #include "ReactionRate.h"
 #include "MultiRate.h"
-#include "cantera/numerics/eigen_dense.h"
 
 namespace Cantera
 {
@@ -92,8 +91,22 @@ protected:
  *        \sigma_{super}(\epsilon) = \frac{\epsilon + U}{\epsilon} \sigma(\epsilon + U),
  *   @f]
  *
- * where @f$ U @f$ is the threshold energy [eV], equal to the first energy level of the cross
- * section (#m_energyLevels).
+ * where @f$ U @f$ is the collision threshold energy [eV], as returned
+ * by #threshold().
+ *
+ * Electron collision cross sections may be specified either as kinetic
+ * reactions or as simple collision entries, and are in any case located
+ * in the root-level `electron-collisions` section.
+ * Entries without an equation contribute to the plasma collision model
+ * without being registered as kinetic reactions.
+ *
+ * Reaction rate coefficients are integrated over a merged energy grid
+ * containing the EEDF grid points and all cross-section breakpoints
+ * within the EEDF domain. Piecewise-linear interpolation makes the
+ * integrand cubic on each interval, where Simpson's rule is exact.
+ *
+ * Cross sections are held constant outside their tabulated range,
+ * unless the phase enables the optional high-energy extrapolation.
  *
  * @ingroup otherRateGroup
  * @since New in %Cantera 3.1.
@@ -153,8 +166,10 @@ public:
     }
 
     //! The kind of the process which will be one of the following:
-    //! - `"effective"`: A generic effective collision
-    //! - `"excitation"`: Electronic or vibrational excitation
+    //! - `"effective"`: Effective momentum-transfer cross section containing
+    //!   elastic and inelastic contributions
+    //! - `"elastic"`: Elastic momentum-transfer collision
+    //! - `"excitation"`: Electronic, vibrational or rotational excitation
     //! - `"ionization"`: Electron-impact ionization
     //! - `"attachment"`: Electron attachment
     //! @since New in Cantera 3.2.
@@ -179,16 +194,23 @@ public:
         return m_product;
     }
 
-    //! Get the energy threshold of electron collision [eV]
+    //! Get the electron collision threshold [eV].
     //!
-    //! By default, the threshold is set to the first non-zero energy value
-    //! listed in the tabulated cross section data.
+    //! If explicitly specified, the threshold is preserved, including if
+    //! presenting of value of zero.
     //!
-    //! @note This behavior may be subject to change. A more robust approach
-    //! may use the energy corresponding to the first non-zero cross section
-    //! value, rather than the first non-zero energy point in the data table.
+    //! Otherwise, for excitation, ionization, and attachment collisions,
+    //! the threshold is inferred from the first positive cross-section
+    //! value. If that value is preceded by a zero cross section, the energy
+    //! of the preceding zero is used; otherwise, the energy of the first
+    //! positive value is used.
     //!
-    //! @since New in Cantera 3.2.
+    //! Excitation and ionization cross sections are normalized to have
+    //! a zero value at the threshold, following the convention in BOLSIG +.
+    //!
+    //! @note This behavior may be subject to change.
+    //!
+    //! @since New in Cantera 3.2. Modified in 4.0.
     double threshold() const {
         return m_threshold;
     }
@@ -203,6 +225,17 @@ public:
         return m_crossSections;
     }
 
+    //! Return the local cross-section extrapolation preference.
+    //! @since New in %Cantera 4.0.
+    bool extrapolateCrossSectionsRequested() const {
+        return m_extrapolateCrossSections;
+    }
+
+    //! Enable or disable high-energy cross-section extrapolation.
+    //! The phase determines the effective setting.
+    //! @since New in %Cantera 4.0.
+    void setCrossSectionExtrapolation(bool enabled);
+
     //! The value of #m_crossSectionsInterpolated [m2]
     span<const double> crossSectionInterpolated() const {
         return m_crossSectionsInterpolated;
@@ -210,6 +243,17 @@ public:
 
     //! Update the value of #m_crossSectionsInterpolated [m2]
     void updateInterpolatedCrossSection(span<const double>);
+
+    //! Return whether tabulated cross-section data have been assigned.
+    //! @since New in %Cantera 4.0.
+    bool hasCrossSectionData() const {
+        return m_hasCrossSectionData;
+    }
+
+    //! Infer collision metadata directly from the reaction equation.
+    //! Does not require a Kinetics object or a fully initialized phase.
+    //! @since New in %Cantera 4.0.
+    void setReactionContext(const Reaction& rxn, const string& electronName);
 
 private:
     //! The name of the kind of electron collision
@@ -221,8 +265,11 @@ private:
     //! The product of electron collision
     string m_product;
 
+    //! Original note attached to the collision cross section
+    string m_note;
+
     //! The energy threshold of electron collision
-    double m_threshold;
+    double m_threshold = 0.0;
 
     //! electron energy levels [eV]
     vector<double> m_energyLevels;
@@ -230,21 +277,59 @@ private:
     //! Counter used to indicate when #m_energyLevels needs to be synced with the phase
     int m_levelNumber = -3;
 
-    //! Counter used to indicate when #m_crossSectionsOffset needs to be synced with the
-    //! phase
-    int m_levelNumberSuperelastic = -2;
-
     //! collision cross sections [m2] at #m_energyLevels
     vector<double> m_crossSections;
 
     //! collision cross sections [m2] after interpolation
     vector<double> m_crossSectionsInterpolated;
 
-    //! collision cross section [m2] interpolated on #m_energyLevels offset by the
-    //! threshold energy (the first energy level).
-    //! This is used for the calculation of the super-elastic collision reaction
-    //! rate coefficient.
-    Eigen::ArrayXd m_crossSectionsOffset;
+    //! Contains all EEDF energy levels and all cross-section tabulation
+    //! points within the EEDF energy range.
+    vector<double> m_rateIntegrationEnergy;
+
+    //! Cross sections evaluated on the forward integration grid.
+    vector<double> m_rateIntegrationCrossSection;
+
+    //! EEDF grid revision used to build the forward integration cache.
+    int m_rateIntegrationLevelNumber = -4;
+
+    //! Energy grid used for super-elastic rate integration.
+    //! Cross-section breakpoints are shifted by the threshold.
+    vector<double> m_superElasticRateIntegrationEnergy;
+
+    //! Excitation cross sections evaluated on the reverse grid.
+    vector<double> m_superElasticRateIntegrationCrossSection;
+
+    //! EEDF grid revision used to build the reverse integration cache.
+    int m_superElasticRateIntegrationLevelNumber = -5;
+
+    //! Whether this rate contains validated tabulated cross-section data.
+    bool m_hasCrossSectionData = false;
+
+    //! True when threshold was explicitly provided in the input.
+    bool m_hasExplicitThreshold = false;
+
+    //! True when the target was determined from a reaction equation.
+    bool m_isReactionRate = false;
+
+    bool m_extrapolateCrossSections = false;
+    size_t m_tabulatedPointCount = 0;
+    bool m_crossSectionsExtrapolated = false;
+
+    //! Validate the contents of a named electron-collision definition.
+    void validateCollisionData(const AnyMap& node) const;
+
+    //! Infer the collision threshold when it is not specified explicitly.
+    void setDefaultThreshold();
+
+    //! Normalize excitation and ionization cross sections at the threshold.
+    void enforceThresholdCrossSections();
+
+    //! Extend tabulated cross sections using a high-energy logarithmic tail.
+    void extrapolateCrossSections();
+
+    //! Invalidate rate-integration grids after cross-section changes.
+    void invalidateRateIntegrationCaches();
 };
 
 }

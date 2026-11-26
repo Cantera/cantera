@@ -250,3 +250,62 @@ To include explicit orders for the reaction above, it can be written in the YAML
   orders: {C8H18: 0.25, O2: 1.5}
 ```
 ````
+
+(sec-electron-collision-rates-of-progress)=
+## Electron Collision Plasma Reactions
+
+For reactions of type `electron-collision-plasma`, the forward rate
+coefficient is calculated from the electron energy distribution
+function (EEDF) and the electron-impact cross section, rather than
+from a temperature-dependent Arrhenius expression.
+
+Once the forward rate coefficient has been evaluated, the forward
+rate of progress is calculated using the reactant concentrations,
+as for other mass-action reactions.
+
+For reversible electron-collision reactions, the reverse rate of
+progress uses a superelastic rate coefficient evaluated from the
+forward cross section at energies shifted by the collision threshold.
+This differs from the usual calculation of reverse reaction rates
+using thermodynamic equilibrium constants.
+
+The detailed rate coefficient expressions and their numerical
+integration are described in
+[electron collision plasma rate coefficients](sec-electron-collision-plasma-rate).
+
+### Collision data and chemical reactions
+
+Electron-impact cross sections may contribute to the plasma EEDF
+calculation without defining a kinetic reaction.
+
+- Entries in the root-level `electron-collisions` section are
+  registered with the plasma collision model independently of
+  their inclusion in chemical kinetics.
+- Entries without an `equation` field do not contribute to the
+  chemical rates of progress.
+- Entries with an `equation` field may also be included as
+  kinetic reactions, depending on the phase's reaction selection.
+- Electron-collision reactions defined in the conventional
+  `reactions` section contribute to both kinetics and the plasma
+  collision model when they are loaded into a plasma phase. It is
+  however recommended for the sake of cross-sections dataset
+  consistency to group all electron electron collision in the
+  `electron-collisions` section.
+
+See the
+[`electron-collisions`](sec-yaml-electron-collisions) YAML documentation
+for the collision data format, and the
+[`electron-collision-plasma`](sec-yaml-electron-collision-plasma)
+reaction documentation for defining kinetic reactions.
+
+:::{versionchanged} 4.0
+Collision-only processes can now contribute to the plasma collision
+model without being registered as kinetic reactions.
+:::
+
+:::{note}
+The superelastic correction is applied when calculating reverse
+rates of progress. The standard `reverse_rate_constants` property
+continues to use the thermodynamic equilibrium-constant relation
+and does not report this cross-section-derived superelastic coefficient.
+:::

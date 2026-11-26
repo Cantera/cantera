@@ -22,7 +22,6 @@ The fields common to all `reaction` entries are:
   - [`multi-state-resolved-vibrational-relaxation`](sec-yaml-multi-state-resolved-vibrational-relaxation)
   - [`Castela-vibrational-relaxation`](sec-yaml-Castela-vibrational-relaxation)
   - [`Starikovskiy-vibrational-relaxation`](sec-yaml-Starikovskiy-vibrational-relaxation)
-  - [`electron-collisions`](sec-yaml-electron-collisions)
   - [`falloff`](sec-yaml-falloff)
   - [`chemically-activated`](sec-yaml-chemically-activated)
   - [`pressure-dependent-Arrhenius`](sec-yaml-pressure-dependent-Arrhenius)
@@ -454,72 +453,220 @@ Example:
 ```
 
 (sec-yaml-electron-collision-plasma)=
+
 ### `electron-collision-plasma`
 
-Electron collision plasma reactions involve an electron as one of the reactants, and are
-parameterized by the collision cross section as a function of the electron energy. The
-rate calculation is [described here](sec-electron-collision-plasma-rate). The rate
-parameters are specified using the following additional fields in the reaction entry:
+Electron collision plasma reactions involve an electron and a target species
+as reactants. Their rate coefficients are calculated from tabulated
+electron-impact cross sections and the electron energy distribution function
+(EEDF), as [described here](sec-electron-collision-plasma-rate).
+
+Cross-section data are specified directly in the reaction entry, using
+`energy-levels` and `cross-sections`. These fields must be provided together.
+
+Electron-collision reactions may be defined in either the conventional
+`reactions` section or the root-level
+[`electron-collisions`](sec-yaml-electron-collisions) section.
+For cross-sections dataset consistency, it is
+recommended to add all collisions to the `electron-collisions` section
+(the possibility to include it in the standard `reactions` sections is
+kept for retro-compatibility of the code, and the behavior is the same).
+
+The following fields are supported in addition to the reaction equation
+and type:
 
 `energy-levels`
-: A list of electron energy levels [eV]
+: Electron energies [eV] at which the cross sections are tabulated.
+  At least two finite, non-negative, strictly increasing values are required.
 
 `cross-sections`
-: A list of collision cross sections [m²] for the reaction at the specified energy
-  levels.
+: Collision cross sections [m²], corresponding to `energy-levels`.
+  Values must be finite and non-negative.
 
-Example:
+`kind`
+: The collision type: `effective`, `elastic`, `excitation`, `ionization`,
+  or `attachment`. For a reactive entry, the kind can generally be inferred
+  from the reaction stoichiometry. If the reactants and products are
+  identical, `kind` must be specified explicitly.
+
+`threshold`
+: Optional non-negative collision threshold [eV]. An explicitly specified
+  threshold is preserved. See [`electron-collisions`](sec-yaml-electron-collisions)
+  for the default inference and threshold normalization rules.
+
+`product`
+: Optional label describing the product(s) of the collision.
+  This metadata field does not determine the reaction
+  stoichiometry, which is specified by `equation`.
+
+`note`
+: Optional text describing the collision dataset.
+
+`extrapolate-cross-sections`
+: Optional boolean requesting high-energy cross-section extrapolation.
+  The effective setting is controlled by the plasma phase's
+  `cross-sections-extrapolation` policy.
+
+For a reactive entry, the target species is inferred from `equation`.
+The `target` field must not be specified together with `equation`.
+
+Example in the `electron-collisions` section:
 
 ```yaml
-- equation: O2 + e => e + e + O2+
+electron-collisions:
+- equation: O2 + Electron => O2+ + 2 Electron
   type: electron-collision-plasma
-  energy-levels: [13.0, 15.5, 18, 23]
-  cross-sections: [1.17e-22, 7.3e-22, 1.64e-21, 3.66e-21]
+  kind: ionization
+  threshold: 12.06
+  energy-levels: [12.06, 13.0, 18.0, 28.0]
+  cross-sections: [0.0, 2.3e-22, 2.0e-21, 7.4e-21]
 ```
+
+The same entry can instead be placed directly in `reactions`,
+where it can provide just the same both kinetic reaction data and EEDF collision data.
 
 :::{versionadded} 3.1
 :::
 
+:::{versionchanged} 4.0
+Electron-collision reactions can now be defined directly in the root-level
+`electron-collisions` section, alongside collision-only processes. Direct
+cross-section definitions in the conventional `reactions` section remain
+supported but are not recommanded.
+:::
+
 (sec-yaml-electron-collisions)=
+
 ### `electron-collisions`
 
-The `electron-collisions` field defines a list of cross-section datasets for
-electron-impact processes that are used in plasma-phase simulations. These entries
-are not formal reactions (they are not added to `Kinetics` objects), but serve
-as data inputs for computing the electron energy distribution function.
+The root-level `electron-collisions` section contains tabulated
+electron-impact collision cross sections used by plasma phases.
 
-Each entry includes:
+Each entry is registered with the plasma collision model, independently
+of whether it represents a kinetic reaction. This allows collision data
+to contribute to the electron Boltzmann solver without introducing
+additional chemical reactions.
+
+Two types of entries are supported:
+
+- **Collision-only entries** have no `equation` field. They require
+  `target` and `kind` and are used by the plasma collision model,
+  but are not added to `Kinetics`.
+- **Reactive entries** have an `equation` field and
+  `type: electron-collision-plasma`. They can also be registered with
+  `Kinetics`, subject to the phase's reaction selection rules.
+
+All entries store their cross-section data directly.
+Collision-only entries use the following fields:
 
 `target`
-: The name of the species that is the target of the collision
-
-`energy-levels`
-: A list of electron energy values [eV] at which the cross-section is provided
-
-`cross-sections`
-: Corresponding cross-section values [m²] for each energy level
+: The name of the species with which the electron collides. The target
+  must be a species in the plasma phase.
 
 `kind`
-: A string indicating the process type. Options include:
-  - `"effective"` – lumped or total effect of several channels
-  - `"excitation"` – electronic excitation
-  - `"ionization"` – electron-impact ionization
-  - `"attachment"` – electron attachment processes
+: The type of electron collision. Supported values are:
 
-Example:
+  - `effective`: An effective momentum-transfer cross section containing
+    elastic and inelastic contributions.
+  - `elastic`: An elastic momentum-transfer cross section.
+  - `excitation`: An electronic, vibrational, or rotational excitation.
+  - `ionization`: Electron-impact ionization.
+  - `attachment`: Electron attachment.
+
+  At most one elastic or effective momentum-transfer cross section is
+  normally permitted for each target species, unless explicitly
+  declared as a duplicate.
+
+`energy-levels`
+: A list of at least two electron energies [eV]. The values must be
+  finite, non-negative, and strictly increasing.
+
+`cross-sections`
+: A list of collision cross sections [m²] corresponding to
+  `energy-levels`. Both lists must have the same length. Cross-section
+  values must be finite and non-negative.
+
+`product`
+: Optional label identifying the collision product or excited state.
+  This label does not have to name a species declared in the phase and
+  does not create a kinetic reaction.
+
+`note`
+: Optional text describing the collision dataset, such as comments
+  preserved from an LXCat file during conversion.
+
+`threshold`
+: Optional non-negative threshold [eV]. Explicitly specified values,
+  including zero, are preserved.
+
+  If omitted for an `excitation`, `ionization`, or `attachment` collision,
+  the threshold is inferred from the first positive cross-section
+  value. When the preceding tabulated cross section is zero, the energy
+  of that preceding point is used; otherwise, the first positive
+  point's energy is used.
+
+  For `excitation` and `ionization`, the cross-section table is
+  normalized to start at the threshold with a zero cross section.
+  Attachment tables are not modified by this normalization.
+
+`extrapolate-cross-sections`
+: Optional boolean requesting high-energy extrapolation of this
+  collision's cross-section table. Defaults to `false`. The phase-wide
+  `cross-sections-extrapolation` setting determines whether the
+  request is applied.
+
+Reactive entries use the same cross-section fields, but additionally
+specify `equation` and `type: electron-collision-plasma`. Their target
+is inferred from the reaction equation rather than from a `target`
+field.
+
+For example:
 
 ```yaml
 electron-collisions:
-- target: N2
-  energy-levels: [0.0, 0.015, 0.03, 0.05, 0.1, 0.15, 0.2, 0.3, 0.4, 0.7, 1.2, 1.5, 1.9,
-    2.2, 2.8, 3.3, 4.0, 5.0, 7.0, 10.0, 15.0, 20.0, 30.0, 75.0, 150.0]
-  cross-sections: [1.1e-20, 2.55e-20, 3.4e-20, 4.33e-20, 5.95e-20, 7.1e-20, 7.9e-20,
-    9e-20, 9.7e-20, 1e-19, 1.04e-19, 1.2e-19, 1.96e-19, 2.85e-19, 2.8e-19, 1.72e-19,
-    1.26e-19, 1.09e-19, 1.01e-19, 1.04e-19, 1.1e-19, 1.02e-19, 9e-20, 6.6e-20, 4.9e-20]
+- target: O2
   kind: effective
+  product: O2
+  energy-levels: [0.0, 1.0, 2.0, 3.0]
+  cross-sections: [3.5e-21, 7.9e-20, 6.5e-20, 5.5e-20]
+
+- equation: O2 + Electron => O2+ + 2 Electron
+  type: electron-collision-plasma
+  kind: ionization
+  product: O2+
+  threshold: 12.06
+  energy-levels: [12.06, 13.0, 18.0, 28.0]
+  cross-sections: [0.0, 2.3e-22, 2.0e-21, 7.4e-21]
 ```
 
+The first entry contributes only to the electron collision model. The
+second also contributes to chemical source terms when included in
+the phase's kinetics mechanism.
+
+For plasma phases, reactive entries are included in `Kinetics` by
+default when the phase uses a kinetics model and no explicit reaction
+selection is provided. Setting `reactions: none` prevents their
+registration with `Kinetics` without removing the cross sections from
+the plasma collision model.
+
+The `reactions` field can also explicitly select `electron-collisions`
+alongside other reaction sections. See
+[phase reaction selection](sec-yaml-phase-reactions).
+
+Cross sections are linearly interpolated between tabulated points and
+held constant outside their range by default. Optional high-energy
+extrapolation is controlled by the plasma phase.
+
+Cross-section datasets can be generated from LXCat XML files using
+the [`lxcat2yaml`](sec-lxcat2yaml) utility.
+
 :::{versionadded} 3.2
+:::
+
+:::{versionchanged} 4.0
+Entries may now describe collision-only processes or kinetic reactions
+directly. Cross sections are stored within each entry rather than
+being referenced by name from a separate reaction.
 :::
 
 (sec-yaml-falloff)=

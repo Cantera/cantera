@@ -4,7 +4,7 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 """
-lxcat2yaml.py: Convert the LXCat integral cross-section data in XML format to YAML format.
+lxcat2yaml.py: Convert legacy and LXCat 1.1 integral cross-section XML data to YAML.
 The cross-section data is used to calculate the reaction rate of a electron-collision
 process in a plasma. The data can be downloaded at https://nl.lxcat.net/data/download.php.
 
@@ -14,6 +14,7 @@ Usage:
                [--mech=<filename>]
                [--phase=<phase name>]
                [--insert]
+               [--mapping=<filename>]
                [--output=<filename>]
 
 Example:
@@ -24,10 +25,11 @@ Example:
 from __future__ import annotations
 
 import argparse
+import math
 import sys
 import textwrap
 import xml.etree.ElementTree as etree
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, MutableMapping, Sequence
 from pathlib import Path
 from typing import TypeAlias, TypeVar, cast
 
@@ -48,28 +50,52 @@ except ImportError:
 BlockMap: type[CommentedMap] = CommentedMap
 
 class Process:
-    """A class of YAML data for collision of a target species"""
-    def __init__(self, equation: str, energy_levels: list[float], cross_sections: list[float]) -> None:
-        self.equation = equation
+    """A collision, optionally associated with a kinetic reaction."""
+    def __init__(self, target: str, kind: str, energy_levels: list[float],
+                 cross_sections: list[float], equation: str | None = None,
+                 threshold: float | None = None, product: str = "none",
+                 note: str | None = None) -> None:
+        self.product = product
+        self.note = note
+        self.target = target
+        self.kind = kind
         self.energy_levels = energy_levels
         self.cross_sections = cross_sections
+        self.equation = equation
+        self.threshold = threshold
+
+    def as_mapping(self) -> CommentedMap:
+        if self.equation is None:
+            out = BlockMap([('target', self.target), ('kind', self.kind)])
+        else:
+            out = BlockMap([('equation', self.equation),
+                            ('type', 'electron-collision-plasma'),
+                            ('kind', self.kind)])
+        out['product'] = self.product
+        if self.note is not None:
+            out['note'] = self.note
+        if self.threshold is not None:
+            out['threshold'] = self.threshold
+        out['energy-levels'] = self.energy_levels
+        out['cross-sections'] = self.cross_sections
+        return out
 
     @classmethod
     def to_yaml(cls, representer: SafeRepresenter, node: Process) -> MappingNode:
-        out = BlockMap([('equation', node.equation),
-                        ('type', 'electron-collision-plasma'),
-                        ('energy-levels', node.energy_levels),
-                        ('cross-sections', node.cross_sections),
-                        ])
-        return representer.represent_dict(out)
+        return representer.represent_dict(node.as_mapping())
 
 # Define YAML emitter
 emitter: yaml.YAML = yaml.YAML()
 emitter.register_class(Process)
 
+def normalized_tag(tag: str) -> str:
+    """Strip an XML namespace and normalize legacy and LXCat 1.1 tag names."""
+    return tag.rsplit("}", 1)[-1].replace("_", "").replace("-", "").lower()
+
 # Return indices of a child name
 def get_children(parent: etree.Element[str], child_name: str) -> list[etree.Element[str]]:
-    return [child for child in parent if child.tag.find(child_name) != -1]
+    expected = normalized_tag(child_name)
+    return [child for child in parent if normalized_tag(child.tag) == expected]
 
 _VT = TypeVar("_VT")  # Value type.
 
@@ -100,32 +126,185 @@ class IncorrectXMLNode(LookupError):
 
         super().__init__(message)
 
+def _molecule_name(node: etree.Element, normalize: bool = True) -> str:
+    """Read a species label, optionally preserving its LXCat spelling."""
+    if not node.text or not node.text.strip():
+        raise IncorrectXMLNode("Missing LXCat species name.", node)
+    name = node.text.strip()
+    if normalized_tag(node.tag) == "molecule":
+        if "state" in node.attrib:
+            state = node.attrib['state']
+            name += f"({state.replace(' ', '-') if normalize else state})"
+        if "charge" in node.attrib:
+            charge = int(node.attrib["charge"])
+            if charge > 0:
+                name += charge * "+"
+            elif charge < 0:
+                name += -charge * "-"
+    elif normalize:
+        # LXCat 1.1 uses species labels such as Ar^+ or N2(A).
+        name = "".join(name.split()).replace("^+", "+").replace("^-", "-")
+    return name
+
+
+def _process_species(process: etree.Element, role: str,
+                     electron_name: str) -> list[tuple[str, bool, str]]:
+    """Return normalized names, electron flags, and original LXCat labels."""
+    containers = get_children(process, f"{role}s")
+    if containers:
+        nodes = list(containers[0])
+    else:
+        species = get_children(process, "species")
+        nodes = get_children(species[0], role) if species else []
+
+    result = []
+    for node in nodes:
+        if normalized_tag(node.tag) == "electron":
+            result.append((electron_name, True, "electron"))
+            continue
+        name = _molecule_name(node)
+        original = _molecule_name(node, normalize=False)
+        is_electron = name.lower() in ("e", "e-", "e^-", "electron")
+        result.append((electron_name if is_electron else name, is_electron, original))
+    return result
+
+
+def _process_threshold(process: etree.Element) -> float | None:
+    """Read the named E parameter (legacy) or E element (LXCat 1.1)."""
+    for parameters in get_children(process, "parameters"):
+        for parameter in parameters:
+            tag = normalized_tag(parameter.tag)
+            if not (tag == "e" or
+                    (tag == "parameter" and
+                     parameter.get("name", "").lower() == "e")):
+                continue
+            _check_units(parameter, "eV", process)
+            if not parameter.text or not parameter.text.strip():
+                raise IncorrectXMLNode("Missing threshold value.", process)
+            try:
+                threshold = float(parameter.text)
+            except ValueError as exc:
+                raise IncorrectXMLNode("Invalid threshold value.", process) from exc
+            if not math.isfinite(threshold) or threshold < 0.0:
+                raise IncorrectXMLNode("Threshold must be finite and non-negative.", process)
+            return threshold
+    return None
+
+
+def _load_product_mapping(mappingfile: str | Path | None) -> dict[str, dict[str, str]]:
+    if mappingfile is None:
+        return {"products": {}}
+    data = yaml.YAML(typ="safe").load(Path(mappingfile).read_text()) or {}
+    if not isinstance(data, dict):
+        raise ValueError("The product mapping file must contain a YAML mapping.")
+    if "processes" in data:
+        raise ValueError("Process ID mappings are not supported; use 'products'.")
+    if not isinstance(data.get("products", {}), dict):
+        raise ValueError("The 'products' entry must be a YAML mapping.")
+    return {"products": data.get("products", {})}
+
+
+def _collision_kind(process: etree.Element) -> str:
+    """Read collisionType (legacy) or type (LXCat 1.1)."""
+    collision_type = (process.get("collisionType") or
+                      process.get("type") or "").strip().lower()
+    inelastic_type = process.get("inelasticType", "").strip().lower()
+    if collision_type in ("elastic", "effective"):
+        return collision_type
+    if "ionization" in collision_type or "ionization" in inelastic_type:
+        return "ionization"
+    if "attachment" in collision_type or "attachment" in inelastic_type:
+        return "attachment"
+    if collision_type == "inelastic" or any(
+        word in collision_type or word in inelastic_type
+        for word in ("excitation", "electronic", "vibrational", "rotational",
+                     "dissociation")
+    ):
+        return "excitation"
+    raise IncorrectXMLNode("Unsupported LXCat collision type.", process)
+
+
+def _check_units(node: etree.Element, unit: str, process: etree.Element) -> None:
+    # Missing unit metadata retains the original convention (eV or m2).
+    if node.get("units", unit).lower() != unit.lower():
+        raise IncorrectXMLNode(f"Expected units '{unit}' for '{node.tag}'.", process)
+
+
+def _prepare_cross_sections(process: etree.Element, kind: str,
+                            threshold: float | None,
+                            energy_levels: list[float],
+                            cross_sections: list[float]) -> tuple[list[float], list[float]]:
+    if len(energy_levels) != len(cross_sections) or not energy_levels:
+        raise IncorrectXMLNode("Energy levels and cross sections must have the same "
+                               "non-zero length.", process)
+    for i, (energy, sigma) in enumerate(zip(energy_levels, cross_sections)):
+        if not math.isfinite(energy) or energy < 0.0 or not math.isfinite(sigma) or sigma < 0.0:
+            raise IncorrectXMLNode("Energy and cross-section values must be finite "
+                                   "and non-negative.", process)
+        if i and energy <= energy_levels[i - 1]:
+            raise IncorrectXMLNode("Energy levels must be strictly increasing.", process)
+
+    if kind in ("excitation", "ionization") and threshold is not None:
+        # Follow the threshold normalization used by ElectronCollisionPlasmaRate.
+        points = [(threshold, 0.0)] + [
+            (energy, sigma) for energy, sigma in zip(energy_levels, cross_sections)
+            if energy > threshold
+        ]
+        energy_levels, cross_sections = map(list, zip(*points))
+    elif len(energy_levels) == 1:
+        if energy_levels[0] == 0.0:
+            raise IncorrectXMLNode("A one-point cross section at 0 eV cannot be "
+                                   "extended to two strictly increasing points.", process)
+        # Constant extrapolation for effective, elastic and attachment collisions.
+        # An excitation or ionization must instead be zero at its inferred threshold.
+        sigma_zero = 0.0 if kind in ("excitation", "ionization") else cross_sections[0]
+        energy_levels = [0.0, energy_levels[0]]
+        cross_sections = [sigma_zero, cross_sections[0]]
+
+    if len(energy_levels) < 2:
+        raise IncorrectXMLNode("A collision requires an energy point above its threshold.",
+                               process)
+    return Flowlist(energy_levels), Flowlist(cross_sections)
+
+
+def _enable_electron_reactions(phase_node: MutableMapping[str, object]) -> None:
+    """Make reactive electron collisions available without changing other reactions."""
+    selection = phase_node.get("reactions", "none")
+    if selection in ("all", "declared-species"):
+        # KineticsFactory applies these string rules to electron-collisions too.
+        return
+    if selection == "none":
+        phase_node["reactions"] = CommentedSeq(["electron-collisions"])
+    elif isinstance(selection, list):
+        if not any(item == "electron-collisions" or
+                   (isinstance(item, dict) and "electron-collisions" in item)
+                   for item in selection):
+            if selection and isinstance(selection[0], dict):
+                selection.append(CommentedMap({"electron-collisions": "all"}))
+            else:
+                selection.append("electron-collisions")
+    else:
+        raise ValueError("Unsupported phase reaction selection in the mechanism.")
+
+
 def convert(
     inpfile: str | Path | None = None,
     database: str | None = None,
     mechfile: str | None = None,
     phase: str | None = None,
-    insert: bool | None = True,
+    insert: bool | None = False,
     outfile: str | Path | None = None,
+    mappingfile: str | Path | None = None,
 ) -> None:
     """Convert an LXCat XML file to a YAML file.
 
-    :param inpfile:
-        The input LXCat file name.
-    :param database:
-        The name of the database. For example, "itikawa".
-    :param mechfile:
-        The reaction mechanism file. This option requires using the Cantera library.
-    :param phase:
-        The phase name of the mechanism file. This option requires a ``mechfile`` to
-        also be specified.
-    :param insert:
-        The flag of whether to insert the collision reactions or not.
-    :param outfile:
-        The output YAML file name.
+    If insert is false, all entries are collision-only. If insert is true,
+    non-elastic collisions with fully declared products also become reactions.
 
-    All files are assumed to be relative to the current working directory of the Python
-    process running this script.
+    The optional mapping YAML contains ``products`` (LXCat label to Cantera
+    species). The original LXCat product label is preserved in the output.
+
+    All file paths are relative to the current working directory.
     """
     if inpfile is not None:
         inpfile = Path(inpfile)
@@ -147,37 +326,35 @@ def convert(
             gas = Solution(mechfile, phase, transport_model=None)
         else:
             gas = Solution(mechfile, transport_model=None)
-
-    elif phase  is not None:
+    elif phase is not None:
         raise ValueError("'mech' must be specified if 'phase' is used.")
 
+    mapping = _load_product_mapping(mappingfile)
     xml_tree = etree.fromstring(lxcat_text)
+    process_list: list[Process] = []
 
-    # If insert key word is used, create a process list,
-    # and append all processes together
-    process_list: list[Process] | None = None
+    # Both LXCat XML layouts use database / groups / group / processes.
+    databases = ([xml_tree] if normalized_tag(xml_tree.tag) == "database"
+                 else get_children(xml_tree, "database"))
+    if not databases:
+        raise IncorrectXMLNode("The LXCat file requires a database node.", xml_tree)
+    for database_node in databases:
+        if database is not None and database_node.get("id") != database:
+            continue
+        groups = get_children(database_node, "groups")
+        if not groups:
+            raise IncorrectXMLNode("The database requires a groups node.", database_node)
+        for group in get_children(groups[0], "group"):
+            for processes in get_children(group, "processes"):
+                for process in get_children(processes, "process"):
+                    registerProcess(process, process_list, gas, bool(insert), mapping)
+
     if not insert:
-        process_list = []
-
-    for database_node in xml_tree:
-        if database is not None:
-            if database_node.attrib["id"] != database:
-                continue
-
-        # Get groups node
-        groups_node = get_children(database_node, "groups")[0]
-
-        for group in groups_node:
-            for process in get_children(group, "processes")[0]:
-                registerProcess(process, process_list, gas)
-
-    if not insert:
-        # Put process list in collision node
-        collision_node = {"collisions": process_list}
         with Path(outfile).open("w") as output_file:
-            emitter.dump(collision_node, output_file)
+            emitter.dump({"electron-collisions": process_list}, output_file)
     else:
-        # Get mechanism file unit system
+        # Let Cantera serialize a self-contained mechanism before adding the new
+        # collision definitions. This preserves species from external YAML files.
         units = None
         assert mechfile is not None
         with open(mechfile, "r") as mech:
@@ -187,115 +364,91 @@ def convert(
         assert gas is not None
         gas.write_yaml(outfile, units=units)
 
+        formatter = yaml.YAML(typ="rt")
+        with Path(outfile).open("r") as input_file:
+            output_data = formatter.load(input_file)
+        output_data.setdefault("electron-collisions", CommentedSeq()).extend(
+            item.as_mapping() for item in process_list)
+
+        if any(item.equation is not None for item in process_list):
+            for phase_node in output_data["phases"]:
+                if phase_node["name"] == gas.name:
+                    _enable_electron_reactions(phase_node)
+                    break
+        with Path(outfile).open("w") as output_file:
+            formatter.dump(output_data, output_file)
+
+
 def registerProcess(process: etree.Element,
                     process_list: list[Process] | None,
-                    gas: OptionalSolutionType) -> None:
-    """
-    Add a collision process (electron collision reaction) to process_list
-    and gas object if it exists.
-
-    :param process:
-        The collision process (electron collision reaction)
-    :param process_list:
-        The list of collision processes
-    :param gas:
-        The Cantera Solution object
-    """
-    # Get electron specie name
+                    gas: OptionalSolutionType,
+                    insert: bool = False,
+                    mapping: dict[str, dict[str, str]] | None = None) -> None:
+    """Add a collision, optionally with a reaction equation, to the output."""
+    mapping = mapping or {"products": {}}
     electron_name = gas.electron_species_name if gas is not None else "e"
+    kind = _collision_kind(process)
 
-    # Parse the threshold
-    threshold = 0.0
-    parameters_node = get_children(process, "parameters")[0]
-    if len(get_children(parameters_node, "parameter")) == 1:
-        parameter = get_children(parameters_node, "parameter")[0]
-        if parameter.attrib["name"] == 'E':
-            assert parameter.text is not None
-            threshold = float(parameter.text)
+    # Parse the energy threshold if explicitly provided by LXCat.
+    threshold = _process_threshold(process)
 
-    # Parse the equation
+    # Identify the single heavy-particle target.
+    reactants = _process_species(process, "reactant", electron_name)
+    targets = [name for name, is_electron, _ in reactants if not is_electron]
+    if len(targets) != 1:
+        raise IncorrectXMLNode("Expected exactly one heavy-particle target.", process)
+    target = targets[0]
+    if gas is not None and target not in gas.species_names:
+        return
+
+    # Preserve LXCat labels even if reaction products use mapped species names.
     product_array: list[str] = []
+    original_products: list[str] = []
+    electron_products = 0
+    for name, is_electron, original in _process_species(process, "product", electron_name):
+        if is_electron:
+            electron_products += 1
+        else:
+            original_products.append(original)
+            product_array.append(mapping["products"].get(
+                original, mapping["products"].get(name, name)))
+    product = " + ".join(original_products) if original_products else "none"
 
-    products: list[etree.Element[str]] = get_children(process, "products")
-    if products:
-        for product_node in products[0]:
-            if product_node.tag.find("electron") != -1:
-                product_array.append(electron_name)
+    # Copy cross-section-specific notes without changing their text.
+    notes = [node.text.strip() for node in process
+             if normalized_tag(node.tag) in ("comment", "note", "notes")
+             and node.text and node.text.strip()]
+    note = "\n".join(notes) if notes else None
 
-            if product_node.tag.find("molecule") != -1:
-                assert product_node.text is not None
-                product_name = product_node.text
-                if "state" in product_node.attrib:
-                    state = product_node.attrib["state"].replace(" ","-")
-                    # State is appended in a parenthesis
-                    product_name += f"({state})"
-                if "charge" in product_node.attrib:
-                    charge = int(product_node.attrib["charge"])
-                    if charge > 0:
-                        product_name += charge*"+"
-                    else:
-                        product_name += -charge*"-"
+    # Parse the cross-section data without resampling on the EEDF grid.
+    x_nodes = get_children(process, "data_x")
+    y_nodes = get_children(process, "data_y")
+    if not x_nodes or not y_nodes or x_nodes[0].text is None or y_nodes[0].text is None:
+        raise IncorrectXMLNode("The process requires 'data_x' and 'data_y' nodes.", process)
+    _check_units(x_nodes[0], "eV", process)
+    _check_units(y_nodes[0], "m2", process)
+    energy_levels = [float(x) for x in x_nodes[0].text.split()]
+    cross_sections = [float(x) for x in y_nodes[0].text.split()]
+    energy_levels, cross_sections = _prepare_cross_sections(
+        process, kind, threshold, energy_levels, cross_sections)
 
-                # Filter the collision based on the existed species in the mechanism file
-                if gas is not None and not product_name in gas.species_names:
-                    return
+    # Elastic and effective processes always remain collision-only.
+    equation = None
+    if insert and gas is not None and kind not in ("elastic", "effective"):
+        if product_array and all(name in gas.species_names for name in product_array):
+            # Some LXCat entries omit the scattered electrons in their product list.
+            if electron_products == 0 and kind in ("excitation", "ionization"):
+                electron_products = 1 if kind == "excitation" else 2
+            expected_electrons = {"excitation": 1, "ionization": 2, "attachment": 0}[kind]
+            if electron_products == expected_electrons:
+                products_string = " + ".join(
+                    product_array + [electron_name] * electron_products)
+                equation = f"{target} + {electron_name} => {products_string}"
 
-                product_array.append(product_name)
-
-    for reactant_node in get_children(process, "reactants")[0]:
-        if reactant_node.tag.find("molecule") != -1:
-            reactant = reactant_node.text
-            # Filter the collision based on the existed species in the mechanism file
-            if gas is not None and not reactant in gas.species_names:
-                return
-
-    if product_array: # not empty
-        products_string = " + ".join(product_array)
-    else:
-        # No product is identified. Use the reactant as the product.
-        products_string = f"{reactant} + {electron_name}"
-
-    equation = f"{reactant} + {electron_name} => {products_string}"
-
-    # Parse the cross-section data
-    data_x_node = get_children(process, "data_x")[0]
-    if data_x_node is None:
-        raise IncorrectXMLNode("The 'process' node requires the 'data_x' node.", process)
-
-    data_y_node = get_children(process, "data_y")[0]
-    if data_y_node is None:
-        raise IncorrectXMLNode("The 'process' node requires the 'data_y' node.", process)
-
-    assert data_x_node.text is not None
-    assert data_y_node.text is not None
-    energy_levels = Flowlist(map(float, data_x_node.text.split()))
-    cross_sections = Flowlist(map(float, data_y_node.text.split()))
-
-    # Edit energy levels and cross section
-    if len(energy_levels) != len(cross_sections):
-        raise IncorrectXMLNode("Energy levels (data_x) and cross section "
-                                "(data_y) must have the same length.", process)
-
-    if energy_levels[0] > threshold:
-        # Use Flowlist again to ensure correct YAML format
-        energy_levels = Flowlist([threshold, *energy_levels])
-        cross_sections = Flowlist([0.0, *cross_sections])
-    else:
-        cross_sections[0] = 0.0
-
-    # If insert mode is on, add the process as a reaction to the gas object.
-    if gas is not None:
-        R = ct.Reaction(
-            equation=equation,
-            rate=ct.ElectronCollisionPlasmaRate(energy_levels=energy_levels,
-                                                cross_sections=cross_sections))
-        gas.add_reaction(R)
-
-    # If insert mode is off, process_list is used to store the data.
     if process_list is not None:
-        process_list.append(Process(equation=equation,
-                                    energy_levels=energy_levels,
-                                    cross_sections=cross_sections))
+        process_list.append(Process(target, kind, energy_levels, cross_sections,
+                                    equation=equation, threshold=threshold,
+                                    product=product, note=note))
 
 def create_argparser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -346,6 +499,9 @@ def create_argparser() -> argparse.ArgumentParser:
               "Need to use with the argument --mech to provide the mechanism file"
               "Optional."))
     parser.add_argument(
+        "--mapping", default=None,
+        help=("Optional YAML file containing product name aliases ('products')."))
+    parser.add_argument(
         "--output", default=None,
         help=("Specifies the OUTPUT file name. By default, the output file name is the "
               "input file name with the extension changed to **.yaml**."))
@@ -363,7 +519,8 @@ def main(argv: Sequence[str] | None = None) -> None:
     input_file = Path(args.input)
 
     output_file: Path | str = args.output or input_file.with_suffix(".yaml")
-    convert(input_file, args.database, args.mech, args.phase, args.insert, output_file)
+    convert(input_file, args.database, args.mech, args.phase, args.insert, output_file,
+            args.mapping)
 
     if args.insert and Solution is not None:
         # Test mechanism can be loaded back into Cantera

@@ -71,23 +71,23 @@ public:
     //! Sets a linear energy grid for the EEDF solver, defined by the maximum energy and
     //! the number of grid cells.
     //! @since New in %Cantera 4.0
-    //! @param kTe_max: maximum grid energy in eV
-    //! @param ncell: number of cell to discretize the grid.
+    //! @param kTe_max maximum grid energy in eV
+    //! @param ncell number of cell to discretize the grid.
     void setLinearGrid(double kTe_max, size_t ncell);
 
     //! Sets a quadratic energy grid for the EEDF solver, defined by the maximum energy
     //! and the number of grid cells.
     //! @since New in %Cantera 4.0
-    //! @param kTe_max: maximum grid energy in eV
-    //! @param ncell: number of cell to discretize the grid.
+    //! @param kTe_max maximum grid energy in eV
+    //! @param ncell number of cell to discretize the grid.
     void setQuadraticGrid(double kTe_max, size_t ncell);
 
     //! Sets a geometric energy grid for the EEDF solver, defined by the maximum energy
     //! and the number of grid cells.
     //! @since New in %Cantera 4.0
-    //! @param kTe_max: maximum grid energy in eV
-    //! @param ncell: number of cell to discretize the grid.
-    //! @param ratio: the geometric growth ratio.
+    //! @param kTe_max maximum grid energy in eV
+    //! @param ncell number of cell to discretize the grid.
+    //! @param ratio the geometric growth ratio.
     void setGeometricGrid(double kTe_max, size_t ncell, double ratio = 1.01);
 
     //! Sets a custom energy grid for the EEDF solver, defined by the user-provided
@@ -223,7 +223,7 @@ protected:
     //! Vector g is used by matrix_P() and matrix_Q().
     /**
      * \f[
-     * g_i = \frac{1}{\epsilon_{i+1} - \epsilon_{i-1}} \ln(\frac{F_{0, i+1}}{F_{0, i-1}})
+     * g_i = \frac{1}{\epsilon_{i+1} - \epsilon_{i-1}} \ln(\frac{F_{0, i-1}}{F_{0, i+1}})
      * \f]
      */
     vector<double> vector_g(const Eigen::VectorXd& f0);
@@ -369,6 +369,14 @@ protected:
     //! First call to calculateDistributionFunction
     bool m_first_call;
 
+    //! Flags indicating whether a negative reconstructed elastic cross-section warning
+    //! has been emitted for each species during the first EEDF calculation.
+    vector<bool> m_negativeElasticCrossSectionWarningsIssued;
+
+    //! Enable negative reconstructed elastic cross-section warnings during the first
+    //! EEDF calculation only.
+    bool m_negativeElasticCrossSectionWarningsEnabled = true;
+
     //! Energy grid spacing type. Can be linear, quadratic or geometric.
     string m_gridType = "linear";
 
@@ -417,6 +425,12 @@ protected:
     double linearInterpBounded(double x, span<const double> xpts,
                                span<const double> fpts, double below_value,
                                double above_value);
+
+    //! Linearly interpolate a cross section using constant extrapolation
+    //! outside the tabulated energy range.
+    double interpolateCrossSection(double energy,
+                                span<const double> energyLevels,
+                                span<const double> crossSections);
 
     //! The threshold in reduced electric field [townsend, Td] below which no EEDF will
     //! be computed, but a Maxwellian at the gas temperature will be imposed instead.

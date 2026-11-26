@@ -1729,83 +1729,497 @@ class Testlxcat2yaml:
         self.test_data_path = test_data_path
 
     def convert(self, inputFile=None, database=None, mechFile=None, phase=None,
-                insert=True, output=None):
+                insert=True, output=None, mappingFile=None):
         if inputFile is not None:
             inputFile = self.test_data_path / inputFile
         if mechFile is not None:
             mechFile = self.test_data_path / mechFile
+        if mappingFile is not None:
+            mappingFile = self.test_data_path / mappingFile
         if output is None:
             output = Path(inputFile).stem  # strip '.xml'
-        # output to work dir
-        output = self.test_work_path / output
 
-        lxcat2yaml.convert(inputFile, database, mechFile, phase, insert, output)
+        output = self.test_work_path / output
+        lxcat2yaml.convert(inputFile, database, mechFile, phase, insert, output,
+                           mappingFile)
         return output
 
+    @staticmethod
+    def get_collision(data, target, kind):
+        """Return the unique collision matching a target and collision kind."""
+        matches = [
+            collision
+            for collision in data["electron-collisions"]
+            if collision["target"] == target and collision["kind"] == kind
+        ]
+        assert len(matches) == 1
+        return matches[0]
+
     def test_mechanism_with_lxcat(self):
-        # get Solution from the mechanism file
         phase = "isotropic-electron-energy-plasma"
-        mechFile = "lxcat-test-convert.yaml"
-        gas1 = ct.Solution(self.test_data_path / mechFile,
-                           phase=phase, transport_model=None)
+        mech_file = "lxcat-test-convert.yaml"
 
-        # get a stand-alone collisions
-        standAloneFile = "stand-alone-lxcat.yaml"
-        self.convert(inputFile='lxcat-test-convert.xml', database="test",
-                     mechFile=mechFile, insert=False,
-                     output=standAloneFile)
+        gas1 = ct.Solution(self.test_data_path / mech_file, phase=phase,
+                           transport_model=None)
+        assert gas1.n_reactions == 2
 
-        # add collisions to the reaction list
-        rxn_list = ct.Reaction.list_from_file(self.test_work_path / standAloneFile,
-                                       gas1, section="collisions")
-        for R in rxn_list:
-            gas1.add_reaction(R)
+        # With no insertion, all imported entries remain collision-only.
+        stand_alone_file = self.convert(
+            inputFile="lxcat-test-convert.xml",
+            database="test",
+            mechFile=mech_file,
+            phase=phase,
+            insert=False,
+            output="stand-alone-lxcat.yaml",
+        )
+        stand_alone = load_yaml(stand_alone_file)
+        assert "reactions" not in stand_alone
+        assert len(stand_alone["electron-collisions"]) == 2
+        assert {collision["kind"] for collision in stand_alone["electron-collisions"]} == {
+            "ionization", "attachment"
+        }
+        for collision in stand_alone["electron-collisions"]:
+            assert collision["target"] == "O2"
+            assert "equation" not in collision
+            assert "name" not in collision
+            assert "collision" not in collision
+            assert collision["product"] in {"O2(Total Ionization)+", "O2-"}
 
-        # get Solution from the output file
-        output = "output-lxcat.yaml"
-        self.convert(inputFile="lxcat-test-convert.xml", database="test",
-                     mechFile=mechFile, insert=True,
-                     output=output)
-        gas2 = ct.Solution(self.test_work_path / output,
-                           phase=phase, transport_model=None)
+        output = self.convert(
+            inputFile="lxcat-test-convert.xml",
+            database="test",
+            mechFile=mech_file,
+            phase=phase,
+            insert=True,
+            output="output-lxcat.yaml",
+        )
+        output_data = load_yaml(output)
 
-        # check number of reactions
-        assert gas1.n_reactions == gas2.n_reactions == 4
-        for i in range(1, gas1.n_reactions):
-            assert (gas1.reaction(i).rate.energy_levels
-                    == approx(gas2.reaction(i).rate.energy_levels))
-            assert (gas1.reaction(i).rate.cross_sections
-                    == approx(gas2.reaction(i).rate.cross_sections))
+        # The original inline effective reaction is preserved.
+        electron_reactions = [
+            reaction for reaction in output_data["reactions"]
+            if reaction.get("type") == "electron-collision-plasma"
+        ]
+        assert len(electron_reactions) == 1
+
+        collisions = output_data["electron-collisions"]
+        assert len(collisions) == 2
+        assert {collision["kind"] for collision in collisions} == {
+            "ionization", "attachment"
+        }
+        for collision in collisions:
+            assert collision["type"] == "electron-collision-plasma"
+            assert "equation" in collision
+            assert "energy-levels" in collision
+            assert "cross-sections" in collision
+            assert "name" not in collision
+            assert "collision" not in collision
+            assert collision["product"] in {"O2(Total Ionization)+", "O2-"}
+
+        gas2 = ct.Solution(output, phase=phase, transport_model=None)
+        assert gas2.n_reactions == gas1.n_reactions + 2
+        assert gas2.n_reactions == 4
+        plasma_reactions = [
+            gas2.reaction(i) for i in range(gas2.n_reactions)
+            if gas2.reaction(i).reaction_type == "electron-collision-plasma"
+        ]
+        assert len(plasma_reactions) == 3
+        ionization = next(reaction for reaction in plasma_reactions
+                          if "O2(Total-Ionization)+" in reaction.products)
+        attachment = next(reaction for reaction in plasma_reactions
+                          if "O2-" in reaction.products)
+        assert ionization.rate.energy_levels == approx([15.0, 20.0])
+        assert ionization.rate.cross_sections == approx([0.0, 5.5e-22])
+        assert attachment.rate.energy_levels == approx([0.0, 1.0])
+        assert attachment.rate.cross_sections == approx([0.0, 1.0e-22])
 
     def test_stand_alone_lxcat(self):
-        outfile = "stand-alone-lxcat-without-mech.yaml"
-        self.convert(inputFile='lxcat-test-convert.xml',
-                     database="test", insert=False,
-                     output=outfile)
+        outfile = self.convert(
+            inputFile="lxcat-test-convert.xml",
+            database="test",
+            insert=False,
+            output="stand-alone-lxcat-without-mech.yaml",
+        )
+        data = load_yaml(outfile)
+        assert "reactions" not in data
+        assert len(data["electron-collisions"]) == 4
 
-        # get Solution from the input file
-        phase = "isotropic-electron-energy-plasma"
-        inputFile = "lxcat-test-convert-species.yaml"
-        gas = ct.Solution(self.test_data_path / inputFile,
-                           phase=phase, transport_model=None)
+        for collision in data["electron-collisions"]:
+            assert "target" in collision
+            assert "kind" in collision
+            assert "equation" not in collision
+            assert "name" not in collision
+            assert "collision" not in collision
+            assert "extrapolate-cross-sections" not in collision
 
-        # add collisions to the reaction list
-        rxn_list = ct.Reaction.list_from_file(self.test_work_path / outfile,
-                                              gas, section="collisions")
+        co2_elastic = self.get_collision(data, "CO2", "elastic")
+        assert co2_elastic["product"] == "none"
+        assert "note" not in co2_elastic
+        assert "threshold" not in co2_elastic
+        assert co2_elastic["energy-levels"] == approx([0.0, 1.0])
+        assert co2_elastic["cross-sections"] == approx([0.0, 1.0e-22])
 
-        # verify the data
-        assert len(rxn_list) == 3
-        assert rxn_list[0].equation == "CO2 + e => CO2 + e"
-        assert rxn_list[0].reaction_type == "electron-collision-plasma"
-        assert rxn_list[0].rate.energy_levels == approx([0.0, 1.0])
-        assert rxn_list[0].rate.cross_sections == approx([0.0, 1.0e-22])
+        co2_ionization = self.get_collision(data, "CO2", "ionization")
+        assert co2_ionization["product"] == "CO2(Total Ionization)+"
+        assert co2_ionization["threshold"] == approx(15.0)
+        assert co2_ionization["energy-levels"] == approx([15.0, 20.0])
+        assert co2_ionization["cross-sections"] == approx([0.0, 5.5e-22])
 
-        assert rxn_list[1].equation == "O2 + e => O2(Total-Ionization)+ + 2 e"
-        assert rxn_list[1].reaction_type == "electron-collision-plasma"
-        assert rxn_list[1].rate.energy_levels == approx([15., 20.])
-        assert rxn_list[1].rate.cross_sections == approx([0.0, 5.5e-22])
+        o2_ionization = self.get_collision(data, "O2", "ionization")
+        assert o2_ionization["product"] == "O2(Total Ionization)+"
+        assert o2_ionization["threshold"] == approx(15.0)
+        assert o2_ionization["energy-levels"] == approx([15.0, 20.0])
+        assert o2_ionization["cross-sections"] == approx([0.0, 5.5e-22])
 
-        assert rxn_list[2].equation == "O2 + e => O2-"
-        assert rxn_list[2].reaction_type == "electron-collision-plasma"
-        assert rxn_list[2].rate.energy_levels == approx([0.0, 1.0])
-        assert rxn_list[2].rate.cross_sections == approx([0.0, 1.0e-22])
+        o2_attachment = self.get_collision(data, "O2", "attachment")
+        assert o2_attachment["product"] == "O2-"
+        assert o2_attachment["threshold"] == approx(0.0)
+        assert o2_attachment["energy-levels"] == approx([0.0, 1.0])
+        assert o2_attachment["cross-sections"] == approx([0.0, 1.0e-22])
+
+    def test_lxcat_process_id_mapping_unsupported(self):
+        mapping = self.test_work_path / "lxcat-process-id-mapping.yaml"
+        mapping.write_text("processes: {excitation-001: Ar_excited}\n")
+        with pytest.raises(ValueError, match="Process ID mappings are not supported"):
+            lxcat2yaml.convert(
+                inpfile=self.test_data_path / "lxcat-test-convert.xml",
+                insert=False,
+                outfile=self.test_work_path / "rejected-process-id-mapping.yaml",
+                mappingfile=mapping,
+            )
+
+    def test_lxcat_11_phelps_stand_alone(self):
+        output = self.convert(
+            inputFile="lxcat-phelps-1.1.xml",
+            database="Phelps",
+            insert=False,
+            output="phelps-stand-alone.yaml",
+        )
+        data = load_yaml(output)
+        assert "reactions" not in data
+        assert len(data["electron-collisions"]) == 3
+
+        for collision in data["electron-collisions"]:
+            assert collision["target"] == "Ar"
+            assert "equation" not in collision
+            assert "name" not in collision
+            assert "collision" not in collision
+            assert "extrapolate-cross-sections" not in collision
+            assert collision["energy-levels"][-1] == approx(1.0e4)
+
+        effective = self.get_collision(data, "Ar", "effective")
+        assert effective["product"] == "Ar"
+        assert effective["note"] == "EFFECTIVE Momentum transfer CROSS SECTION."
+        assert "threshold" not in effective
+        assert len(effective["energy-levels"]) == 66
+        assert effective["energy-levels"][:2] == approx([0.0, 0.001])
+        assert effective["cross-sections"][:2] == approx([7.5e-20, 7.5e-20])
+        assert effective["cross-sections"][-1] == approx(1.75e-21)
+
+        excitation = self.get_collision(data, "Ar", "excitation")
+        assert excitation["product"] == "Ar*(11.5eV)"
+        assert excitation["note"] == (
+            "TOTAL Excitation LOW E SCHAPERT-SCHEIBNER, HI E UNKNOWN."
+        )
+        assert excitation["threshold"] == approx(11.5)
+        assert len(excitation["energy-levels"]) == 32
+        assert excitation["energy-levels"][:2] == approx([11.5, 12.7])
+        assert excitation["cross-sections"][:2] == approx([0.0, 7.0e-22])
+        assert excitation["cross-sections"][-1] == approx(3.5e-22)
+
+        ionization = self.get_collision(data, "Ar", "ionization")
+        assert ionization["product"] == "Ar^+"
+        assert ionization["note"] == "Ionization - RAPP-SCHRAM."
+        assert ionization["threshold"] == approx(15.8)
+        assert len(ionization["energy-levels"]) == 29
+        assert ionization["energy-levels"][:2] == approx([15.8, 16.0])
+        assert ionization["cross-sections"][:2] == approx([0.0, 2.02e-22])
+        assert ionization["cross-sections"][-1] == approx(1.35e-21)
+
+    def test_lxcat_11_phelps_insert_with_mapping(self):
+        # A minimal mechanism declares the ion and an aliased excited state.
+        mechanism = self.test_work_path / "argon-lxcat-input.yaml"
+        mechanism.write_text("""
+phases:
+- name: argon-plasma
+  thermo: plasma
+  elements: [Ar, E]
+  species: [E, Ar, Ar+, Ar_excited]
+  kinetics: gas
+  reactions: none
+  electron-energy-distribution:
+    type: isotropic
+    shape-factor: 1.0
+    mean-electron-energy: 1.0 eV
+    energy-levels: [0.0, 0.1, 1.0, 10.0, 100.0]
+species:
+- name: E
+  composition: {E: 1}
+  thermo: {model: constant-cp, T0: 300 K, cp0: 20.786 J/mol/K}
+- name: Ar
+  composition: {Ar: 1}
+  thermo: {model: constant-cp, T0: 300 K, cp0: 20.786 J/mol/K}
+- name: Ar+
+  composition: {Ar: 1, E: -1}
+  thermo: {model: constant-cp, T0: 300 K, cp0: 20.786 J/mol/K}
+- name: Ar_excited
+  composition: {Ar: 1}
+  thermo: {model: constant-cp, T0: 300 K, cp0: 20.786 J/mol/K}
+""")
+        mapping = self.test_work_path / "argon-lxcat-mapping.yaml"
+        mapping.write_text('products: {"Ar*(11.5eV)": Ar_excited}\n')
+
+        # Without a mapping, the unknown excited state stays EEDF-only.
+        unmapped_output = self.convert(
+            inputFile="lxcat-phelps-1.1.xml",
+            database="Phelps",
+            mechFile=mechanism,
+            phase="argon-plasma",
+            insert=True,
+            output="phelps-without-mapping.yaml",
+        )
+        unmapped_data = load_yaml(unmapped_output)
+        assert len(unmapped_data["electron-collisions"]) == 3
+        unmapped_excitation = next(
+            item for item in unmapped_data["electron-collisions"]
+            if item["kind"] == "excitation"
+        )
+        assert "equation" not in unmapped_excitation
+        assert unmapped_excitation["product"] == "Ar*(11.5eV)"
+        unmapped_gas = ct.Solution(unmapped_output, "argon-plasma",
+                                   transport_model=None)
+        assert unmapped_gas.n_reactions == 1
+
+        output = self.convert(
+            inputFile="lxcat-phelps-1.1.xml",
+            database="Phelps",
+            mechFile=mechanism,
+            phase="argon-plasma",
+            insert=True,
+            mappingFile=mapping,
+            output="phelps-with-mapping.yaml",
+        )
+        data = load_yaml(output)
+        assert len(data["electron-collisions"]) == 3
+
+        effective = next(item for item in data["electron-collisions"]
+                         if item["kind"] == "effective")
+        assert effective["target"] == "Ar"
+        assert effective["product"] == "Ar"
+        assert "equation" not in effective
+
+        excitation = next(item for item in data["electron-collisions"]
+                          if item["kind"] == "excitation")
+        assert "Ar_excited" in excitation["equation"]
+        assert excitation["product"] == "Ar*(11.5eV)"
+        assert excitation["note"] == (
+            "TOTAL Excitation LOW E SCHAPERT-SCHEIBNER, HI E UNKNOWN."
+        )
+        assert excitation["threshold"] == approx(11.5)
+
+        ionization = next(item for item in data["electron-collisions"]
+                          if item["kind"] == "ionization")
+        assert "Ar+" in ionization["equation"]
+        assert ionization["product"] == "Ar^+"
+        assert ionization["threshold"] == approx(15.8)
+
+        gas = ct.Solution(output, "argon-plasma", transport_model=None)
+        assert gas.n_reactions == 2
+        assert {reaction.reaction_type for reaction in gas.reactions()} == {
+            "electron-collision-plasma"
+        }
+
+    def test_lxcat_11_one_point_elastic_and_missing_product(self):
+        # Synthetic XML avoids redistributing an additional LXCat dataset.
+        xml = """<?xml version="1.0"?>
+<lxcat version="1.1"><Database id="unit-test"><Groups><Group id="Ar">
+<Processes><Process type="Elastic"><Species>
+<Reactant>e</Reactant><Reactant>Ar</Reactant><Product>E</Product>
+</Species><Comment>Single measured cross section.</Comment>
+<DataX units="eV">2.0</DataX><DataY units="m2">3e-20</DataY>
+</Process></Processes></Group></Groups></Database></lxcat>"""
+        input_file = self.test_work_path / "lxcat-one-point.xml"
+        input_file.write_text(xml)
+        output = self.test_work_path / "lxcat-one-point.yaml"
+        lxcat2yaml.convert(inpfile=input_file, insert=False, outfile=output)
+        collision = load_yaml(output)["electron-collisions"][0]
+        assert collision["kind"] == "elastic"
+        assert collision["target"] == "Ar"
+        assert collision["product"] == "none"
+        assert collision["note"] == "Single measured cross section."
+        assert collision["energy-levels"] == approx([0.0, 2.0])
+        assert collision["cross-sections"] == approx([3e-20, 3e-20])
+        assert "equation" not in collision
+
+    @pytest.mark.parametrize("energy_values, sections, message", [
+        ("1.0 1.0", "1e-20 2e-20", "strictly increasing"),
+        ("0.0 1.0", "1e-20 -2e-20", "non-negative"),
+        ("0.0 1.0", "1e-20", "same non-zero length"),
+    ])
+    def test_lxcat_11_invalid_cross_sections(self, energy_values, sections,
+                                             message):
+        xml = ("<lxcat version='1.1'><Database id='test'><Groups><Group>"
+               "<Processes><Process type='Effective'>"
+               "<Species><Reactant>e</Reactant><Reactant>Ar</Reactant>"
+               "<Product>E</Product><Product>Ar</Product></Species>"
+               f"<DataX units='eV'>{energy_values}</DataX>"
+               f"<DataY units='m2'>{sections}</DataY>"
+               "</Process></Processes></Group></Groups></Database></lxcat>")
+        infile = self.test_work_path / "invalid-lxcat.xml"
+        infile.write_text(xml)
+        with pytest.raises(lxcat2yaml.IncorrectXMLNode, match=message):
+            lxcat2yaml.convert(inpfile=infile, insert=False,
+                               outfile=self.test_work_path / "invalid-lxcat.yaml")
+
+    def test_lxcat_11_original_charge_label_and_note(self):
+        # Preserve the original LXCat charge notation and process comment.
+        xml = """<lxcat version="1.1"><Database id="test"><Groups><Group>
+<Processes><Process type="Ionization"><Species><Reactant>e</Reactant>
+<Reactant>Ar</Reactant><Product>E</Product><Product>E</Product>
+<Product>Ar^+</Product></Species><Parameters><E units="eV">15.8</E>
+</Parameters><Comment>Test ionization comment.</Comment>
+<DataX units="eV">15.8 16.0</DataX>
+<DataY units="m2">0 2e-22</DataY>
+</Process></Processes></Group></Groups></Database></lxcat>"""
+        infile = self.test_work_path / "lxcat-original-product.xml"
+        infile.write_text(xml)
+        outfile = self.test_work_path / "lxcat-original-product.yaml"
+        lxcat2yaml.convert(inpfile=infile, insert=False, outfile=outfile)
+        collision = load_yaml(outfile)["electron-collisions"][0]
+        assert collision["product"] == "Ar^+"
+        assert collision["note"] == "Test ionization comment."
+        assert "equation" not in collision
+
+
+
+    @staticmethod
+    def _lxcat11_xml(kind="Excitation", *, target="Ar", products="<Product>E</Product>",
+                     threshold="", x="1.0 2.0", y="0 1e-20",
+                     xunit="eV", yunit="m2", namespace=""):
+        return (f'<lxcat version="1.1" {namespace}><Database id="test">'
+                '<Groups><Group><Processes>'
+                f'<Process type="{kind}"><Species><Reactant>e</Reactant>'
+                f'<Reactant>{target}</Reactant>{products}</Species>'
+                f'<Parameters>{threshold}</Parameters>'
+                f'<DataX units="{xunit}">{x}</DataX>'
+                f'<DataY units="{yunit}">{y}</DataY>'
+                '</Process></Processes></Group></Groups></Database></lxcat>')
+
+    @pytest.mark.parametrize("kind, threshold", [
+        ("Excitation", 1.5), ("Ionization", 1.5),
+    ])
+    def test_lxcat_11_one_point_inelastic_threshold(self, kind, threshold):
+        # A single measured point becomes two points with zero sigma at onset.
+        infile = self.test_work_path / f"one-point-{kind}.xml"
+        infile.write_text(self._lxcat11_xml(
+            kind, threshold='<E units="eV">1.5</E>',
+            x="2.0", y="3e-21"))
+        outfile = self.test_work_path / f"one-point-{kind}.yaml"
+        lxcat2yaml.convert(inpfile=infile, insert=False, outfile=outfile)
+        collision = load_yaml(outfile)["electron-collisions"][0]
+        assert collision["kind"] == kind.lower()
+        assert collision["product"] == "none"
+        assert collision["threshold"] == approx(threshold)
+        assert collision["energy-levels"] == approx([1.5, 2.0])
+        assert collision["cross-sections"] == approx([0.0, 3e-21])
+
+    @pytest.mark.parametrize("field, units", [
+        ("energy", "keV"), ("section", "cm2"), ("threshold", "K"),
+    ])
+    def test_lxcat_11_rejects_invalid_units(self, field, units):
+        kwargs = {}
+        if field == "energy":
+            kwargs["xunit"] = units
+        elif field == "section":
+            kwargs["yunit"] = units
+        else:
+            kwargs["threshold"] = f'<E units="{units}">1.0</E>'
+        infile = self.test_work_path / f"invalid-units-{field}.xml"
+        infile.write_text(self._lxcat11_xml(**kwargs))
+        with pytest.raises(lxcat2yaml.IncorrectXMLNode, match="Expected units"):
+            lxcat2yaml.convert(
+                inpfile=infile, insert=False,
+                outfile=self.test_work_path / "invalid-units.yaml")
+
+    def test_lxcat_11_multiple_original_heavy_products(self):
+        # A dissociation can have multiple heavy products. Keep all original
+        # LXCat labels, even for collision-only conversion.
+        infile = self.test_work_path / "multiple-lxcat-products.xml"
+        infile.write_text(self._lxcat11_xml(
+            "Excitation", target="Ar2",
+            products="<Product>E</Product><Product>Ar</Product><Product>Ar</Product>",
+            threshold='<E units="eV">1.0</E>',
+            x="1.0 2.0", y="0 1e-20"))
+        outfile = self.test_work_path / "multiple-lxcat-products.yaml"
+        lxcat2yaml.convert(inpfile=infile, insert=False, outfile=outfile)
+        collision = load_yaml(outfile)["electron-collisions"][0]
+        assert collision["target"] == "Ar2"
+        assert collision["product"] == "Ar + Ar"
+        assert "equation" not in collision
+
+    def test_lxcat_11_xml_default_namespace(self):
+        # Namespaced LXCat exports need the same tags as the unqualified XML.
+        infile = self.test_work_path / "namespaced-lxcat.xml"
+        infile.write_text(self._lxcat11_xml(
+            "Effective", products="<Product>E</Product><Product>Ar</Product>",
+            namespace='xmlns="urn:lxcat:test"'))
+        outfile = self.test_work_path / "namespaced-lxcat.yaml"
+        lxcat2yaml.convert(inpfile=infile, insert=False, outfile=outfile)
+        collision = load_yaml(outfile)["electron-collisions"][0]
+        assert collision["target"] == "Ar"
+        assert collision["kind"] == "effective"
+        assert collision["product"] == "Ar"
+
+    def test_lxcat_11_database_id_filter(self):
+        # An absent --database imports both; selecting one uses its XML id.
+        first = self._lxcat11_xml("Elastic", target="Ar")
+        second = self._lxcat11_xml("Elastic", target="N2")
+        first = first.replace('id="test"', 'id="argon"')
+        second = second.replace('id="test"', 'id="nitrogen"')
+        # The XML container may hold several database nodes.
+        from xml.etree import ElementTree as ET
+        root = ET.Element("lxcat", {"version": "1.1"})
+        for document in (first, second):
+            root.append(ET.fromstring(document).find("Database"))
+        infile = self.test_work_path / "two-databases.xml"
+        infile.write_text(ET.tostring(root, encoding="unicode"))
+        all_out = self.test_work_path / "all-databases.yaml"
+        one_out = self.test_work_path / "one-database.yaml"
+        lxcat2yaml.convert(inpfile=infile, insert=False, outfile=all_out)
+        lxcat2yaml.convert(inpfile=infile, database="nitrogen", insert=False,
+                           outfile=one_out)
+        assert len(load_yaml(all_out)["electron-collisions"]) == 2
+        selected = load_yaml(one_out)["electron-collisions"]
+        assert len(selected) == 1
+        assert selected[0]["target"] == "N2"
+
+    def test_lxcat_11_one_point_at_zero_is_rejected(self):
+        infile = self.test_work_path / "zero-one-point.xml"
+        infile.write_text(self._lxcat11_xml(
+            "Elastic", x="0.0", y="3e-20"))
+        with pytest.raises(lxcat2yaml.IncorrectXMLNode, match="one-point"):
+            lxcat2yaml.convert(inpfile=infile, insert=False,
+                               outfile=self.test_work_path / "zero-one-point.yaml")
+
+    def test_lxcat_11_multiple_notes_are_preserved(self):
+        xml = self._lxcat11_xml("Effective", products="<Product>E</Product><Product>Ar</Product>")
+        xml = xml.replace('<DataX units="eV">',
+                          '<Comment>First scientific note.</Comment>'
+                          '<Notes>Second scientific note.</Notes><DataX units="eV">')
+        infile = self.test_work_path / "multiple-notes.xml"
+        infile.write_text(xml)
+        outfile = self.test_work_path / "multiple-notes.yaml"
+        lxcat2yaml.convert(inpfile=infile, insert=False, outfile=outfile)
+        collision = load_yaml(outfile)["electron-collisions"][0]
+        assert collision["note"] == "First scientific note.\nSecond scientific note."
+
+    @pytest.mark.parametrize("x, y", [
+        ("0.0 nan", "0 1e-20"),
+        ("0.0 1.0", "0 inf"),
+    ])
+    def test_lxcat_11_nonfinite_cross_sections_rejected(self, x, y):
+        infile = self.test_work_path / "nonfinite-lxcat.xml"
+        infile.write_text(self._lxcat11_xml("Effective", x=x, y=y))
+        with pytest.raises(lxcat2yaml.IncorrectXMLNode, match="finite"):
+            lxcat2yaml.convert(inpfile=infile, insert=False,
+                               outfile=self.test_work_path / "nonfinite.yaml")
