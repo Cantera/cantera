@@ -1,0 +1,13 @@
+   ELEM  H  C   AR  END
+
+SPECIES
+H
+R1A R1B P1
+END
+
+REACTIONS
+
+! Chemkin-Pro LOWMX mixing-rule keyword is not implemented
+R1A+R1B(+M) = P1+H(+M)          1.0E12   0.5   0.0
+  LOWMX /1.0E+20 -1.0 0.0/
+END
