@@ -1290,7 +1290,18 @@ class Parser:
         Tmin = Tmax = Pmin = Pmax = None  # Chebyshev parameters
         degreeT = degreeP = None
 
-        # Note that the subsequent lines could be in any order
+        # Note that the subsequent lines could be in any order. CHEMKIN-III allows
+        # multiple keywords on one auxiliary line, so each slash-delimited
+        # keyword/value pair is handled independently. Flag keywords (DUP, STICK,
+        # MWON, MWOFF) are detected on the whole line so a slash-free token such as
+        # "DUPLICATE STICK MWOFF" still works.
+        flag_keywords = ('dup', 'duplicate', 'stick', 'mwon', 'mwoff')
+        unsupported_keywords = {
+            'lowmx': 'LOWMX',
+            'troemx': 'TROEMX',
+            'highmx': 'HIGHMX',
+        }
+
         for line in lines[1:]:
             if not line.strip():
                 continue
@@ -1314,133 +1325,122 @@ class Parser:
                 parsed = True
                 reaction.duplicate = True
 
-            if 'low' in line.lower():
-                # Low-pressure-limit Arrhenius parameters for "falloff" reaction
-                parsed = True
-                tokens = tokens[1].split()
-                low_rate = Arrhenius(
-                    A=(float(tokens[0].strip()), klow_units),
-                    b=float(tokens[1].strip()),
-                    Ea=(float(tokens[2].strip()), energy_units),
-                    parser=self
-                )
+            for raw_key, raw_value in zip(tokens[0::2], tokens[1::2]):
+                key_parts = raw_key.split()
+                if not key_parts:
+                    continue
+                # The keyword is the token immediately preceding the '/'. Extra
+                # slash-free flags (for example DUP LOW /.../) stay on this field.
+                key_orig = key_parts[-1]
+                key = key_orig.lower()
+                value = raw_value.strip()
+                if key in flag_keywords:
+                    parsed = True
+                    continue
+                if key in unsupported_keywords:
+                    parsed = True
+                    label = unsupported_keywords[key]
+                    logger.error(self.entry("reaction") +
+                        f"Unsupported Chemkin-Pro keyword '{label}'. Mixing-rule "
+                        "parameters such as LOWMX/TROEMX are not implemented.")
+                    continue
 
-            elif 'high' in line.lower():
-                # High-pressure-limit Arrhenius parameters for "chemically
-                # activated" reaction
                 parsed = True
-                tokens = tokens[1].split()
-                high_rate = Arrhenius(
-                    A=(float(tokens[0].strip()), kunits),
-                    b=float(tokens[1].strip()),
-                    Ea=(float(tokens[2].strip()), energy_units),
-                    parser=self
-                )
-                # Need to fix units on the base reaction:
-                arrhenius.A = (arrhenius.A[0], klow_units)
-
-            elif 'rev' in line.lower():
-                parsed = True
-                reaction.reversible = False
-                tokens = tokens[1].split()
-                # If the A factor in the rev line is zero, don't create the reverse reaction
-                if float(tokens[0].strip()) != 0.0:
-                    # Create a reaction proceeding in the opposite direction
-                    revReaction = Reaction(reactants=reaction.products,
-                                           products=reaction.reactants,
-                                           third_body=reaction.third_body,
-                                           reversible=False)
-
-                    rev_rate = Arrhenius(
-                        A=(float(tokens[0].strip()), klow_units),
-                        b=float(tokens[1].strip()),
-                        Ea=(float(tokens[2].strip()), energy_units),
+                values = value.split()
+                if key == 'low':
+                    # Low-pressure-limit Arrhenius parameters for "falloff" reaction
+                    low_rate = Arrhenius(
+                        A=(float(values[0].strip()), klow_units),
+                        b=float(values[1].strip()),
+                        Ea=(float(values[2].strip()), energy_units),
                         parser=self
                     )
-                    if third_body:
-                        revReaction.kinetics = ThreeBody(rev_rate)
+                elif key == 'high':
+                    # High-pressure-limit Arrhenius parameters for "chemically
+                    # activated" reaction
+                    high_rate = Arrhenius(
+                        A=(float(values[0].strip()), kunits),
+                        b=float(values[1].strip()),
+                        Ea=(float(values[2].strip()), energy_units),
+                        parser=self
+                    )
+                    # Need to fix units on the base reaction:
+                    arrhenius.A = (arrhenius.A[0], klow_units)
+                elif key == 'rev':
+                    reaction.reversible = False
+                    # If the A factor in the rev line is zero, don't create the
+                    # reverse reaction
+                    if float(values[0].strip()) != 0.0:
+                        # Create a reaction proceeding in the opposite direction
+                        revReaction = Reaction(reactants=reaction.products,
+                                               products=reaction.reactants,
+                                               third_body=reaction.third_body,
+                                               reversible=False)
+
+                        rev_rate = Arrhenius(
+                            A=(float(values[0].strip()), klow_units),
+                            b=float(values[1].strip()),
+                            Ea=(float(values[2].strip()), energy_units),
+                            parser=self
+                        )
+                        if third_body:
+                            revReaction.kinetics = ThreeBody(rev_rate)
+                        else:
+                            revReaction.kinetics = ElementaryRate(rev_rate)
+                elif key == 'ford':
+                    reaction.forward_orders[values[0].strip()] = float(values[1])
+                elif key == 'troe':
+                    # Troe falloff parameters
+                    falloff = Troe(
+                        A=float(values[0].strip()),
+                        T3=float(values[1].strip()),
+                        T1=float(values[2].strip()),
+                        T2=float(values[3].strip()) if len(values) > 3 else None)
+                elif key == 'sri':
+                    # SRI falloff parameters
+                    sri_A = float(values[0].strip())
+                    sri_B = float(values[1].strip())
+                    sri_C = float(values[2].strip())
+                    try:
+                        sri_D = float(values[3].strip())
+                        sri_E = float(values[4].strip())
+                    except (IndexError, ValueError):
+                        sri_D = None
+                        sri_E = None
+
+                    if sri_D is None or sri_E is None:
+                        falloff = Sri(A=sri_A, B=sri_B, C=sri_C)
                     else:
-                        revReaction.kinetics = ElementaryRate(rev_rate)
-
-            elif 'ford' in line.lower():
-                parsed = True
-                tokens = tokens[1].split()
-                reaction.forward_orders[tokens[0].strip()] = float(tokens[1])
-
-            elif 'troe' in line.lower():
-                # Troe falloff parameters
-                parsed = True
-                tokens = tokens[1].split()
-                falloff = Troe(A=float(tokens[0].strip()),
-                               T3=float(tokens[1].strip()),
-                               T1=float(tokens[2].strip()),
-                               T2=float(tokens[3].strip()) if len(tokens) > 3 else None)
-            elif 'sri' in line.lower():
-                # SRI falloff parameters
-                parsed = True
-                tokens = tokens[1].split()
-                A = float(tokens[0].strip())
-                B = float(tokens[1].strip())
-                C = float(tokens[2].strip())
-                try:
-                    D = float(tokens[3].strip())
-                    E = float(tokens[4].strip())
-                except (IndexError, ValueError):
-                    D = None
-                    E = None
-
-                if D is None or E is None:
-                    falloff = Sri(A=A, B=B, C=C)
+                        falloff = Sri(A=sri_A, B=sri_B, C=sri_C, D=sri_D, E=sri_E)
+                elif key == 'cov':
+                    coverages.append(
+                        [values[0], fortFloat(values[1]), fortFloat(values[2]),
+                         fortFloat(values[3])])
+                elif key == 'tcheb':
+                    Tmin = float(values[0].strip())
+                    Tmax = float(values[1].strip())
+                elif key == 'pcheb':
+                    Pmin = (float(values[0].strip()), 'atm')
+                    Pmax = (float(values[1].strip()), 'atm')
+                elif key == 'cheb':
+                    if degreeT is None or degreeP is None:
+                        degreeT = int(float(values[0].strip()))
+                        degreeP = int(float(values[1].strip()))
+                        cheb_coeffs.extend([float(t.strip()) for t in values[2:]])
+                    else:
+                        cheb_coeffs.extend([float(t.strip()) for t in values])
+                elif key == 'plog':
+                    # Pressure-dependent Arrhenius parameters
+                    third_body = False  # strip optional third-body collider
+                    pdep_arrhenius.append([float(values[0].strip()), Arrhenius(
+                        A=(float(values[1].strip()), kunits),
+                        b=float(values[2].strip()),
+                        Ea=(float(values[3].strip()), energy_units),
+                        parser=self
+                    )])
                 else:
-                    falloff = Sri(A=A, B=B, C=C, D=D, E=E)
-
-            elif 'cov' in line.lower():
-                parsed = True
-                C = tokens[1].split()
-                coverages.append(
-                    [C[0], fortFloat(C[1]), fortFloat(C[2]), fortFloat(C[3])])
-
-            elif 'cheb' in line.lower():
-                # Chebyshev parameters
-                parsed = True
-                tokens = [t.strip() for t in tokens]
-                if contains(tokens, 'TCHEB'):
-                    index = get_index(tokens, 'TCHEB')
-                    tokens2 = tokens[index+1].split()
-                    Tmin = float(tokens2[0].strip())
-                    Tmax = float(tokens2[1].strip())
-                if contains(tokens, 'PCHEB'):
-                    index = get_index(tokens, 'PCHEB')
-                    tokens2 = tokens[index+1].split()
-                    Pmin = (float(tokens2[0].strip()), 'atm')
-                    Pmax = (float(tokens2[1].strip()), 'atm')
-                if contains(tokens, 'TCHEB') or contains(tokens, 'PCHEB'):
-                    pass
-                elif degreeT is None or degreeP is None:
-                    tokens2 = tokens[1].split()
-                    degreeT = int(float(tokens2[0].strip()))
-                    degreeP = int(float(tokens2[1].strip()))
-                    cheb_coeffs.extend([float(t.strip()) for t in tokens2[2:]])
-                else:
-                    tokens2 = tokens[1].split()
-                    cheb_coeffs.extend([float(t.strip()) for t in tokens2])
-
-            elif 'plog' in line.lower():
-                # Pressure-dependent Arrhenius parameters
-                parsed = True
-                third_body = False # strip optional third-body collider
-                tokens = tokens[1].split()
-                pdep_arrhenius.append([float(tokens[0].strip()), Arrhenius(
-                    A=(float(tokens[1].strip()), kunits),
-                    b=float(tokens[2].strip()),
-                    Ea=(float(tokens[3].strip()), energy_units),
-                    parser=self
-                )])
-            elif len(tokens) >= 2:
-                # Assume a list of collider efficiencies
-                parsed = True
-                for collider, efficiency in zip(tokens[0::2], tokens[1::2]):
-                    efficiencies[collider.strip()] = float(efficiency.strip())
+                    # Assume a collider efficiency
+                    efficiencies[key_orig] = float(value)
 
             if not parsed:
                 logger.error(self.entry("reaction") + f"Unparsable line: '{line}'.")

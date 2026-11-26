@@ -21,6 +21,7 @@ update, please report on Cantera's
 - **Paul Blum** [@paulblum](https://github.com/paulblum)
 - **Tilman Bremer**
 - **Victor Brunini** [@vbrunini](https://github.com/vbrunini) - Sandia National Laboratory
+- **Charles** [@CharlesXmf](https://github.com/CharlesXmf)
 - **Bang-Shiuh Chen** [@BangShiuh](https://github.com/BangShiuh) - Purdue University
 - **Jeffery Chen** [@GiantWizard](https://github.com/GiantWizard)
 - **Parker Clayton** [@parkerclayton](https://github.com/parkerclayton)

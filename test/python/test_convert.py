@@ -403,6 +403,49 @@ class Testck2yaml:
         assert "R1A+R1B(+M) <=> H+P1(+M)" in captured.out
         assert "could not convert string to float" in captured.out
 
+    def test_troe_one_line_matches_two_lines(self):
+        # CHEMKIN-III allows LOW and TROE on the same auxiliary line
+        one = self.convert("troe-one-line.inp", thermo="dummy-thermo.dat")
+        two = self.convert("troe-two-lines.inp", thermo="dummy-thermo.dat")
+        yaml_one = load_yaml(one)
+        yaml_two = load_yaml(two)
+        assert yaml_one["reactions"] == yaml_two["reactions"]
+        rxn = yaml_one["reactions"][0]
+        assert rxn["type"] == "falloff"
+        assert rxn["Troe"] == {"A": 0.5, "T3": 100.0, "T1": 2000.0, "T2": 5000.0}
+        assert rxn["low-P-rate-constant"]["A"] == 1.0e20
+        assert rxn["low-P-rate-constant"]["b"] == -1.0
+        assert rxn["high-P-rate-constant"]["A"] == 1.0e12
+        assert rxn["high-P-rate-constant"]["b"] == 0.5
+        assert rxn["efficiencies"] == {"AR": 0.7, "R3": 2.0}
+        ref, gas = self.checkConversion(two, one)
+        self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
+
+    @pytest.mark.parametrize("input_file, keyword", [
+        ("lowmx.inp", "LOWMX"),
+        ("troemx.inp", "TROEMX"),
+    ])
+    def test_chemkin_pro_mixing_keywords(self, input_file, keyword):
+        with pytest.raises(ck2yaml.InputError):
+            self.convert(input_file, thermo="dummy-thermo.dat")
+        captured = self._capsys.readouterr()
+        assert f"Unsupported Chemkin-Pro keyword '{keyword}'" in captured.out
+        assert "LOWMX/TROEMX" in captured.out
+
+    def test_existing_falloff_fixtures(self):
+        sri = self.convert("sri-falloff.inp", thermo="dummy-thermo.dat")
+        sri_yaml = load_yaml(sri)
+        assert sri_yaml["reactions"][0]["SRI"]["A"] == 0.54
+        assert sri_yaml["reactions"][1]["SRI"]["E"] == 0.7
+        ref, gas = self.checkConversion("sri-falloff.yaml", sri)
+        self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
+
+        troe = self.convert("third_body_plus_falloff_reaction.inp")
+        troe_yaml = load_yaml(troe)
+        assert troe_yaml["reactions"][1]["Troe"]["A"] == 0.562
+        gas = ct.Solution(troe)
+        assert gas.n_reactions == 2
+
     def test_invalid_reaction_equation(self):
         with pytest.raises(ck2yaml.InputError):
             self.convert('invalid-equation.inp', thermo='dummy-thermo.dat')
