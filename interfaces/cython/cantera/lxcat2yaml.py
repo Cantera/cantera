@@ -29,7 +29,7 @@ import math
 import sys
 import textwrap
 import xml.etree.ElementTree as etree
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Iterable, MutableMapping, Sequence
 from pathlib import Path
 from typing import TypeAlias, TypeVar, cast
 
@@ -191,7 +191,7 @@ def _process_threshold(process: etree.Element) -> float | None:
     return None
 
 
-def _load_product_mapping(mappingfile: str | Path | None) -> dict:
+def _load_product_mapping(mappingfile: str | Path | None) -> dict[str, dict[str, str]]:
     if mappingfile is None:
         return {"products": {}}
     data = yaml.YAML(typ="safe").load(Path(mappingfile).read_text()) or {}
@@ -267,7 +267,7 @@ def _prepare_cross_sections(process: etree.Element, kind: str,
     return Flowlist(energy_levels), Flowlist(cross_sections)
 
 
-def _enable_electron_reactions(phase_node: Mapping) -> None:
+def _enable_electron_reactions(phase_node: MutableMapping[str, object]) -> None:
     """Make reactive electron collisions available without changing other reactions."""
     selection = phase_node.get("reactions", "none")
     if selection in ("all", "declared-species"):
@@ -383,7 +383,7 @@ def registerProcess(process: etree.Element,
                     process_list: list[Process] | None,
                     gas: OptionalSolutionType,
                     insert: bool = False,
-                    mapping: dict | None = None) -> None:
+                    mapping: dict[str, dict[str, str]] | None = None) -> None:
     """Add a collision, optionally with a reaction equation, to the output."""
     mapping = mapping or {"products": {}}
     electron_name = gas.electron_species_name if gas is not None else "e"
