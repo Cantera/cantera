@@ -21,37 +21,28 @@ module LibCantera
 
 export libcantera
 
+include("library_names.jl")
+
 """
     find_library() -> String
 
 Locate the Cantera shared library.  Search order:
 
  1. `\$CANTERA_LIBRARY_PATH` (a directory or a full path to the library);
- 2. `\$CONDA_PREFIX/lib` for a conda-installed Cantera;
+ 2. `\$CONDA_PREFIX/lib` (and `\$CONDA_PREFIX\\Library\\bin` on Windows) for a
+    conda-installed Cantera;
  3. a sibling Cantera build tree (`../../../build/lib`);
- 4. the system loader's default search path (`libcantera`).
+ 4. the system loader's default search path (`libcantera`, or `cantera_shared`
+    on Windows).
 
-Throws an informative error if nothing is found.
+The accepted file names depend on the platform; see [`library_names`](@ref).
 """
 function find_library()
-    # Installed names first, then the in-tree build-tree name (libcantera_shared).
-    names = ["libcantera.so", "libcantera.dylib", "libcantera.dll",
-             "libcantera.so.3", "libcantera_shared.so", "libcantera_shared.dylib",
-             "libcantera_shared.dll", "cantera"]
-
     function probe(dir)
         isdir(dir) || return nothing
-        for n in names
-            p = joinpath(dir, n)
-            isfile(p) && return p
-        end
-        # also accept versioned sonames like libcantera.so.3.2.0
-        for f in readdir(dir)
-            startswith(f, "libcantera") && occursin(".so", f) && return joinpath(dir, f)
-            startswith(f, "libcantera") && endswith(f, ".dylib") &&
-                return joinpath(dir, f)
-        end
-        return nothing
+        files = filter(f -> isfile(joinpath(dir, f)), readdir(dir))
+        hit = pick_library(files)
+        return hit === nothing ? nothing : joinpath(dir, hit)
     end
 
     if haskey(ENV, "CANTERA_LIBRARY_PATH")
@@ -61,17 +52,13 @@ function find_library()
         hit === nothing || return hit
     end
 
-    dirs = String[]
-    haskey(ENV, "CONDA_PREFIX") && push!(dirs, joinpath(ENV["CONDA_PREFIX"], "lib"))
-    push!(dirs, normpath(joinpath(@__DIR__, "..", "..", "..", "build", "lib")))
-    append!(dirs, ["/usr/local/lib", "/usr/lib"])
-    for d in dirs
+    for d in library_search_dirs()
         hit = probe(d)
         hit === nothing || return hit
     end
 
     # Fall back to the loader's search path; dlopen will error if truly missing.
-    return "libcantera"
+    return fallback_library_name()
 end
 
 # Resolved at runtime in `__init__` (below), NOT baked into the precompile image
