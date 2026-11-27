@@ -643,6 +643,38 @@ class TestFreeFlame:
             fwd = (Suplus-Suminus)/(2*Su0*dk)
             assert fwd == approx(dSdk_adj[m], rel=5e-3, abs=1e-7)
 
+    def test_adjoint_sensitivities_non_unit_multiplier(self):
+        self.run_mix(phi=0.5, T=300, width=0.1, p=1.0, refine=True)
+        self.sim.flame.set_steady_tolerances(default=(1e-10, 1e-15))
+
+        zero_rxn = self.gas.n_reactions - 1
+        multipliers = {0: 2.0, 1: 0.5, zero_rxn: 0.0}
+        for m, mult in multipliers.items():
+            self.gas.set_multiplier(mult, m)
+        self.sim.solve(loglevel=0, refine_grid=False)
+
+        dSdk_adj = self.sim.get_flame_speed_reaction_sensitivities()
+
+        for m in range(self.gas.n_reactions):
+            expected_mult = multipliers.get(m, 1.0)
+            assert self.gas.multiplier(m) == approx(expected_mult)
+        assert dSdk_adj[zero_rxn] == 0.0
+
+        dk = 1e-4
+        Su0 = self.sim.velocity[0]
+        for m, mult in multipliers.items():
+            if mult == 0.0:
+                continue
+            self.gas.set_multiplier(mult * (1 + dk), m)
+            self.sim.solve(loglevel=0, refine_grid=False)
+            Suplus = self.sim.velocity[0]
+            self.gas.set_multiplier(mult * (1 - dk), m)
+            self.sim.solve(loglevel=0, refine_grid=False)
+            Suminus = self.sim.velocity[0]
+            self.gas.set_multiplier(mult, m)
+            fwd = (Suplus - Suminus) / (2 * Su0 * dk)
+            assert fwd == approx(dSdk_adj[m], rel=5e-3, abs=1e-7)
+
     def test_jacobian_options(self):
         reactants = {'H2': 0.65, 'O2': 0.5, 'AR': 2}
         self.create_sim(p=ct.one_atm, Tin=300, reactants=reactants, width=0.03)

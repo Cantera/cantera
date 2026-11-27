@@ -909,9 +909,10 @@ class FreeFlame(FlameBase):
         dgdx[i_Su] = 1
 
         Su0 = g(self)
+        multipliers = [self.gas.multiplier(i) for i in range(self.gas.n_reactions)]
 
         def perturb(sim: FreeFlame, i: int, dp: float) -> None:
-            sim.gas.set_multiplier(1+dp, i)
+            sim.gas.set_multiplier(multipliers[i] * (1 + dp), i)
 
         # `perturb`'s first parameter is narrowed to `FreeFlame` (the only type
         # actually passed here), which is compatible at runtime but not under
