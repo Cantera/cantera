@@ -1254,11 +1254,8 @@ class metal(phase):
         phase.__init__(self, name, elements, species, note, 'none',
                        initial_state, options)
         self.thermo_model = 'electron-cloud'
-        self.density = density
-
-    def get_yaml(self, out):
-        super().get_yaml(out)
-        out['density'] = applyUnits(self.density)
+        # 'density' is still accepted for compatibility with existing input
+        # files, but is not converted: it is deprecated for electron-cloud phases
 
 
 class liquid_vapor(phase):
