@@ -94,7 +94,7 @@ TEST_F(ThermoToYaml, Metal)
 {
     setup("thermo-models.yaml", "Metal");
     EXPECT_EQ(data["thermo"], "electron-cloud");
-    EXPECT_DOUBLE_EQ(data["density"].asDouble(), 9.0);
+    EXPECT_FALSE(data.hasKey("density"));
 }
 
 TEST_F(ThermoToYaml, PureFluid)

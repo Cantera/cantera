@@ -116,13 +116,12 @@ public:
 
     void initThermo() override {
         if (m_input.hasKey("density")) {
+            warn_deprecated("MetalPhase::initThermo",
+                "The 'density' field for 'electron-cloud' phases is deprecated "
+                "and no longer affects the phase's properties; the molar volume "
+                "is zero. To be removed after Cantera 4.0.");
             assignDensity(m_input.convert("density", "kg/m^3"));
         }
-    }
-
-    void getParameters(AnyMap& phaseNode) const override {
-        ThermoPhase::getParameters(phaseNode);
-        phaseNode["density"].setQuantity(density(), "kg/m^3");
     }
 
 private:

@@ -427,8 +427,16 @@ TEST(ThermoFromYaml, IdealSolidSolnPhase)
 TEST(ThermoFromYaml, Metal)
 {
     auto thermo = newThermo("thermo-models.yaml", "Metal");
-    EXPECT_DOUBLE_EQ(thermo->density(), 9.0);
+    EXPECT_DOUBLE_EQ(thermo->molarVolume(), 0.0);
     EXPECT_DOUBLE_EQ(thermo->gibbs_mass(), 0.0);
+}
+
+TEST(ThermoFromYaml, MetalDeprecatedDensity)
+{
+    // 'density' is deprecated for electron-cloud phases; deprecation
+    // warnings are fatal in this test suite
+    EXPECT_THROW(newThermo("thermo-models.yaml", "Metal-deprecated-density"),
+        CanteraError);
 }
 
 TEST(ThermoFromYaml, BinarySolutionTabulatedThermo)

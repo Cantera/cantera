@@ -241,6 +241,11 @@ phases:
 - name: Metal
   thermo: electron-cloud
   species: ["electron"]
+  state: {T: 1073.15, P: 1 atm}
+
+- name: Metal-deprecated-density
+  thermo: electron-cloud
+  species: ["electron"]
   density: 9 kg/m^3
   state: {T: 1073.15, P: 1 atm}
 
