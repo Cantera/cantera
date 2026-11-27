@@ -32,12 +32,13 @@ public:
     bool isCompressible() const override {
         return false;
     }
-
-    double enthalpy_mole() const override {
+    //! The electron cloud adds no volume of its own; any volume change of the
+    //! electrode belongs to the host phase's equation of state.
+    double molarVolume() const override {
         return 0.0;
     }
-    double intEnergy_mole() const override {
-        return - pressure() * molarVolume();
+    double enthalpy_mole() const override {
+        return 0.0;
     }
     double entropy_mole() const override {
         return 0.0;
@@ -88,9 +89,16 @@ public:
             c[n] = 1.0;
         }
     }
+
     void getPartialMolarEnthalpies(span<double> h) const override {
         for (size_t n = 0; n < nSpecies(); n++) {
             h[n] = 0.0;
+        }
+    }
+
+    void getPartialMolarVolumes(span<double> vbar) const override {
+        for (size_t n = 0; n < nSpecies(); n++) {
+            vbar[n] = 0.0;
         }
     }
 
@@ -108,13 +116,12 @@ public:
 
     void initThermo() override {
         if (m_input.hasKey("density")) {
+            warn_deprecated("MetalPhase::initThermo",
+                "The 'density' field for 'electron-cloud' phases is deprecated "
+                "and no longer affects the phase's properties; the molar volume "
+                "is zero. To be removed after Cantera 4.0.");
             assignDensity(m_input.convert("density", "kg/m^3"));
         }
-    }
-
-    void getParameters(AnyMap& phaseNode) const override {
-        ThermoPhase::getParameters(phaseNode);
-        phaseNode["density"].setQuantity(density(), "kg/m^3");
     }
 
 private:

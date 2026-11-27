@@ -105,10 +105,6 @@ electron-cloud:
   setup:
     file: thermo-models.yaml
     phase: Metal
-    known-failures:
-      v_eq_dgdP_const_T: Problematic handling of "density"; See GitHub Issue #2131.
-      dhdP_const_T_eq_v_minus_T_dvdT_const_P: >-
-        Problematic handling of "density"; See GitHub Issue #2131.
   states:
   - {T: 300, P: 1 atm}
   - {T: 400, P: 1 atm}

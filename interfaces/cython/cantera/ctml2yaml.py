@@ -642,8 +642,9 @@ class Phase:
             if node.tag == "site_density":
                 self.attribs["site-density"] = get_float_or_quantity(node)
             elif node.tag == "density":
-                if self.attribs["thermo"] == "electron-cloud":
-                    self.attribs["density"] = get_float_or_quantity(node)
+                # 'density' is deprecated for electron-cloud phases and is not
+                # converted; other phase types don't use this field
+                pass
             elif node.tag == "tabulatedSpecies":
                 self.attribs["tabulated-species"] = node.get("name")
             elif node.tag == "tabulatedThermo":

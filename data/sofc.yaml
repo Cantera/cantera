@@ -105,7 +105,6 @@ phases:
   state:
     T: 1073.15
     X: {electron: 1.0}
-  density: 9.0 kg/m^3
 - name: oxide_bulk
   thermo: ideal-condensed
   elements: [O, E]

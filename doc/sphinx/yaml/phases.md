@@ -431,9 +431,9 @@ A phase representing an electron cloud, such as conduction electrons in a metal,
 as {ct}`described here <MetalPhase>`.
 
 Additional fields:
-
 `density`
-: The density of the bulk metal
+: The density of the bulk metal. Deprecated and no longer used; the electron
+  cloud has zero molar volume. To be removed after Cantera 4.0.
 
 Example:
 
@@ -445,7 +445,6 @@ Example:
   state:
     T: 1073.15
     X: {electron: 1.0}
-  density: 9 g/cm^3
 ```
 
 (sec-yaml-fixed-stoichiometry)=

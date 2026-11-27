@@ -146,7 +146,6 @@ phases:
   species: [electron]
   state:
     X: {electron: 1.0}
-  density: 1.0 kg/m^3
 - name: edge_anode_electrolyte
   thermo: ideal-surface
   adjacent-phases: [anode, electron, electrolyte]
